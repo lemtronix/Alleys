@@ -1,3 +1,5 @@
+package view;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
@@ -11,7 +13,7 @@ public class MainFrame extends JFrame
         
         setLayout(new BorderLayout());
         
-        add(new Game(), BorderLayout.CENTER);
+        add(new BoardComponent(), BorderLayout.CENTER);
         
         setMinimumSize(new Dimension(500, 400));
         setSize(500, 400);
