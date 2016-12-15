@@ -2,20 +2,23 @@ package model;
 
 import java.util.Arrays;
 
-public class Deck {
+public class Deck
+{
     public static final int MaxNumberOfCardsInDeck = 52;
-    
+
     private Card[] _Deck = new Card[MaxNumberOfCardsInDeck];
     private boolean[] _CardDealt = new boolean[MaxNumberOfCardsInDeck];
-    
+
     private int NumberOfCardsInDeck = MaxNumberOfCardsInDeck;
+
+    // TODO: Move to DeckSpy
     private int RandomCardAttemptCounter = 0;
-    
+
     public Deck()
     {
-        // Mark the array as 
+        // Mark the array as
         Arrays.fill(_CardDealt, false);
-        
+
         // Clubs
         _Deck[0] = new Card(CardValue.Ace, CardSuit.Clubs);
         _Deck[1] = new Card(CardValue.Two, CardSuit.Clubs);
@@ -30,7 +33,7 @@ public class Deck {
         _Deck[10] = new Card(CardValue.Jack, CardSuit.Clubs);
         _Deck[11] = new Card(CardValue.Queen, CardSuit.Clubs);
         _Deck[12] = new Card(CardValue.King, CardSuit.Clubs);
-        
+
         // Diamonds
         _Deck[13] = new Card(CardValue.Ace, CardSuit.Diamonds);
         _Deck[14] = new Card(CardValue.Two, CardSuit.Diamonds);
@@ -45,7 +48,7 @@ public class Deck {
         _Deck[23] = new Card(CardValue.Jack, CardSuit.Diamonds);
         _Deck[24] = new Card(CardValue.Queen, CardSuit.Diamonds);
         _Deck[25] = new Card(CardValue.King, CardSuit.Diamonds);
-        
+
         // Hearts
         _Deck[26] = new Card(CardValue.Ace, CardSuit.Hearts);
         _Deck[27] = new Card(CardValue.Two, CardSuit.Hearts);
@@ -60,7 +63,7 @@ public class Deck {
         _Deck[36] = new Card(CardValue.Jack, CardSuit.Hearts);
         _Deck[37] = new Card(CardValue.Queen, CardSuit.Hearts);
         _Deck[38] = new Card(CardValue.King, CardSuit.Hearts);
-        
+
         // Spades
         _Deck[39] = new Card(CardValue.Ace, CardSuit.Spades);
         _Deck[40] = new Card(CardValue.Two, CardSuit.Spades);
@@ -76,31 +79,31 @@ public class Deck {
         _Deck[50] = new Card(CardValue.Queen, CardSuit.Spades);
         _Deck[51] = new Card(CardValue.King, CardSuit.Spades);
     }
-    
+
     public Card GetRandomCard()
     {
         Card CardToDeal = null;
-        
+
         if (NumberOfCardsInDeck > 0)
         {
             while (CardToDeal == null)
             {
-                int CardIndex = (int)(Math.random()*MaxNumberOfCardsInDeck);
-                
+                int CardIndex = (int) (Math.random() * MaxNumberOfCardsInDeck);
+
                 if (_CardDealt[CardIndex] == false)
                 {
                     CardToDeal = _Deck[CardIndex];
                     _CardDealt[CardIndex] = true;
                     NumberOfCardsInDeck--;
                 }
-                
+
                 RandomCardAttemptCounter++;
             }
         }
-        
+
         return CardToDeal;
     }
-    
+
     public boolean AnyCardsLeft()
     {
         if (NumberOfCardsInDeck > 0)
@@ -112,20 +115,20 @@ public class Deck {
             return false;
         }
     }
-    
+
     protected void ListCards()
     {
         int Count = 0;
-        
-        for (int i=0; i<MaxNumberOfCardsInDeck; i++)
+
+        for (int i = 0; i < MaxNumberOfCardsInDeck; i++)
         {
             Count++;
             System.out.println(_Deck[i].toString());
         }
-        
+
         System.out.println(Count + " cards in the deck");
     }
-    
+
     protected int GetNumberOfAttemptsToClearDeck()
     {
         return RandomCardAttemptCounter;
