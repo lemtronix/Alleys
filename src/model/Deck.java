@@ -5,11 +5,11 @@ import java.util.Arrays;
 public class Deck {
     public static final int MaxNumberOfCardsInDeck = 52;
     
-    Card[] _Deck = new Card[MaxNumberOfCardsInDeck];
-    boolean[] _CardDealt = new boolean[MaxNumberOfCardsInDeck];
+    private Card[] _Deck = new Card[MaxNumberOfCardsInDeck];
+    private boolean[] _CardDealt = new boolean[MaxNumberOfCardsInDeck];
     
-    int NumberOfCardsInDeck = MaxNumberOfCardsInDeck;
-    int RandomCardAttemptCounter = 0;
+    private int NumberOfCardsInDeck = MaxNumberOfCardsInDeck;
+    private int RandomCardAttemptCounter = 0;
     
     public Deck()
     {
@@ -77,19 +77,6 @@ public class Deck {
         _Deck[51] = new Card(CardValue.King, CardSuit.Spades);
     }
     
-    public void ListCards()
-    {
-        int Count = 0;
-        
-        for (int i=0; i<MaxNumberOfCardsInDeck; i++)
-        {
-            Count++;
-            System.out.println(_Deck[i].toString());
-        }
-        
-        System.out.println(Count + " cards in the deck");
-    }
-    
     public Card GetRandomCard()
     {
         Card CardToDeal = null;
@@ -126,7 +113,20 @@ public class Deck {
         }
     }
     
-    public int GetNumberOfAttemptsToClearDeck()
+    protected void ListCards()
+    {
+        int Count = 0;
+        
+        for (int i=0; i<MaxNumberOfCardsInDeck; i++)
+        {
+            Count++;
+            System.out.println(_Deck[i].toString());
+        }
+        
+        System.out.println(Count + " cards in the deck");
+    }
+    
+    protected int GetNumberOfAttemptsToClearDeck()
     {
         return RandomCardAttemptCounter;
     }
