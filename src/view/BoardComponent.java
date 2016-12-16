@@ -7,7 +7,6 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Rectangle2D;
 
 import javax.swing.JComponent;
 
@@ -19,7 +18,6 @@ public class BoardComponent extends JComponent
     private final int NewDirection = 16;
 
     private Spot _Spots[] = new Spot[MaxNumberOfSpots];
-    private Spot _LastSpotSelected;
 
     private Marble _Marbles[] = new Marble[MaxNumberOfMarbles];
 
@@ -28,27 +26,22 @@ public class BoardComponent extends JComponent
         CreateSpots();
         CreateMarbles();
 
+        addMouseListener(new MouseAdapter()
+        {
+            public void mousePressed(MouseEvent e)
+            {
+                repaint();
+            }
+        });
+        
         addMouseMotionListener(new MouseMotionListener()
         {
-
-            @Override
             public void mouseMoved(MouseEvent e)
             {
             }
 
-            @Override
             public void mouseDragged(MouseEvent e)
             {
-            }
-        });
-
-        addMouseListener(new MouseAdapter()
-        {
-
-            @Override
-            public void mouseClicked(MouseEvent e)
-            {
-                HighlightSpot(e);
                 repaint();
             }
         });
@@ -111,7 +104,9 @@ public class BoardComponent extends JComponent
             }
 
             _Spots[i] = new Spot((LastSpotX + (DirectionX * SpotSpacing)), (LastSpotY + (DirectionY * SpotSpacing)), Color.gray);
-
+            
+            addMouseListener(_Spots[i]);
+            
             LastSpotX = (LastSpotX + (DirectionX * SpotSpacing));
             LastSpotY = (LastSpotY + (DirectionY * SpotSpacing));
 
@@ -153,6 +148,9 @@ public class BoardComponent extends JComponent
 
             _Marbles[i] = new Marble(LastSpotX, LastSpotY, Color.yellow);
             LastSpotX = (LastSpotX + MarbleSpacing);
+            
+            addMouseListener(_Marbles[i]);
+            addMouseMotionListener(_Marbles[i]);
         }
 
     }
@@ -172,41 +170,6 @@ public class BoardComponent extends JComponent
         {
             g2d.setColor(_Marbles[i].GetColor());
             g2d.fill(_Marbles[i].GetShape());
-        }
-    }
-
-    private void HighlightSpot(MouseEvent e)
-    {
-        boolean SpotFound = false;
-
-        for (int i = 0; i < MaxNumberOfSpots; i++)
-        {
-            Rectangle2D SpotCollisionRect2D = _Spots[i].GetShape().getBounds2D();
-
-            if (SpotCollisionRect2D.contains(e.getX(), e.getY()) == true)
-            {
-                // Highlight the spot
-                // System.out.println("Spot " + i + " clicked!");
-
-                SpotFound = true;
-
-                if (_LastSpotSelected != null)
-                {
-                    // Selected a new spot, remove highlighting from the last one
-                    _LastSpotSelected.SetDefaultColor();
-                }
-
-                _Spots[i].SetColor(Color.yellow);
-                _LastSpotSelected = _Spots[i];
-                break;
-            }
-        }
-
-        if (SpotFound == false && _LastSpotSelected != null)
-        {
-            // Went through all spots and none found, remove highlighting from the last one that was found
-            _LastSpotSelected.SetDefaultColor();
-            _LastSpotSelected = null;
         }
     }
 }
