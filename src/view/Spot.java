@@ -2,7 +2,7 @@ package view;
 
 import java.awt.Color;
 
-public class Spot extends Piece
+public class Spot extends GamePiece
 {
     public Spot(int X, int Y, Color DesiredColor)
     {
@@ -14,7 +14,7 @@ public class Spot extends Piece
     {
         super.SelectedAction();
         
-        SetColor(Color.yellow);
+        SetColor(Color.pink);
     }
 
     @Override

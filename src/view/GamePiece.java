@@ -7,14 +7,14 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
-public abstract class Piece extends MouseAdapter
+public abstract class GamePiece extends MouseAdapter
 {
     private int _Size = 15;
     private Color _Color;
     private Ellipse2D.Double _Piece;
-    private boolean _IsSelected = false;
+    private boolean _IsHit = false;
 
-    public Piece(int X, int Y, Color DesiredColor)
+    public GamePiece(int X, int Y, Color DesiredColor)
     {
         _Color = DesiredColor;
 
@@ -42,6 +42,11 @@ public abstract class Piece extends MouseAdapter
         return _Piece;
     }
     
+    public boolean IsHit()
+    {
+        return _IsHit;
+    }
+    
     @Override
     public void mousePressed(MouseEvent e)
     {
@@ -57,16 +62,43 @@ public abstract class Piece extends MouseAdapter
         }
     }
 
+    
+    @Override
+    public void mouseReleased(MouseEvent e) 
+    {
+        Rectangle2D _Collision = _Piece.getBounds2D();
+        
+        if (_Collision.contains(e.getX(), e.getY()))
+        {
+            // System.out.println("GamePiece Released action at x: " + e.getX() + " y: " + e.getY());
+            SelectedAction();
+        }
+        else
+        {
+            UnSelectedAction();
+        }
+    }
+
     @Override
     public void mouseDragged(MouseEvent e)
     {
-        if (_IsSelected == true)
+        if (_IsHit == true)
         {
 //          System.out.println("Dragging...");
             DraggedAction(e);
         }
     }
-     
+    
+    protected int GetX()
+    {
+        return (int)_Piece.x;
+    }
+    
+    protected int GetY()
+    {
+        return (int)_Piece.y;
+    }
+    
     protected void SetX(int X)
     {
         _Piece.x = X;
@@ -79,12 +111,13 @@ public abstract class Piece extends MouseAdapter
     
     protected void SelectedAction()
     {
-//      System.out.println("Clicked on piece!");
-        _IsSelected = true;
+//        System.out.println("GamePiece SelectedAction()");
+        _IsHit = true;
     }
     protected void UnSelectedAction()
     {
-        _IsSelected = false;
+//        System.out.println("GamePiece UnselectedAction()");
+        _IsHit = false;
     }
     
     protected void DraggedAction(MouseEvent e) {};

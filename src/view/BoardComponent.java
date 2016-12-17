@@ -18,8 +18,10 @@ public class BoardComponent extends JComponent
     private final int NewDirection = 16;
 
     private Spot _Spots[] = new Spot[MaxNumberOfSpots];
-
     private Marble _Marbles[] = new Marble[MaxNumberOfMarbles];
+    
+    private Spot _SelectedSpot;
+    private Marble _SelectedMarble;
 
     public BoardComponent()
     {
@@ -30,6 +32,58 @@ public class BoardComponent extends JComponent
         {
             public void mousePressed(MouseEvent e)
             {
+                boolean MarbleSelected = false;
+                
+                // Move a marble
+                for (int i=0; i<MaxNumberOfMarbles; i++)
+                {
+                    if (_Marbles[i].IsHit() == true)
+                    {
+                        _SelectedMarble = _Marbles[i];
+                        MarbleSelected = true;
+                        break;
+                    }
+                }
+                
+                if (MarbleSelected == false)
+                {
+                    _SelectedMarble = null;
+                }
+                
+                repaint();
+            }
+            public void mouseReleased(MouseEvent e)
+            {
+                // To a desired spot
+                boolean SpotSelected = false;
+                
+                // Check if a marble was previously selected
+                if (_SelectedMarble != null)
+                {
+                    for (int i=0; i<MaxNumberOfSpots; i++)
+                    {
+                        if (_Spots[i].IsHit() == true)
+                        {
+                            _SelectedSpot = _Spots[i];
+                            SpotSelected = true;
+                            break;
+                        }
+                    }
+                    
+                    if (SpotSelected == true)
+                    {
+                        // Drop the marble on top of the spot perfectly
+//                        System.out.println("Marble dropped on spot");
+                        
+                        _SelectedMarble.MoveTo(_SelectedSpot);
+                    }
+                    else
+                    {
+                        _SelectedSpot = null;
+                        
+                    }
+                }
+                
                 repaint();
             }
         });
