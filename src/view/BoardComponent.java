@@ -20,7 +20,6 @@ public class BoardComponent extends JComponent
     private Spot _Spots[] = new Spot[MaxNumberOfSpots];
     private Marble _Marbles[] = new Marble[MaxNumberOfMarbles];
     
-    private Spot _SelectedSpot;
     private Marble _SelectedMarble;
 
     public BoardComponent()
@@ -32,58 +31,12 @@ public class BoardComponent extends JComponent
         {
             public void mousePressed(MouseEvent e)
             {
-                boolean MarbleSelected = false;
-                
-                // Move a marble
-                for (int i=0; i<MaxNumberOfMarbles; i++)
-                {
-                    if (_Marbles[i].IsHit() == true)
-                    {
-                        _SelectedMarble = _Marbles[i];
-                        MarbleSelected = true;
-                        break;
-                    }
-                }
-                
-                if (MarbleSelected == false)
-                {
-                    _SelectedMarble = null;
-                }
-                
+                CheckMarbleSelected();
                 repaint();
             }
             public void mouseReleased(MouseEvent e)
             {
-                // To a desired spot
-                boolean SpotSelected = false;
-                
-                // Check if a marble was previously selected
-                if (_SelectedMarble != null)
-                {
-                    for (int i=0; i<MaxNumberOfSpots; i++)
-                    {
-                        if (_Spots[i].IsHit() == true)
-                        {
-                            _SelectedSpot = _Spots[i];
-                            SpotSelected = true;
-                            break;
-                        }
-                    }
-                    
-                    if (SpotSelected == true)
-                    {
-                        // Drop the marble on top of the spot perfectly
-//                        System.out.println("Marble dropped on spot");
-                        
-                        _SelectedMarble.MoveTo(_SelectedSpot);
-                    }
-                    else
-                    {
-                        _SelectedSpot = null;
-                        
-                    }
-                }
-                
+                CheckSelectedMarbleDroppedOnSpot();
                 repaint();
             }
         });
@@ -225,5 +178,65 @@ public class BoardComponent extends JComponent
             g2d.setColor(_Marbles[i].GetColor());
             g2d.fill(_Marbles[i].GetShape());
         }
+    }
+    
+    private void CheckMarbleSelected()
+    {
+        boolean MarbleSelected = false;
+        
+        // Check all marbles if they were selected
+        for (int i=0; i<MaxNumberOfMarbles; i++)
+        {
+            if (_Marbles[i].IsHit() == true)
+            {
+                _SelectedMarble = _Marbles[i];
+                MarbleSelected = true;
+                break;
+            }
+        }
+        
+        if (MarbleSelected == false)
+        {
+            _SelectedMarble = null;
+        }
+    }
+    
+    private void CheckSelectedMarbleDroppedOnSpot()
+    {
+        Spot SelectedSpot = null;
+        
+        // Check if a marble was previously selected
+        if (_SelectedMarble != null)
+        {
+            for (int i=0; i<MaxNumberOfSpots; i++)
+            {
+                if (_Spots[i].IsHit() == true)
+                {
+                    SelectedSpot = _Spots[i];
+                    break;
+                }
+            }
+            
+            if (SelectedSpot != null)
+            {
+                // System.out.println("Marble dropped on spot #" + _SelectedSpot.GetSpotNumber());
+                int NumberOfSpotsMoved = GetNumberOfSpotsMarbleWillMove(SelectedSpot);
+                // TODO Test if this is okay... then...
+                
+                // Drop the marble on top of the spot perfectly
+                _SelectedMarble.MoveTo(SelectedSpot);
+            }
+        }
+    }
+    
+    private int GetNumberOfSpotsMarbleWillMove(Spot DesiredSpot)
+    {
+        int NewSpotNumber = DesiredSpot.GetSpotNumber();
+        int CurrentMarbleSpotNumber = _SelectedMarble.CurrentlyOnSpotNumber();
+        int NumberOfSpotsMoved = NewSpotNumber - CurrentMarbleSpotNumber;
+        
+        System.out.println("Marble will move " + NumberOfSpotsMoved + " number of spots.");
+        
+        return NumberOfSpotsMoved;
     }
 }
