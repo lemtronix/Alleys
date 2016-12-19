@@ -2,13 +2,10 @@ package model;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class Player
 {
-    // At most player can have 5 cards
-    @Deprecated
-    public static final int MaxNumberOfCards = 5;
-    
     private ArrayList<Card> _CardsInHand = new ArrayList<Card>();
     
     // They need to know what kind of card they have?
@@ -84,5 +81,10 @@ public class Player
     public Iterator<Card> GetCardIterator()
     {
         return _CardsInHand.iterator();
+    }
+    
+    public List<Card> GetCards()
+    {
+        return _CardsInHand;
     }
 }

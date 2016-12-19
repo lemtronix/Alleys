@@ -9,13 +9,21 @@ import java.io.InputStreamReader;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import model.Deck;
+import model.Player;
+
 public class Alleys extends JFrame implements Runnable
 {
     private final int MINIMUM_X = 600;
     private final int MINIMUM_Y = 500;
     
     private Thread _AlleysThread;
+    
     private BoardComponent _Board;
+    
+    private Deck _Deck;
+    private Player _Player;
+    
 
     public Alleys(BoardComponent Board)
     {
@@ -23,6 +31,12 @@ public class Alleys extends JFrame implements Runnable
         {
             _Board = Board;
             InitUI();
+            
+            _Deck = new Deck();
+            _Player = new Player();
+            
+            _Player.AddCard(_Deck.GetRandomCard());
+            _Player.AddCard(_Deck.GetRandomCard());
             
             // Start a new thread for handling game logic, separately from the GUI thread
             _AlleysThread = new Thread(this);
@@ -75,6 +89,12 @@ public class Alleys extends JFrame implements Runnable
         
 //        System.out.println("AlleysGame: Marble selected " + _SelectedMarble);
         
+        // 2. Show player cards
+        for (int i=0; i < _Player.GetCards().size(); i++)
+        {
+            System.out.println(i + ".) " + _Player.GetCards().get(i));
+        }
+
         // 2. Play a card
         System.out.println("AlleysGame: Select a card to play...");
         
@@ -85,14 +105,16 @@ public class Alleys extends JFrame implements Runnable
         {
             String UserInput = br.readLine();
             int UserInt = Integer.parseInt(UserInput);
-            System.out.println("User entered: " + UserInt);
+            
+            // TODO add boundary checking
+            System.out.println("User is playing the: " + _Player.GetCards().get(UserInt).toString());
             
             // 3. Test for valid move
             /// TODO For now, just always return true
             
             // 4. If valid, then move the marble
             /// TODO For now, move the marble to the appropriate spot.
-            _Board.MoveMarbleToSpot(_SelectedMarble, UserInt);
+            _Board.MoveMarbleToSpot(_SelectedMarble, _Player.GetCards().get(UserInt).GetValue());
         }
         catch (NumberFormatException nfe)
         {

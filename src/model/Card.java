@@ -10,6 +10,11 @@ public class Card {
         _CardSuit = Suit;
     }
     
+    public int GetValue()
+    {
+        return _CardValue.ordinal();
+    }
+    
     public String toString()
     {
         return "" + _CardValue + " of " + _CardSuit;
