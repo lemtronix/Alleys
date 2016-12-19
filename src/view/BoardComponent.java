@@ -53,7 +53,17 @@ public class BoardComponent extends JComponent
             }
         });
     }
-
+    
+    public Marble GetSelectedMarble()
+    {        
+        if (_SelectedMarble != null)
+        {
+            return _SelectedMarble;
+        }
+        
+        return null;
+    }
+    
     @Override
     protected void paintComponent(Graphics g)
     {
@@ -221,6 +231,7 @@ public class BoardComponent extends JComponent
             {
                 // System.out.println("Marble dropped on spot #" + _SelectedSpot.GetSpotNumber());
                 int NumberOfSpotsMoved = GetNumberOfSpotsMarbleWillMove(SelectedSpot);
+                
                 // TODO Test if this is okay... then...
                 
                 // Drop the marble on top of the spot perfectly
