@@ -54,14 +54,22 @@ public class BoardComponent extends JComponent
         });
     }
     
-    public Marble GetSelectedMarble()
+    public synchronized Marble GetSelectedMarble()
     {        
         if (_SelectedMarble != null)
         {
+            System.out.println("BoardComponent: Returning actual marble");
+            notify();
             return _SelectedMarble;
         }
         
         return null;
+    }
+    
+    public void MoveMarbleToSpot(Marble MarbleToMove, int SpotToMoveTo)
+    {
+        MarbleToMove.MoveTo(_Spots[SpotToMoveTo]);
+        repaint();
     }
     
     @Override
@@ -161,7 +169,7 @@ public class BoardComponent extends JComponent
         
         for (int i = 0; i < MaxNumberOfMarbles; i++)
         {
-            System.out.println("MarbleX: " + LastSpotX);
+//            System.out.println("MarbleX: " + LastSpotX);
 
             _Marbles[i] = new Marble(LastSpotX, LastSpotY, Color.yellow);
             LastSpotX = (LastSpotX + MarbleSpacing);
@@ -216,7 +224,7 @@ public class BoardComponent extends JComponent
         Spot SelectedSpot = null;
         
         // Check if a marble was previously selected
-        if (_SelectedMarble != null)
+        if (GetSelectedMarble() != null)
         {
             for (int i=0; i<MaxNumberOfSpots; i++)
             {
@@ -235,7 +243,7 @@ public class BoardComponent extends JComponent
                 // TODO Test if this is okay... then...
                 
                 // Drop the marble on top of the spot perfectly
-                _SelectedMarble.MoveTo(SelectedSpot);
+                GetSelectedMarble().MoveTo(SelectedSpot);
             }
         }
     }
