@@ -10,23 +10,30 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.JComponent;
 
-public class BoardComponent extends JComponent
+import controller.Controller;
+import controller.MarbleEvent;
+import controller.MarbleListener;
+
+public class BoardComponent extends JComponent implements MarbleListener
 {
-    private final int MaxNumberOfSpots = 64;
-    private final int MaxNumberOfMarbles = 4;
-
     private final int NewDirection = 16;
-
-    private Spot _Spots[] = new Spot[MaxNumberOfSpots];
-    private Marble _Marbles[] = new Marble[MaxNumberOfMarbles];
     
-    private Marble _SelectedMarble;
+    private Controller _Controller;
 
-    public BoardComponent()
+    private SpotGraphic _Spots[] = new SpotGraphic[64];
+    private MarbleGraphic _Marbles[] = new MarbleGraphic[16];
+    
+    private MarbleGraphic _SelectedMarble;
+
+    public BoardComponent(Controller GameController)
     {
+        _Controller = GameController;
+        
         CreateSpots();
         CreateMarbles();
-
+        
+        _Controller.setMarbleListener(this);
+        
         addMouseListener(new MouseAdapter()
         {
             public void mousePressed(MouseEvent e)
@@ -54,24 +61,34 @@ public class BoardComponent extends JComponent
         });
     }
     
-    public synchronized Marble GetSelectedMarble()
-    {        
+    public MarbleGraphic GetSelectedMarble()
+    {
         if (_SelectedMarble != null)
         {
-            System.out.println("BoardComponent: Returning actual marble");
-            notify();
+//            System.out.println("BoardComponent: Returning actual marble");
             return _SelectedMarble;
         }
         
         return null;
     }
+
     
-    public void MoveMarbleToSpot(Marble MarbleToMove, int SpotToMoveTo)
-    {
-        MarbleToMove.MoveTo(_Spots[SpotToMoveTo]);
+    @Override
+    public void marbleEventOccurred(MarbleEvent me) {
+//        System.out.println("BoardComponent: Marble Event Occurred!");
+//        System.out.println("Marble# " + me.getMarbleIdNumber());
+//        System.out.println("NewSpot# " + me.getSpotIdNumber());
+        
+        _Marbles[me.getMarbleIdNumber()].MoveTo(_Spots[me.getSpotIdNumber()]);
         repaint();
+        
     }
-    
+
+    public void clearSelectedMarble()
+    {
+        _SelectedMarble = null;
+    }
+
     @Override
     protected void paintComponent(Graphics g)
     {
@@ -97,7 +114,7 @@ public class BoardComponent extends JComponent
         int LastSpotX = InitialSpotX;
         int LastSpotY = InitialSpotY;
 
-        for (int i = 0; i < MaxNumberOfSpots; i++)
+        for (int i = 0; i < _Controller.GetMaxNumberOfSpots(); i++)
         {
 
             int DirectionX = 0;
@@ -128,7 +145,7 @@ public class BoardComponent extends JComponent
                 DirectionY = -1;
             }
 
-            _Spots[i] = new Spot((LastSpotX + (DirectionX * SpotSpacing)), (LastSpotY + (DirectionY * SpotSpacing)), Color.gray);
+            _Spots[i] = new SpotGraphic(i, (LastSpotX + (DirectionX * SpotSpacing)), (LastSpotY + (DirectionY * SpotSpacing)), Color.gray);
             
             addMouseListener(_Spots[i]);
             
@@ -167,11 +184,11 @@ public class BoardComponent extends JComponent
         int LastSpotX = MarbleSpotX;
         int LastSpotY = MarbleSpotY;
         
-        for (int i = 0; i < MaxNumberOfMarbles; i++)
+        for (int i = 0; i < _Controller.GetMaxNumberOfMarbles(); i++)
         {
 //            System.out.println("MarbleX: " + LastSpotX);
 
-            _Marbles[i] = new Marble(LastSpotX, LastSpotY, Color.yellow);
+            _Marbles[i] = new MarbleGraphic(i, LastSpotX, LastSpotY, Color.yellow);
             LastSpotX = (LastSpotX + MarbleSpacing);
             
             addMouseListener(_Marbles[i]);
@@ -182,7 +199,7 @@ public class BoardComponent extends JComponent
 
     private void UpdateSpots(Graphics2D g2d)
     {
-        for (int i = 0; i < MaxNumberOfSpots; i++)
+        for (int i = 0; i < _Controller.GetMaxNumberOfSpots(); i++)
         {
             g2d.setColor(_Spots[i].GetColor());
             g2d.fill(_Spots[i].GetShape());
@@ -191,24 +208,26 @@ public class BoardComponent extends JComponent
 
     private void UpdateMarbles(Graphics2D g2d)
     {
-        for (int i = 0; i < MaxNumberOfMarbles; i++)
+        for (int i = 0; i < _Controller.GetMaxNumberOfMarbles(); i++)
         {
             g2d.setColor(_Marbles[i].GetColor());
             g2d.fill(_Marbles[i].GetShape());
         }
     }
     
-    private void CheckMarbleSelected()
+    private synchronized void CheckMarbleSelected()
     {
         boolean MarbleSelected = false;
         
         // Check all marbles if they were selected
-        for (int i=0; i<MaxNumberOfMarbles; i++)
+        for (int i=0; i<_Controller.GetMaxNumberOfMarbles(); i++)
         {
             if (_Marbles[i].IsHit() == true)
             {
+                System.out.println("Marble hit.");
                 _SelectedMarble = _Marbles[i];
                 MarbleSelected = true;
+                notify();
                 break;
             }
         }
@@ -221,41 +240,29 @@ public class BoardComponent extends JComponent
     
     private void CheckSelectedMarbleDroppedOnSpot()
     {
-        Spot SelectedSpot = null;
-        
-        // Check if a marble was previously selected
-        if (GetSelectedMarble() != null)
-        {
-            for (int i=0; i<MaxNumberOfSpots; i++)
-            {
-                if (_Spots[i].IsHit() == true)
-                {
-                    SelectedSpot = _Spots[i];
-                    break;
-                }
-            }
-            
-            if (SelectedSpot != null)
-            {
-                // System.out.println("Marble dropped on spot #" + _SelectedSpot.GetSpotNumber());
-                int NumberOfSpotsMoved = GetNumberOfSpotsMarbleWillMove(SelectedSpot);
-                
-                // TODO Test if this is okay... then...
-                
-                // Drop the marble on top of the spot perfectly
-                GetSelectedMarble().MoveTo(SelectedSpot);
-            }
-        }
+//        Spot SelectedSpot = null;
+//        
+//        // Check if a marble was previously selected
+//        if (GetSelectedMarble() != null)
+//        {
+//            for (int i=0; i<MaxNumberOfSpots; i++)
+//            {
+//                if (_Spots[i].IsHit() == true)
+//                {
+//                    SelectedSpot = _Spots[i];
+//                    break;
+//                }
+//            }
+//            
+//            if (SelectedSpot != null)
+//            {
+//                
+//                // TODO Test if this is okay... then...
+//                
+//                // Drop the marble on top of the spot perfectly
+//                GetSelectedMarble().MoveTo(SelectedSpot);
+//            }
+//        }
     }
     
-    private int GetNumberOfSpotsMarbleWillMove(Spot DesiredSpot)
-    {
-        int NewSpotNumber = DesiredSpot.GetSpotNumber();
-        int CurrentMarbleSpotNumber = _SelectedMarble.CurrentlyOnSpotNumber();
-        int NumberOfSpotsMoved = NewSpotNumber - CurrentMarbleSpotNumber;
-        
-        System.out.println("Marble will move " + NumberOfSpotsMoved + " number of spots.");
-        
-        return NumberOfSpotsMoved;
-    }
 }

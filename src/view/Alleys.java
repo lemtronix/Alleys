@@ -5,12 +5,13 @@ import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import model.Deck;
-import model.Player;
+import model.Card;
+import controller.Controller;
 
 public class Alleys extends JFrame implements Runnable
 {
@@ -18,30 +19,25 @@ public class Alleys extends JFrame implements Runnable
     private final int MINIMUM_Y = 500;
     
     private Thread _AlleysThread;
+    private Controller _Controller;
     
     private BoardComponent _Board;
-    
-    private Deck _Deck;
-    private Player _Player;
-    
 
-    public Alleys(BoardComponent Board)
+    public Alleys(Controller GameController, BoardComponent Board)
     {
-        if (Board != null)
+        if (Board != null && GameController != null)
         {
+            _Controller = GameController;
             _Board = Board;
+            
             InitUI();
-            
-            _Deck = new Deck();
-            _Player = new Player();
-            
-            _Player.AddCard(_Deck.GetRandomCard());
-            _Player.AddCard(_Deck.GetRandomCard());
             
             // Start a new thread for handling game logic, separately from the GUI thread
             _AlleysThread = new Thread(this);
             _AlleysThread.setName("AlleysGameLogicThread");
             _AlleysThread.start();
+            
+            System.out.println("Thread completed.");
         }
     }
     
@@ -59,74 +55,86 @@ public class Alleys extends JFrame implements Runnable
         setVisible(true);
     }
     
-
-    
     @Override
     public void run()
     {
-        Marble _SelectedMarble = null;
+        _Controller.begin();
         
-//        System.out.println("AlleysGame: Alleys thread started...");
-        
-        // 1. Select a marble
-        System.out.println("AlleysGame: Select a marble to move...");
-        
-        synchronized(_Board)
+        for (;;)
         {
-            if (_Board.GetSelectedMarble() == null)
+            int MarbleIdNumber = -1;
+            _Board.clearSelectedMarble();
+            
+            // 1. Select a marble
+            System.out.println("Alleys: Select a marble to move...");
+            
+            // Wait for the user to select a marble
+            synchronized(_Board)
             {
-                try
+                
+                if (_Board.GetSelectedMarble() == null)
                 {
-                    _Board.wait();
-                    _SelectedMarble = _Board.GetSelectedMarble();
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
+                    try
+                    {
+                        System.out.println("waiting for user to select marble.");
+                        _Board.wait();
+                        MarbleIdNumber = _Board.GetSelectedMarble().getMarbleIdNumber();
+                        System.out.println("Alleys: Marble selected " + MarbleIdNumber);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
             }
-        }
-        
-//        System.out.println("AlleysGame: Marble selected " + _SelectedMarble);
-        
-        // 2. Show player cards
-        for (int i=0; i < _Player.GetCards().size(); i++)
-        {
-            System.out.println(i + ".) " + _Player.GetCards().get(i));
+    
+    //        // 2. Show player cards
+            List<Card> PlayersCards = _Controller.getCurrentPlayersCards();
+            
+            for (int i=0; i < PlayersCards.size(); i++)
+            {
+                System.out.println(i + ".) " + PlayersCards.get(i));
+            }
+    
+            // 2. Play a card
+            System.out.println("Alleys: Select a card to play...");
+            
+            /// For now, just get a number from the console
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            
+            try
+            {
+                String UserInput = br.readLine();
+                int UserInt = Integer.parseInt(UserInput);
+                
+                if (UserInt > PlayersCards.size())
+                {
+                    throw new IndexOutOfBoundsException();
+                }
+                
+                Card PlayedCard = PlayersCards.get(UserInt);
+    
+                // 4. If valid, then move the marble
+                /// TODO For now, move the marble to the appropriate spot.
+                _Controller.currentPlayerPlays(MarbleIdNumber, PlayedCard);
+                
+    //            _Board.MoveMarbleToSpot(_SelectedMarble, PlayedCard.GetValue());
+            }
+            catch (NumberFormatException nfe)
+            {
+                System.err.println("Alleys: Enter a number only!");
+            }
+            catch (IndexOutOfBoundsException ioobe)
+            {
+                System.err.println("Invalid number specified.");
+            }
+            catch (IOException e)
+            {
+                System.err.println("Alleys: Generic IOException!");
+                e.printStackTrace();
+            }
         }
 
-        // 2. Play a card
-        System.out.println("AlleysGame: Select a card to play...");
-        
-        /// For now, just get a number from the console
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        
-        try
-        {
-            String UserInput = br.readLine();
-            int UserInt = Integer.parseInt(UserInput);
-            
-            // TODO add boundary checking
-            System.out.println("User is playing the: " + _Player.GetCards().get(UserInt).toString());
-            
-            // 3. Test for valid move
-            /// TODO For now, just always return true
-            
-            // 4. If valid, then move the marble
-            /// TODO For now, move the marble to the appropriate spot.
-            _Board.MoveMarbleToSpot(_SelectedMarble, _Player.GetCards().get(UserInt).GetValue());
-        }
-        catch (NumberFormatException nfe)
-        {
-            System.err.println("Alleys: Enter a number only!");
-        }
-        catch (IOException e)
-        {
-            System.err.println("Alleys: Generic IOException!");
-            e.printStackTrace();
-        }
-        
-//        System.out.println(_AlleysThread.getName() + " completed.");
     }
     
     public static void main(String[] args)
@@ -136,9 +144,10 @@ public class Alleys extends JFrame implements Runnable
         {
             public void run()
             {
-                BoardComponent AlleysBoard = new BoardComponent();
+                Controller controller = new Controller();
+                BoardComponent board = new BoardComponent(controller);
                 
-                Alleys _AlleysGame = new Alleys(AlleysBoard);
+                new Alleys(controller, board);
             }
         });
     }

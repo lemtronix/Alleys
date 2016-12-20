@@ -2,19 +2,16 @@ package view;
 
 import java.awt.Color;
 
-public class Spot extends GamePiece
+public class SpotGraphic extends GamePieceGraphic
 {
-    //TODO: Eventually, move this into a model package as this is logic that's used to calculate stuff that happens in the game
-    private static int SpotCounter = 0;
-    private int _SpotNumber = 0;
+    private int _SpotNumber = -1;
     
-    public Spot(int X, int Y, Color DesiredColor)
+    public SpotGraphic(int spotIdNumber, int X, int Y, Color DesiredColor)
     {
         super(X, Y, DesiredColor);
         
         // Each spot gets their own unique number
-        _SpotNumber = SpotCounter;
-        SpotCounter++;
+        _SpotNumber = spotIdNumber;
     }
 
     public int GetSpotNumber()

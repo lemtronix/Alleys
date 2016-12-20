@@ -103,7 +103,13 @@ public class Deck
 
         return CardToDeal;
     }
-
+    
+    @Deprecated
+    public Card GetCardOfKnownValue(int cardNumber)
+    {
+        return _Deck[cardNumber];
+    }
+    
     public boolean AnyCardsLeft()
     {
         if (NumberOfCardsInDeck > 0)
@@ -123,7 +129,7 @@ public class Deck
         for (int i = 0; i < MaxNumberOfCardsInDeck; i++)
         {
             Count++;
-            System.out.println(_Deck[i].toString());
+            System.out.println(i + ".) " + _Deck[i].toString());
         }
 
         System.out.println(Count + " cards in the deck");

@@ -7,14 +7,14 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
-public abstract class GamePiece extends MouseAdapter
+public abstract class GamePieceGraphic extends MouseAdapter
 {
     private int _Size = 15;
     private Color _Color;
     private Ellipse2D.Double _Piece;
     private boolean _IsHit = false;
 
-    public GamePiece(int X, int Y, Color DesiredColor)
+    public GamePieceGraphic(int X, int Y, Color DesiredColor)
     {
         _Color = DesiredColor;
 
