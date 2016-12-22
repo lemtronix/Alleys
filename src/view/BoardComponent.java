@@ -17,23 +17,26 @@ import controller.MarbleListener;
 public class BoardComponent extends JComponent implements MarbleListener
 {
     private final int NewDirection = 16;
-    
+
     private Controller _Controller;
 
-    private SpotGraphic _Spots[] = new SpotGraphic[64];
+    private SpotGraphic _Spots[] = new SpotGraphic[96];
     private MarbleGraphic _Marbles[] = new MarbleGraphic[16];
-    
+
     private MarbleGraphic _SelectedMarble;
+
+    private int DirectionX = 0;
+    private int DirectionY = 0;
 
     public BoardComponent(Controller GameController)
     {
         _Controller = GameController;
-        
+
         CreateSpots();
         CreateMarbles();
-        
+
         _Controller.setMarbleListener(this);
-        
+
         addMouseListener(new MouseAdapter()
         {
             public void mousePressed(MouseEvent e)
@@ -41,13 +44,14 @@ public class BoardComponent extends JComponent implements MarbleListener
                 CheckMarbleSelected();
                 repaint();
             }
+
             public void mouseReleased(MouseEvent e)
             {
                 CheckSelectedMarbleDroppedOnSpot();
                 repaint();
             }
         });
-        
+
         addMouseMotionListener(new MouseMotionListener()
         {
             public void mouseMoved(MouseEvent e)
@@ -60,28 +64,28 @@ public class BoardComponent extends JComponent implements MarbleListener
             }
         });
     }
-    
+
     public MarbleGraphic GetSelectedMarble()
     {
         if (_SelectedMarble != null)
         {
-//            System.out.println("BoardComponent: Returning actual marble");
+            // System.out.println("BoardComponent: Returning actual marble");
             return _SelectedMarble;
         }
-        
+
         return null;
     }
 
-    
     @Override
-    public void marbleEventOccurred(MarbleEvent me) {
-//        System.out.println("BoardComponent: Marble Event Occurred!");
-//        System.out.println("Marble# " + me.getMarbleIdNumber());
-//        System.out.println("NewSpot# " + me.getSpotIdNumber());
-        
+    public void marbleEventOccurred(MarbleEvent me)
+    {
+        // System.out.println("BoardComponent: Marble Event Occurred!");
+        // System.out.println("Marble# " + me.getMarbleIdNumber());
+        // System.out.println("NewSpot# " + me.getSpotIdNumber());
+
         _Marbles[me.getMarbleIdNumber()].MoveTo(_Spots[me.getSpotIdNumber()]);
         repaint();
-        
+
     }
 
     public void clearSelectedMarble()
@@ -106,72 +110,68 @@ public class BoardComponent extends JComponent implements MarbleListener
 
     private void CreateSpots()
     {
-        final int SpotSpacing = 20;
+        // Create the home spots
+        // _Controller.GetFirstHomeSpot()
+        // _Controller.GetNumberOfHomeSpots()
 
-        final int InitialSpotX = 100;
-        final int InitialSpotY = 50;
+        int HomeRowSpotSpacing = 20;
+        int HomeRowX = 25;
+        int HomeRowY = 25;
+        int spotCounter = 0;
+
+        for (int i = 0; i < 16; i++)
+        {
+
+            _Spots[i] = new SpotGraphic(i, (HomeRowX + (spotCounter * HomeRowSpotSpacing)), HomeRowY, Color.gray);
+
+            spotCounter++;
+
+        }
+
+        final int FinishRowSpotSpacing = 20;
+        final int FinishRowX = 25;
+        final int FinishRowY = 50;
+        spotCounter = 0;
+
+        // Create the finish spots
+        for (int i = 16; i < 32; i++)
+        {
+
+            _Spots[i] = new SpotGraphic(i, (FinishRowX + (spotCounter * FinishRowSpotSpacing)), FinishRowY, Color.gray);
+
+            spotCounter++;
+        }
+
+        // Create the board spots
+        // _Controller.GetFirstBoardSpot()
+
+        // Square 100, 50
+        // Diamond 50, 200
+        final int DiamondPatternSpotSpacing = 15;
+        final int InitialSpotX = 15;
+        final int InitialSpotY = 350;
 
         int LastSpotX = InitialSpotX;
         int LastSpotY = InitialSpotY;
 
-        for (int i = 0; i < _Controller.GetMaxNumberOfSpots(); i++)
+        spotCounter = 0;
+        for (int i = 32; i < _Controller.GetMaxNumberOfSpots(); i++)
         {
 
-            int DirectionX = 0;
-            int DirectionY = 0;
+            DiamondBoard(spotCounter);
 
-            if (i <= NewDirection)
-            {
-                // Go Right
-                DirectionX = 1;
-                DirectionY = 0;
-            }
-            else if (i > NewDirection && i <= NewDirection * 2)
-            {
-                // Go Down
-                DirectionX = 0;
-                DirectionY = 1;
-            }
-            else if (i > NewDirection * 2 && i <= NewDirection * 3)
-            {
-                // Go Left
-                DirectionX = -1;
-                DirectionY = 0;
-            }
-            else if (i > NewDirection * 3)
-            {
-                // Go Up
-                DirectionX = 0;
-                DirectionY = -1;
-            }
+            _Spots[i] = new SpotGraphic(i, (LastSpotX + (DirectionX * DiamondPatternSpotSpacing)),
+                    (LastSpotY + (DirectionY * DiamondPatternSpotSpacing)), Color.gray);
 
-            _Spots[i] = new SpotGraphic(i, (LastSpotX + (DirectionX * SpotSpacing)), (LastSpotY + (DirectionY * SpotSpacing)), Color.gray);
-            
+            LastSpotX = (LastSpotX + (DirectionX * DiamondPatternSpotSpacing));
+            LastSpotY = (LastSpotY + (DirectionY * DiamondPatternSpotSpacing));
+
+            spotCounter++;
+        }
+
+        for (int i = 0; i < _Controller.GetMaxNumberOfSpots(); i++)
+        {
             addMouseListener(_Spots[i]);
-            
-            LastSpotX = (LastSpotX + (DirectionX * SpotSpacing));
-            LastSpotY = (LastSpotY + (DirectionY * SpotSpacing));
-
-            // Set the color for the new direction
-            // if (i % NewDirection == 0)
-            // {
-            // if (i == 0)
-            // {
-            // _Spots[i].SetColor(Color.red);
-            // }
-            // else if (i == NewDirection)
-            // {
-            // _Spots[i].SetColor(Color.green);
-            // }
-            // else if (i == NewDirection * 2)
-            // {
-            // _Spots[i].SetColor(Color.blue);
-            // }
-            // else if (i == NewDirection * 3)
-            // {
-            // _Spots[i].SetColor(Color.yellow);
-            // }
-            // }
         }
     }
 
@@ -180,17 +180,28 @@ public class BoardComponent extends JComponent implements MarbleListener
         final int MarbleSpacing = 20;
         final int MarbleSpotX = 20;
         final int MarbleSpotY = 20;
-        
+
         int LastSpotX = MarbleSpotX;
         int LastSpotY = MarbleSpotY;
-        
+
+        Color[] MarbleColors = { Color.yellow, Color.red, Color.blue, Color.green };
+        int ColorSelector = 0;
+        Color color = MarbleColors[ColorSelector];
+
         for (int i = 0; i < _Controller.GetMaxNumberOfMarbles(); i++)
         {
-//            System.out.println("MarbleX: " + LastSpotX);
+            // System.out.println("MarbleX: " + LastSpotX);
 
-            _Marbles[i] = new MarbleGraphic(i, LastSpotX, LastSpotY, Color.yellow);
+            // Change colors every 4 marbles
+            if ((i != 0) && ((i % 4) == 0))
+            {
+                ColorSelector++;
+                color = MarbleColors[ColorSelector];
+            }
+
+            _Marbles[i] = new MarbleGraphic(i, LastSpotX, LastSpotY, color);
             LastSpotX = (LastSpotX + MarbleSpacing);
-            
+
             addMouseListener(_Marbles[i]);
             addMouseMotionListener(_Marbles[i]);
         }
@@ -214,13 +225,13 @@ public class BoardComponent extends JComponent implements MarbleListener
             g2d.fill(_Marbles[i].GetShape());
         }
     }
-    
+
     private synchronized void CheckMarbleSelected()
     {
         boolean MarbleSelected = false;
-        
+
         // Check all marbles if they were selected
-        for (int i=0; i<_Controller.GetMaxNumberOfMarbles(); i++)
+        for (int i = 0; i < _Controller.GetMaxNumberOfMarbles(); i++)
         {
             if (_Marbles[i].IsHit() == true)
             {
@@ -231,38 +242,93 @@ public class BoardComponent extends JComponent implements MarbleListener
                 break;
             }
         }
-        
+
         if (MarbleSelected == false)
         {
             _SelectedMarble = null;
         }
     }
-    
+
     private void CheckSelectedMarbleDroppedOnSpot()
     {
-//        Spot SelectedSpot = null;
-//        
-//        // Check if a marble was previously selected
-//        if (GetSelectedMarble() != null)
-//        {
-//            for (int i=0; i<MaxNumberOfSpots; i++)
-//            {
-//                if (_Spots[i].IsHit() == true)
-//                {
-//                    SelectedSpot = _Spots[i];
-//                    break;
-//                }
-//            }
-//            
-//            if (SelectedSpot != null)
-//            {
-//                
-//                // TODO Test if this is okay... then...
-//                
-//                // Drop the marble on top of the spot perfectly
-//                GetSelectedMarble().MoveTo(SelectedSpot);
-//            }
-//        }
+        // Spot SelectedSpot = null;
+        //
+        // // Check if a marble was previously selected
+        // if (GetSelectedMarble() != null)
+        // {
+        // for (int i=0; i<MaxNumberOfSpots; i++)
+        // {
+        // if (_Spots[i].IsHit() == true)
+        // {
+        // SelectedSpot = _Spots[i];
+        // break;
+        // }
+        // }
+        //
+        // if (SelectedSpot != null)
+        // {
+        //
+        // // TODO Test if this is okay... then...
+        //
+        // // Drop the marble on top of the spot perfectly
+        // GetSelectedMarble().MoveTo(SelectedSpot);
+        // }
+        // }
     }
-    
+
+    private void SquareBoard(int i)
+    {
+        if (i <= NewDirection)
+        {
+            // Go Right
+            DirectionX = 1;
+            DirectionY = 0;
+        }
+        else if (i > NewDirection && i <= NewDirection * 2)
+        {
+            // Go Down
+            DirectionX = 0;
+            DirectionY = 1;
+        }
+        else if (i > NewDirection * 2 && i <= NewDirection * 3)
+        {
+            // Go Left
+            DirectionX = -1;
+            DirectionY = 0;
+        }
+        else if (i > NewDirection * 3)
+        {
+            // Go Up
+            DirectionX = 0;
+            DirectionY = -1;
+        }
+    }
+
+    private void DiamondBoard(int i)
+    {
+        if (i <= NewDirection)
+        {
+            // Go Right
+            DirectionX = 1;
+            DirectionY = -1;
+        }
+        else if (i > NewDirection && i <= NewDirection * 2)
+        {
+            // Go Down
+            DirectionX = 1;
+            DirectionY = 1;
+        }
+        else if (i > NewDirection * 2 && i <= NewDirection * 3)
+        {
+            // Go Left
+            DirectionX = -1;
+            DirectionY = 1;
+        }
+        else if (i > NewDirection * 3)
+        {
+            // Go Up
+            DirectionX = -1;
+            DirectionY = -1;
+        }
+    }
 }
