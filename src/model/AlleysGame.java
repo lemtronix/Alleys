@@ -51,6 +51,7 @@ public class AlleysGame
         _Players.get(0).addCard(_Deck.GetCardOfKnownValue(12));
         _Players.get(0).addCard(_Deck.GetCardOfKnownValue(3));
         _Players.get(0).addCard(_Deck.GetCardOfKnownValue(11));
+        _Players.get(0).addCard(_Deck.GetCardOfKnownValue(0));
 
         for (int i = 0; i < 4; i++)
         {

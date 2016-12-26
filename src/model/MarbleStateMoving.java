@@ -5,11 +5,13 @@ import java.util.List;
 public class MarbleStateMoving implements MarbleState
 {
     private boolean _IsProtected = true;
-    private int _NumberOfSpotsToGo = 64;
+    private int _NumberOfSpotsToGo = 63;
 
     @Override
     public MarbleState play(Marble marble, Card card)
     {
+        MarbleState newMarbleState = null;
+
         // TODO: Test a marble should not be able to move backwards over a protected marble. Verify this is so.
         Spot finalSpotToMoveTo = null;
         int numberOfFinishSpotsNeeded = 0;
@@ -110,9 +112,12 @@ public class MarbleStateMoving implements MarbleState
                 }
             }
 
-            finalSpotToMoveTo = finishSpots.get(numberOfFinishSpotsNeeded);
+            // ArrayIndex uses zero based indexing
+            finalSpotToMoveTo = finishSpots.get(numberOfFinishSpotsNeeded - 1);
 
             System.out.println("MarbleStateMoving: New state is MarbleStateFinishing");
+            newMarbleState = new MarbleStateFinish();
+
         }
 
         // We're able to move, the first time the marble is moved, we transition out of the protected state
@@ -123,13 +128,24 @@ public class MarbleStateMoving implements MarbleState
 
         marble.move(finalSpotToMoveTo);
 
-        // Decrement the number of spots left to move
+        // After the move is successful, then handle the number of spots left to move
         _NumberOfSpotsToGo = _NumberOfSpotsToGo - cardValue;
+
+        // handle the case where a 4 is played in start
+        if (_NumberOfSpotsToGo > 64)
+        {
+            _NumberOfSpotsToGo = _NumberOfSpotsToGo - 64;
+        }
 
         System.out.println("Player: Exposed Marble is currently on spot: " + currentSpotNumber + " and moving to " + newSpotNumber
                 + " and has " + _NumberOfSpotsToGo + " number of spots to go!");
 
         // Stay in the same state
+        if (newMarbleState != null)
+        {
+            return newMarbleState;
+        }
+
         return null;
     }
 
