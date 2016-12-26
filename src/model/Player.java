@@ -7,7 +7,7 @@ public class Player
 {
     private ArrayList<Card> _CardsInHand = new ArrayList<Card>(5);
     private ArrayList<Spot> _FinishSpots = null;
-    private int _MarblesLeftToFinish = 4;
+    private int _MarblesNeededToFinish = 4;
 
     // They need to know what kind of card they have?
     // Need to be able to play a card
@@ -43,9 +43,14 @@ public class Player
         return false;
     }
 
-    public int getMarblesLeftToFinish()
+    public int getMarblesNeededToFinish()
     {
-        return _MarblesLeftToFinish;
+        return _MarblesNeededToFinish;
+    }
+
+    public void decrementMarblesNeededToFinish()
+    {
+        _MarblesNeededToFinish--;
     }
 
     public boolean play(Card playedCard, Marble marble)

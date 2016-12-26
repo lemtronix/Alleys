@@ -116,7 +116,7 @@ public class MarbleStateMoving implements MarbleState
             finalSpotToMoveTo = finishSpots.get(numberOfFinishSpotsNeeded - 1);
 
             System.out.println("MarbleStateMoving: New state is MarbleStateFinishing");
-            newMarbleState = new MarbleStateFinish();
+            newMarbleState = new MarbleStateFinish(numberOfFinishSpotsNeeded);
 
         }
 
