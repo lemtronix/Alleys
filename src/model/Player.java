@@ -6,6 +6,8 @@ import java.util.List;
 public class Player
 {
     private ArrayList<Card> _CardsInHand = new ArrayList<Card>(5);
+    private ArrayList<Spot> _FinishSpots = null;
+    private int _MarblesNeededToFinish = 4;
 
     // They need to know what kind of card they have?
     // Need to be able to play a card
@@ -13,10 +15,9 @@ public class Player
     // Always has 4 marbles, which marbles are they?
     // Need to be able to move their own marble.
 
-    //
-
-    public Player()
+    public Player(ArrayList<Spot> finishSpots)
     {
+        _FinishSpots = finishSpots;
     }
 
     public void addCard(Card dealtCard)
@@ -42,6 +43,16 @@ public class Player
         return false;
     }
 
+    public int getMarblesNeededToFinish()
+    {
+        return _MarblesNeededToFinish;
+    }
+
+    public void decrementMarblesNeededToFinish()
+    {
+        _MarblesNeededToFinish--;
+    }
+
     public boolean play(Card playedCard, Marble marble)
     {
         // Check that the card is owned by the player and marble is owned by the player
@@ -61,5 +72,10 @@ public class Player
         // and notify anyone interested in cards and marbles that there's an update.
         // End the turn?
         return true;
+    }
+
+    public List<Spot> getFinishSpots()
+    {
+        return _FinishSpots;
     }
 }

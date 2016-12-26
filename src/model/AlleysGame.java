@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import controller.MarbleListener;
@@ -9,7 +10,10 @@ public class AlleysGame
 {
     public static final int MaxNumberOfMarbles = 16;
     public static final int MaxNumberOfSpots = 96;
-    public static final int FirstMoveableSpot = 32;
+
+    public static final int FirstBoardSpot = 32;
+    public static final int TotalNumberOfFinishSpots = 4;
+    public static final int TotalNumberOfBoardSpots = 64;
 
     private static final int MIN_NUMBER_OF_PLAYERS = 1;
     private static final int MAX_NUMBER_OF_PLAYERS = 4;
@@ -38,13 +42,19 @@ public class AlleysGame
         CreateSpots();
         CreateMarbles();
 
-        _Players.add(0, new Player());
+        // Create the player's finish spots
+        Spot[] Player0FinishSpots = { _Spots.get(16), _Spots.get(17), _Spots.get(18), _Spots.get(19) };
+
+        ArrayList<Spot> player0FinishSpots = new ArrayList<Spot>(Arrays.asList(Player0FinishSpots));
+
+        _Players.add(0, new Player(player0FinishSpots));
 
         // TODO test code
         // For testing, always give the King of Clubs, a 4 and a Queen
         _Players.get(0).addCard(_Deck.GetCardOfKnownValue(12));
         _Players.get(0).addCard(_Deck.GetCardOfKnownValue(3));
         _Players.get(0).addCard(_Deck.GetCardOfKnownValue(11));
+        _Players.get(0).addCard(_Deck.GetCardOfKnownValue(0));
 
         for (int i = 0; i < 4; i++)
         {
@@ -131,6 +141,11 @@ public class AlleysGame
         Marble marble = _Marbles.get(marbleIdNumber);
 
         player.play(playedCard, marble);
+
+        if (player.getMarblesNeededToFinish() == 0)
+        {
+            System.out.println("Player " + player + " has won the game!");
+        }
 
         return true;
     }
