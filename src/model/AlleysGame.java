@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import controller.MarbleListener;
@@ -38,7 +39,12 @@ public class AlleysGame
         CreateSpots();
         CreateMarbles();
 
-        _Players.add(0, new Player());
+        // Create the player's finish spots
+        Spot[] Player0FinishSpots = { _Spots.get(16), _Spots.get(17), _Spots.get(18), _Spots.get(19) };
+
+        ArrayList<Spot> player0FinishSpots = new ArrayList<Spot>(Arrays.asList(Player0FinishSpots));
+
+        _Players.add(0, new Player(player0FinishSpots));
 
         // TODO test code
         // For testing, always give the King of Clubs, a 4 and a Queen
