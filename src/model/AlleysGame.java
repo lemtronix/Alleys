@@ -10,7 +10,10 @@ public class AlleysGame
 {
     public static final int MaxNumberOfMarbles = 16;
     public static final int MaxNumberOfSpots = 96;
-    public static final int FirstMoveableSpot = 32;
+
+    public static final int FirstBoardSpot = 32;
+    public static final int TotalNumberOfFinishSpots = 4;
+    public static final int TotalNumberOfBoardSpots = 64;
 
     private static final int MIN_NUMBER_OF_PLAYERS = 1;
     private static final int MAX_NUMBER_OF_PLAYERS = 4;
@@ -138,6 +141,11 @@ public class AlleysGame
         Marble marble = _Marbles.get(marbleIdNumber);
 
         player.play(playedCard, marble);
+
+        if (player.getMarblesNeededToFinish() == 0)
+        {
+            System.out.println("Player " + player + " has won the game!");
+        }
 
         return true;
     }

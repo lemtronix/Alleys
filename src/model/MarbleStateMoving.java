@@ -26,7 +26,7 @@ public class MarbleStateMoving implements MarbleState
             // No additional checks if the card value is less than the number of spots to go
             numberOfBoardSpotsNeeded = cardValue;
         }
-        else if (cardValue <= (_NumberOfSpotsToGo + 4))
+        else if (cardValue <= (_NumberOfSpotsToGo + AlleysGame.TotalNumberOfFinishSpots))
         {
             // Figure out how many finish spots does this marble need?
             numberOfFinishSpotsNeeded = cardValue - _NumberOfSpotsToGo;
@@ -50,14 +50,14 @@ public class MarbleStateMoving implements MarbleState
             // System.out.println("MarbleMoving: Overflow wrapping event. currentSpot: " + currentSpotNumber + " nextSpot: " + nextSpotNumber
             // + " newSpot: " + newSpotNumber);
             newSpotNumber = newSpotNumber - AlleysGame.MaxNumberOfSpots;
-            newSpotNumber = AlleysGame.FirstMoveableSpot + newSpotNumber;
+            newSpotNumber = AlleysGame.FirstBoardSpot + newSpotNumber;
             // System.out.println("Now newSpot: " + newSpotNumber);
         }
-        else if (newSpotNumber < AlleysGame.FirstMoveableSpot)
+        else if (newSpotNumber < AlleysGame.FirstBoardSpot)
         {
             // System.out.println("MarbleMoving: Underflow wrapping event. currentSpot: " + currentSpotNumber + " nextSpot: " + nextSpotNumber
             // + " newSpot: " + newSpotNumber);
-            newSpotNumber = AlleysGame.FirstMoveableSpot - newSpotNumber;
+            newSpotNumber = AlleysGame.FirstBoardSpot - newSpotNumber;
             newSpotNumber = AlleysGame.MaxNumberOfSpots - newSpotNumber;
             // System.out.println("Now newSpot: " + newSpotNumber);
         }
@@ -132,9 +132,9 @@ public class MarbleStateMoving implements MarbleState
         _NumberOfSpotsToGo = _NumberOfSpotsToGo - cardValue;
 
         // handle the case where a 4 is played in start
-        if (_NumberOfSpotsToGo > 64)
+        if (_NumberOfSpotsToGo >= AlleysGame.TotalNumberOfBoardSpots)
         {
-            _NumberOfSpotsToGo = _NumberOfSpotsToGo - 64;
+            _NumberOfSpotsToGo = _NumberOfSpotsToGo - AlleysGame.TotalNumberOfBoardSpots;
         }
 
         System.out.println("Player: Exposed Marble is currently on spot: " + currentSpotNumber + " and moving to " + newSpotNumber

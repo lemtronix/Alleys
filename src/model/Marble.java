@@ -95,9 +95,6 @@ public class Marble
     public boolean move(Spot newSpot)
     {
         // First, check if we can traverse the pathway without hitting a protected marble
-        // TODO: Spot numbers may not be sequential.. now what?
-
-        // System.out.println("Marble: " + this + " moving...");
 
         newSpot.setMarble(this);
 

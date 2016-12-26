@@ -7,7 +7,6 @@ public class MarbleStateFinish implements MarbleState
     // 1 is the first spot
     // 4 is the last spot (no more moves needed)
 
-    private static final int TotalNumberOfFinishSpots = 4;
     private int _FinishSpotNumberOccupied = 0;
 
     public MarbleStateFinish(int finishSpotNumberOccupied)
@@ -31,7 +30,7 @@ public class MarbleStateFinish implements MarbleState
         // Make sure the cardValue is able to fit within the remaining spaces
         int cardValue = card.toInt();
 
-        if (cardValue > (TotalNumberOfFinishSpots - _FinishSpotNumberOccupied))
+        if (cardValue > (AlleysGame.TotalNumberOfFinishSpots - _FinishSpotNumberOccupied))
         {
             System.out.println("MarbleStateFinish: Card value too great to play on this marble!");
             return null;
