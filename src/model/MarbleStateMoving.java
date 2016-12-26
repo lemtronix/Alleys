@@ -11,6 +11,7 @@ public class MarbleStateMoving implements MarbleState
     public MarbleState play(Marble marble, Card card)
     {
         MarbleState newMarbleState = null;
+        boolean movingForward = true;
 
         // TODO: Test a marble should not be able to move backwards over a protected marble. Verify this is so.
         Spot finalSpotToMoveTo = null;
@@ -40,34 +41,55 @@ public class MarbleStateMoving implements MarbleState
             return null;
         }
 
+        int numberOfBoardSpotsToMove = Math.abs(numberOfBoardSpotsNeeded);
         int currentSpotNumber = marble.getCurrentSpot().getSpotNumber();
-        int nextSpotNumber = currentSpotNumber + 1;
-        int newSpotNumber = currentSpotNumber + numberOfBoardSpotsNeeded;
-
-        // Handle wrapping values around the game board
-        if (newSpotNumber >= AlleysGame.MaxNumberOfSpots)
-        {
-            // System.out.println("MarbleMoving: Overflow wrapping event. currentSpot: " + currentSpotNumber + " nextSpot: " + nextSpotNumber
-            // + " newSpot: " + newSpotNumber);
-            newSpotNumber = newSpotNumber - AlleysGame.MaxNumberOfSpots;
-            newSpotNumber = AlleysGame.FirstBoardSpot + newSpotNumber;
-            // System.out.println("Now newSpot: " + newSpotNumber);
-        }
-        else if (newSpotNumber < AlleysGame.FirstBoardSpot)
-        {
-            // System.out.println("MarbleMoving: Underflow wrapping event. currentSpot: " + currentSpotNumber + " nextSpot: " + nextSpotNumber
-            // + " newSpot: " + newSpotNumber);
-            newSpotNumber = AlleysGame.FirstBoardSpot - newSpotNumber;
-            newSpotNumber = AlleysGame.MaxNumberOfSpots - newSpotNumber;
-            // System.out.println("Now newSpot: " + newSpotNumber);
-        }
+        int nextSpotNumber = currentSpotNumber;
 
         List<Spot> boardSpots = AlleysGame.getWorld()._Spots;
 
-        // Make sure each spot we're moving across is not protected
-        for (int i = nextSpotNumber; i <= newSpotNumber; i++)
+        if (cardValue >= 0)
         {
-            Spot spot = boardSpots.get(i);
+            System.out.println("MarbleStateMoving: Moving forward...");
+            movingForward = true;
+        }
+        else
+        {
+            System.out.println("MarbleStateMoving: Moving backwards...");
+            movingForward = false;
+        }
+
+        while (numberOfBoardSpotsToMove != 0)
+        {
+            numberOfBoardSpotsToMove--;
+
+            if (movingForward == true)
+            {
+                nextSpotNumber += 1;
+            }
+            else
+            {
+                nextSpotNumber -= 1;
+            }
+
+            // Handle wrapping values around the game board
+            if (nextSpotNumber >= AlleysGame.MaxNumberOfSpots)
+            {
+                // System.out.println("MarbleMoving: Overflow wrapping event. currentSpot: " + currentSpotNumber + " nextSpot: " + nextSpotNumber
+                // + " newSpot: " + newSpotNumber);
+                nextSpotNumber -= AlleysGame.MaxNumberOfSpots;
+                nextSpotNumber += AlleysGame.FirstBoardSpot;
+                // System.out.println("Now newSpot: " + newSpotNumber);
+            }
+            else if (nextSpotNumber < AlleysGame.FirstBoardSpot)
+            {
+                // System.out.println("MarbleMoving: Underflow wrapping event. currentSpot: " + currentSpotNumber + " nextSpot: " + nextSpotNumber
+                // + " newSpot: " + newSpotNumber);
+                nextSpotNumber -= AlleysGame.FirstBoardSpot;
+                nextSpotNumber += AlleysGame.MaxNumberOfSpots;
+                // System.out.println("Now newSpot: " + newSpotNumber);
+            }
+
+            Spot spot = boardSpots.get(nextSpotNumber);
 
             if (spot.isOccupied() == true)
             {
@@ -80,14 +102,15 @@ public class MarbleStateMoving implements MarbleState
                 }
 
                 // Check if we need to send the landed spot's marble home
-                if ((i == newSpotNumber) && (numberOfFinishSpotsNeeded == 0))
+                if ((numberOfBoardSpotsToMove == 0) && (numberOfFinishSpotsNeeded == 0))
                 {
                     // If not protected, send it home!
                     spot.getOccupyingMarble().setState(new MarbleStateHome());
                 }
+
             }
 
-            if (i == newSpotNumber)
+            if (numberOfBoardSpotsToMove == 0)
             {
                 finalSpotToMoveTo = spot;
             }
@@ -137,8 +160,8 @@ public class MarbleStateMoving implements MarbleState
             _NumberOfSpotsToGo = _NumberOfSpotsToGo - AlleysGame.TotalNumberOfBoardSpots;
         }
 
-        System.out.println("Player: Exposed Marble is currently on spot: " + currentSpotNumber + " and moving to " + newSpotNumber
-                + " and has " + _NumberOfSpotsToGo + " number of spots to go!");
+        System.out.println("Player: Exposed Marble is currently on spot: " + currentSpotNumber + " and moving to "
+                + finalSpotToMoveTo.getSpotNumber() + " and has " + _NumberOfSpotsToGo + " number of spots to go!");
 
         // Stay in the same state
         if (newMarbleState != null)
