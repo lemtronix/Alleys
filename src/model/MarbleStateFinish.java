@@ -24,6 +24,7 @@ public class MarbleStateFinish implements MarbleState
         if (cardRank == CardValue.Jack || cardRank == CardValue.Four)
         {
             System.out.println("MarbleStateFinish: Jacks and Fours cannot be played in home!");
+            marble.setMoveResultSuccess(false);
             return null;
         }
 
@@ -33,6 +34,7 @@ public class MarbleStateFinish implements MarbleState
         if (cardValue > (AlleysGame.TotalNumberOfFinishSpots - _FinishSpotNumberOccupied))
         {
             System.out.println("MarbleStateFinish: Card value too great to play on this marble!");
+            marble.setMoveResultSuccess(false);
             return null;
         }
 
@@ -56,6 +58,7 @@ public class MarbleStateFinish implements MarbleState
                     System.out.println("MarbleStateMoving: Bumped up against a protected marble, cannot move!");
 
                     // Stay in the same state
+                    marble.setMoveResultSuccess(false);
                     return null;
                 }
             }
@@ -72,6 +75,7 @@ public class MarbleStateFinish implements MarbleState
 
         System.out.println("MarbleStateFinish: Marble has advanced " + cardValue + " number of finish spots!");
 
+        marble.setMoveResultSuccess(true);
         return null;
     }
 

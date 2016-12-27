@@ -19,6 +19,7 @@ public class MarbleStateHome implements MarbleState
                 {
                     // Protected marble on get starting spot.
                     System.out.println("MarbleStateHome: Unable to move to starting spot!");
+                    marble.setMoveResultSuccess(false);
                     return null;
                 }
                 else
@@ -37,9 +38,11 @@ public class MarbleStateHome implements MarbleState
         {
             // Stay in this same state
             System.out.println("MarbleStateHome: Must play a King or an Ace to get out of start!");
+            marble.setMoveResultSuccess(false);
             return null;
         }
 
+        marble.setMoveResultSuccess(true);
         return new MarbleStateMoving();
     }
 

@@ -15,41 +15,50 @@ public class AlleysGame
     public static final int TotalNumberOfFinishSpots = 4;
     public static final int TotalNumberOfBoardSpots = 64;
 
-    private static final int MIN_NUMBER_OF_PLAYERS = 1;
+    private static final int MIN_NUMBER_OF_PLAYERS = 2;
     private static final int MAX_NUMBER_OF_PLAYERS = 4;
 
     private static AlleysGame _AlleysGame;
+
+    private int _NumberOfPlayers = 0;
     private int _CurrentPlayersTurn = 0;
 
-    ArrayList<Spot> _Spots = new ArrayList<Spot>();
-    ArrayList<Marble> _Marbles = new ArrayList<Marble>();
-    ArrayList<Player> _Players = new ArrayList<Player>();
+    private ArrayList<Spot> _Spots = new ArrayList<Spot>();
+    private ArrayList<Marble> _Marbles = new ArrayList<Marble>();
+    private ArrayList<Player> _Players = new ArrayList<Player>();
 
-    Deck _Deck;
+    private Dealer _Dealer;
 
-    public AlleysGame(int NumberOfPlayers)
+    public AlleysGame(int numberOfPlayers)
     {
         _AlleysGame = this;
 
-        _Deck = new Deck();
-
-        if (NumberOfPlayers < MIN_NUMBER_OF_PLAYERS && NumberOfPlayers > MAX_NUMBER_OF_PLAYERS)
+        if (numberOfPlayers < MIN_NUMBER_OF_PLAYERS && numberOfPlayers > MAX_NUMBER_OF_PLAYERS)
         {
             System.out.println("Invalid number of players specified. Please enter a number between " + MIN_NUMBER_OF_PLAYERS + " and "
                     + MAX_NUMBER_OF_PLAYERS);
         }
 
+        _NumberOfPlayers = numberOfPlayers;
+
         CreateSpots();
         CreateMarbles();
 
-        CreatePlayers(NumberOfPlayers);
+        CreatePlayers(_NumberOfPlayers);
 
         LinkMarblesToSpotsAndPlayers();
+
+        _Dealer = new Dealer(_Players);
     }
 
     public static AlleysGame getWorld()
     {
         return _AlleysGame;
+    }
+
+    public List<Spot> getSpots()
+    {
+        return _Spots;
     }
 
     /**
@@ -80,6 +89,10 @@ public class AlleysGame
         _Marbles.get(13).setState(new MarbleStateHome());
         _Marbles.get(14).setState(new MarbleStateHome());
         _Marbles.get(15).setState(new MarbleStateHome());
+
+        // TODO maybe add the ability to determine who the dealer is based on which player gets the high card?
+        _CurrentPlayersTurn = _Dealer.getPlayerLeftOfDealer();
+        _Dealer.deal();
     }
 
     public void setMarbleListener(MarbleListener marbleListener)
@@ -91,24 +104,72 @@ public class AlleysGame
         }
     }
 
+    public String getCurrentPlayerName()
+    {
+        String playerName = _Players.get(_CurrentPlayersTurn).getName();
+
+        if (playerName == "")
+        {
+            // No name provided, use the default
+            playerName = "Player " + _CurrentPlayersTurn;
+        }
+
+        return playerName;
+    }
+
     public List<Card> getCurrentPlayersCards()
     {
+        int numberOfSkippedPlayers = 0;
+
+        // Check and make sure the player has cards to play, otherwise skip their turn
+        while (_Players.get(_CurrentPlayersTurn).getCards().size() == 0 && numberOfSkippedPlayers != _NumberOfPlayers)
+        {
+            nextPlayer();
+            numberOfSkippedPlayers++;
+        }
+
+        // If we've skipped all the players, then we need to deal more cards
+        if (numberOfSkippedPlayers == _NumberOfPlayers)
+        {
+            // We need to deal more cards
+            _Dealer.deal();
+            _CurrentPlayersTurn = _Dealer.getPlayerLeftOfDealer();
+        }
+
         return _Players.get(_CurrentPlayersTurn).getCards();
+    }
+
+    public void skipPlayerTurn()
+    {
+        _Players.get(_CurrentPlayersTurn).foldCards();
+        nextPlayer();
     }
 
     public boolean play(int marbleIdNumber, Card playedCard)
     {
+        boolean playSuccessful = false;
+
         Player player = _Players.get(_CurrentPlayersTurn);
         Marble marble = _Marbles.get(marbleIdNumber);
 
-        player.play(playedCard, marble);
+        playSuccessful = player.play(playedCard, marble);
 
         if (player.getMarblesNeededToFinish() == 0)
         {
             System.out.println("Player " + player.getName() + " has won the game!");
+
+            // TODO would you like to play again?
         }
 
-        return true;
+        if (playSuccessful == true)
+        {
+            nextPlayer();
+        }
+
+        // If the last player doesn't have any more cards
+        // Then we need to shuffle the cards and re-deal to all of the players
+
+        return playSuccessful;
     }
 
     private void CreateSpots()
@@ -207,17 +268,19 @@ public class AlleysGame
         _Players.add(1, new Player(player1FinishSpots));
         _Players.add(2, new Player(player2FinishSpots));
         _Players.add(3, new Player(player3FinishSpots));
+    }
 
-        // TODO test code
-        // For testing, always give the King of Clubs, a 4 and a Queen
-        _Players.get(0).addCard(_Deck.GetCardOfKnownValue(12));
-        _Players.get(0).addCard(_Deck.GetCardOfKnownValue(3));
-        _Players.get(0).addCard(_Deck.GetCardOfKnownValue(11));
-        _Players.get(0).addCard(_Deck.GetCardOfKnownValue(0));
+    private void nextPlayer()
+    {
+        // Advance the number of turns
+        // Then advance the counter to the next player
+        _CurrentPlayersTurn++;
 
-        for (int i = 0; i < 4; i++)
+        if (_CurrentPlayersTurn >= _NumberOfPlayers)
         {
-            _Players.get(0).addCard(_Deck.GetRandomCard());
+            _CurrentPlayersTurn = 0;
         }
+
+        System.out.println("Now player " + _CurrentPlayersTurn + "'s turn.");
     }
 }

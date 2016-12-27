@@ -60,20 +60,46 @@ public class Player
 
     public boolean play(Card playedCard, Marble marble)
     {
+        boolean ableToPlayCard = false;
+
         // Check that the card is owned by the player and marble is owned by the player
         if (hasCard(playedCard) == false || marble.isOwner(this) == false)
         {
-            System.err.println("Invalid card or marble played.");
+            if (marble.isOwner(this) == false)
+            {
+                System.err.println("Player: Player does not own this marble.");
+            }
+            else
+            {
+                System.err.println("Player: Player does not have this card.");
+            }
+
             return false;
         }
 
-        marble.play(playedCard);
+        ableToPlayCard = marble.play(playedCard);
 
-        return true;
+        if (ableToPlayCard == true)
+        {
+            removeCard(playedCard);
+        }
+
+        return ableToPlayCard;
     }
 
     public List<Spot> getFinishSpots()
     {
         return _FinishSpots;
+    }
+
+    public void foldCards()
+    {
+        System.out.println("Player " + this.getName() + " has folded their cards.");
+        _CardsInHand.clear();
+    }
+
+    private void removeCard(Card card)
+    {
+        _CardsInHand.remove(card);
     }
 }

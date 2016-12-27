@@ -17,6 +17,8 @@ public class Marble
 
     private MarbleListener _MarbleListener = null;
 
+    private boolean _MoveResultWasSuccessful = false;
+
     public Marble(int marbleIdNumber)
     {
         _MarbleIdNumber = marbleIdNumber;
@@ -71,8 +73,10 @@ public class Marble
         }
     }
 
-    public void play(Card card)
+    public boolean play(Card card)
     {
+        clearMoveResult();
+
         MarbleState newMarbleState = _MarbleState.play(this, card);
 
         if (newMarbleState != null)
@@ -85,6 +89,13 @@ public class Marble
             // Enter the new state
             _MarbleState.enter(this);
         }
+
+        return wasMoveSuccessful();
+    }
+
+    public void setMoveResultSuccess(boolean wasSuccessful)
+    {
+        _MoveResultWasSuccessful = wasSuccessful;
     }
 
     public void setState(MarbleState newMarbleState)
@@ -156,7 +167,7 @@ public class Marble
 
     private void stateMayHaveChanged(MarbleState newMarbleState)
     {
-        System.out.println("Marble: State May Have Changed.");
+        // System.out.println("Marble: State May Have Changed.");
 
         // If we were passed a state, and it's different than the current state
         // TODO: Is the state != newState necessary?
@@ -166,15 +177,25 @@ public class Marble
             if (_MarbleState != null)
             {
                 // Exit the current state
-                System.out.println("Marble: Calling state's exit action.");
+                // System.out.println("Marble: Calling state's exit action.");
                 _MarbleState.exit(this);
             }
 
             _MarbleState = newMarbleState;
 
             // Enter the new state
-            System.out.println("Marble: Calling state's enter action.");
+            // System.out.println("Marble: Calling state's enter action.");
             _MarbleState.enter(this);
         }
+    }
+
+    private boolean wasMoveSuccessful()
+    {
+        return _MoveResultWasSuccessful;
+    }
+
+    private void clearMoveResult()
+    {
+        _MoveResultWasSuccessful = false;
     }
 }

@@ -37,6 +37,7 @@ public class MarbleStateMoving implements MarbleState
         else
         {
             System.out.println("MarbleStateMoving: Not enough spots left.");
+            marble.setMoveResultSuccess(false);
             return null;
         }
 
@@ -44,7 +45,7 @@ public class MarbleStateMoving implements MarbleState
         int currentSpotNumber = marble.getCurrentSpot().getSpotNumber();
         int nextSpotNumber = currentSpotNumber;
 
-        List<Spot> boardSpots = AlleysGame.getWorld()._Spots;
+        List<Spot> boardSpots = AlleysGame.getWorld().getSpots();
 
         if (cardValue >= 0)
         {
@@ -89,6 +90,7 @@ public class MarbleStateMoving implements MarbleState
                     System.out.println("MarbleStateMoving: Bumped up against a protected marble, cannot move!");
 
                     // Stay in the same state
+                    marble.setMoveResultSuccess(false);
                     return null;
                 }
 
@@ -122,6 +124,7 @@ public class MarbleStateMoving implements MarbleState
                 {
                     // Finish spots are always protected...
                     System.out.println("MarbleStateMoving: Bumped up against a marble already in home, unable to move!");
+                    marble.setMoveResultSuccess(false);
                     return null;
                 }
             }
@@ -153,6 +156,8 @@ public class MarbleStateMoving implements MarbleState
 
         System.out.println("Player: Exposed Marble is currently on spot: " + currentSpotNumber + " and moving to "
                 + finalSpotToMoveTo.getSpotNumber() + " and has " + _NumberOfSpotsToGo + " number of spots to go!");
+
+        marble.setMoveResultSuccess(true);
 
         // Stay in the same state
         if (newMarbleState != null)

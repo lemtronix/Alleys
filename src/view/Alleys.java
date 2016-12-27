@@ -65,7 +65,66 @@ public class Alleys extends JFrame implements Runnable
             int MarbleIdNumber = -1;
             _Board.clearSelectedMarble();
 
-            // 1. Select a marble
+            // 1. Show player cards
+            List<Card> PlayersCards = _Controller.getCurrentPlayersCards();
+
+            System.out.println(_Controller.getCurrentPlayersName() + " turn.");
+
+            for (int i = 0; i < PlayersCards.size(); i++)
+            {
+                System.out.println(i + ".) " + PlayersCards.get(i));
+            }
+
+            System.out.println("S.) Skip Turn.");
+
+            // 2. Play a card
+            System.out.println("Alleys: Select a card to play...");
+
+            /// For now, just get a number from the console
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+            String UserInput = "";
+            Card PlayedCard = null;
+
+            try
+            {
+                int UserInt = 0;
+
+                UserInput = br.readLine();
+
+                if (UserInput.toUpperCase().contains("S") == true)
+                {
+                    System.out.println("Alleys: Skipping Turn...");
+                    _Controller.skipPlayerTurn();
+                    continue;
+                }
+                else
+                {
+                    UserInt = Integer.parseInt(UserInput);
+                }
+
+                if (UserInt > PlayersCards.size())
+                {
+                    throw new IndexOutOfBoundsException();
+                }
+
+                PlayedCard = PlayersCards.get(UserInt);
+            }
+            catch (NumberFormatException nfe)
+            {
+                System.err.println("Alleys: Enter a number only!");
+            }
+            catch (IndexOutOfBoundsException ioobe)
+            {
+                System.err.println("Invalid number specified.");
+            }
+            catch (IOException e)
+            {
+                System.err.println("Alleys: Generic IOException!");
+                e.printStackTrace();
+            }
+
+            // 2. Select a marble
             System.out.println("Alleys: Select a marble to move...");
 
             // Wait for the user to select a marble
@@ -88,50 +147,12 @@ public class Alleys extends JFrame implements Runnable
                 }
             }
 
-            // // 2. Show player cards
-            List<Card> PlayersCards = _Controller.getCurrentPlayersCards();
-
-            for (int i = 0; i < PlayersCards.size(); i++)
+            // 4. Then move the marble
+            if ((MarbleIdNumber != -1) && (PlayedCard != null))
             {
-                System.out.println(i + ".) " + PlayersCards.get(i));
-            }
-
-            // 2. Play a card
-            System.out.println("Alleys: Select a card to play...");
-
-            /// For now, just get a number from the console
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-            try
-            {
-                String UserInput = br.readLine();
-                int UserInt = Integer.parseInt(UserInput);
-
-                if (UserInt > PlayersCards.size())
-                {
-                    throw new IndexOutOfBoundsException();
-                }
-
-                Card PlayedCard = PlayersCards.get(UserInt);
-
-                // 4. Then move the marble
                 _Controller.currentPlayerPlays(MarbleIdNumber, PlayedCard);
             }
-            catch (NumberFormatException nfe)
-            {
-                System.err.println("Alleys: Enter a number only!");
-            }
-            catch (IndexOutOfBoundsException ioobe)
-            {
-                System.err.println("Invalid number specified.");
-            }
-            catch (IOException e)
-            {
-                System.err.println("Alleys: Generic IOException!");
-                e.printStackTrace();
-            }
         }
-
     }
 
     public static void main(String[] args)

@@ -16,9 +16,6 @@ public class Deck
 
     public Deck()
     {
-        // Mark the array as
-        Arrays.fill(_CardDealt, false);
-
         // Clubs
         _Deck[0] = new Card(CardValue.Ace, CardSuit.Clubs);
         _Deck[1] = new Card(CardValue.Two, CardSuit.Clubs);
@@ -78,6 +75,8 @@ public class Deck
         _Deck[49] = new Card(CardValue.Jack, CardSuit.Spades);
         _Deck[50] = new Card(CardValue.Queen, CardSuit.Spades);
         _Deck[51] = new Card(CardValue.King, CardSuit.Spades);
+
+        shuffle();
     }
 
     public Card GetRandomCard()
@@ -99,17 +98,19 @@ public class Deck
 
                 RandomCardAttemptCounter++;
             }
+
+            // System.out.println("Deck: There are " + NumberOfCardsInDeck + " cards left in deck.");
         }
 
         return CardToDeal;
     }
-    
+
     @Deprecated
     public Card GetCardOfKnownValue(int cardNumber)
     {
         return _Deck[cardNumber];
     }
-    
+
     public boolean AnyCardsLeft()
     {
         if (NumberOfCardsInDeck > 0)
@@ -120,6 +121,14 @@ public class Deck
         {
             return false;
         }
+    }
+
+    public void shuffle()
+    {
+        System.out.println("Deck: Shuffling deck...");
+
+        NumberOfCardsInDeck = MaxNumberOfCardsInDeck;
+        Arrays.fill(_CardDealt, false);
     }
 
     protected void ListCards()
