@@ -13,7 +13,6 @@ public class MarbleStateMoving implements MarbleState
         MarbleState newMarbleState = null;
         boolean movingForward = true;
 
-        // TODO: Test a marble should not be able to move backwards over a protected marble. Verify this is so.
         Spot finalSpotToMoveTo = null;
         int numberOfFinishSpotsNeeded = 0;
         int numberOfBoardSpotsNeeded = 0;
@@ -49,12 +48,10 @@ public class MarbleStateMoving implements MarbleState
 
         if (cardValue >= 0)
         {
-            System.out.println("MarbleStateMoving: Moving forward...");
             movingForward = true;
         }
         else
         {
-            System.out.println("MarbleStateMoving: Moving backwards...");
             movingForward = false;
         }
 
@@ -74,19 +71,13 @@ public class MarbleStateMoving implements MarbleState
             // Handle wrapping values around the game board
             if (nextSpotNumber >= AlleysGame.MaxNumberOfSpots)
             {
-                // System.out.println("MarbleMoving: Overflow wrapping event. currentSpot: " + currentSpotNumber + " nextSpot: " + nextSpotNumber
-                // + " newSpot: " + newSpotNumber);
                 nextSpotNumber -= AlleysGame.MaxNumberOfSpots;
                 nextSpotNumber += AlleysGame.FirstBoardSpot;
-                // System.out.println("Now newSpot: " + newSpotNumber);
             }
             else if (nextSpotNumber < AlleysGame.FirstBoardSpot)
             {
-                // System.out.println("MarbleMoving: Underflow wrapping event. currentSpot: " + currentSpotNumber + " nextSpot: " + nextSpotNumber
-                // + " newSpot: " + newSpotNumber);
                 nextSpotNumber -= AlleysGame.FirstBoardSpot;
                 nextSpotNumber += AlleysGame.MaxNumberOfSpots;
-                // System.out.println("Now newSpot: " + newSpotNumber);
             }
 
             Spot spot = boardSpots.get(nextSpotNumber);
@@ -181,17 +172,13 @@ public class MarbleStateMoving implements MarbleState
     @Override
     public void enter(Marble marble)
     {
-        // System.out.println("MarbleStateMoving: Entering...");
-        marble.move(marble.getStartingSpot());
         System.out.println("MarbleState: Marble on the board! I have " + _NumberOfSpotsToGo + " spots to go!");
-
+        marble.move(marble.getStartingSpot());
     }
 
     @Override
     public void exit(Marble marble)
     {
-        // System.out.println("MarbleStateMoving: Exiting...");
-        System.out.println("MarbleState: Bollocks! I had only " + _NumberOfSpotsToGo + " spots to go!");
 
     }
 }

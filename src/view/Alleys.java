@@ -114,11 +114,8 @@ public class Alleys extends JFrame implements Runnable
 
                 Card PlayedCard = PlayersCards.get(UserInt);
 
-                // 4. If valid, then move the marble
-                /// TODO For now, move the marble to the appropriate spot.
+                // 4. Then move the marble
                 _Controller.currentPlayerPlays(MarbleIdNumber, PlayedCard);
-
-                // _Board.MoveMarbleToSpot(_SelectedMarble, PlayedCard.GetValue());
             }
             catch (NumberFormatException nfe)
             {
