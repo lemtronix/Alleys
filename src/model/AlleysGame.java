@@ -120,12 +120,14 @@ public class AlleysGame
     public List<Card> getCurrentPlayersCards()
     {
         int numberOfSkippedPlayers = 0;
+        Player currentPlayer = _Players.get(_CurrentPlayersTurn);
 
         // Check and make sure the player has cards to play, otherwise skip their turn
-        while (_Players.get(_CurrentPlayersTurn).getCards().size() == 0 && numberOfSkippedPlayers != _NumberOfPlayers)
+        while (currentPlayer.getCards().size() == 0 && numberOfSkippedPlayers != _NumberOfPlayers)
         {
             nextPlayer();
             numberOfSkippedPlayers++;
+            currentPlayer = _Players.get(_CurrentPlayersTurn);
         }
 
         // If we've skipped all the players, then we need to deal more cards
@@ -134,9 +136,10 @@ public class AlleysGame
             // We need to deal more cards
             _Dealer.deal();
             _CurrentPlayersTurn = _Dealer.getPlayerLeftOfDealer();
+            currentPlayer = _Players.get(_CurrentPlayersTurn);
         }
 
-        return _Players.get(_CurrentPlayersTurn).getCards();
+        return currentPlayer.getCards();
     }
 
     public void skipPlayerTurn()

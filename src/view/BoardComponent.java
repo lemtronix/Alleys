@@ -65,19 +65,19 @@ public class BoardComponent extends JComponent implements MarbleListener
         });
     }
 
-    public MarbleGraphic GetSelectedMarble()
+    public int GetSelectedMarble()
     {
         if (_SelectedMarble != null)
         {
             // System.out.println("BoardComponent: Returning actual marble");
-            return _SelectedMarble;
+            return _SelectedMarble.getMarbleIdNumber();
         }
 
-        return null;
+        return -1;
     }
 
     @Override
-    public void marbleEventOccurred(MarbleEvent me)
+    public void marbleUpdateEventOccurred(MarbleEvent me)
     {
         // System.out.println("BoardComponent: Marble Event Occurred!");
         // System.out.println("Marble# " + me.getMarbleIdNumber());
@@ -111,8 +111,6 @@ public class BoardComponent extends JComponent implements MarbleListener
     private void CreateSpots()
     {
         // Create the home spots
-        // _Controller.GetFirstHomeSpot()
-        // _Controller.GetNumberOfHomeSpots()
 
         int HomeRowSpotSpacing = 20;
         int HomeRowX = 25;
@@ -143,7 +141,6 @@ public class BoardComponent extends JComponent implements MarbleListener
         }
 
         // Create the board spots
-        // _Controller.GetFirstBoardSpot()
 
         // Square 100, 50
         // Diamond 50, 200

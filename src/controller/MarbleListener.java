@@ -4,5 +4,5 @@ import java.util.EventListener;
 
 public interface MarbleListener extends EventListener 
 {
-    public void marbleEventOccurred(MarbleEvent me);
+    public void marbleUpdateEventOccurred(MarbleEvent me);
 }

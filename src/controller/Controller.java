@@ -35,9 +35,9 @@ public class Controller
         return _AlleysGame.getCurrentPlayersCards();
     }
 
-    public void currentPlayerPlays(int marbleIdNumber, Card playedCard)
+    public boolean currentPlayerPlays(int marbleIdNumber, Card playedCard)
     {
-        _AlleysGame.play(marbleIdNumber, playedCard);
+        return _AlleysGame.play(marbleIdNumber, playedCard);
     }
 
     /// @pre Should be called before calling begin

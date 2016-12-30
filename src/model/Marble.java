@@ -150,7 +150,7 @@ public class Marble
         if (_MarbleListener != null)
         {
             // System.out.println("Marble: Notifying any listeners that an event occurred");
-            _MarbleListener.marbleEventOccurred(new MarbleEvent(this, marble.getId(), spot.getSpotNumber()));
+            _MarbleListener.marbleUpdateEventOccurred(new MarbleEvent(this, marble.getId(), spot.getSpotNumber()));
         }
     }
 

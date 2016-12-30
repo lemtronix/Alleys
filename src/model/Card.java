@@ -5,11 +5,13 @@ public class Card
     private static final int ORDINAL_OFFSET = 1;
     private CardValue _CardValue;
     private CardSuit _CardSuit;
+    private String _ImagePath;
 
-    public Card(CardValue Value, CardSuit Suit)
+    public Card(CardValue Value, CardSuit Suit, String imagePath)
     {
         _CardValue = Value;
         _CardSuit = Suit;
+        _ImagePath = imagePath;
     }
 
     public CardValue getRank()
@@ -25,19 +27,19 @@ public class Card
         {
             case Four:
                 CardValue = -4;
-                break;
+            break;
             case Jack:
                 CardValue = -1;
-                break;
+            break;
             case Queen:
                 CardValue = 12;
-                break;
+            break;
             case King:
                 CardValue = 0;
-                break;
+            break;
             default:
                 CardValue = _CardValue.ordinal() + ORDINAL_OFFSET;
-                break;
+            break;
         }
 
         return CardValue;
@@ -46,5 +48,10 @@ public class Card
     public String toString()
     {
         return "" + _CardValue + " of " + _CardSuit;
+    }
+
+    public String getImagePath()
+    {
+        return _ImagePath;
     }
 }
