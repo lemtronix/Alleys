@@ -181,6 +181,7 @@ public class BoardComponent extends JComponent implements MarbleListener
         int LastSpotX = MarbleSpotX;
         int LastSpotY = MarbleSpotY;
 
+        // TODO these colors are hard coded, look to pull these from Player instead.
         Color[] MarbleColors = { Color.yellow, Color.red, Color.blue, Color.green };
         int ColorSelector = 0;
         Color color = MarbleColors[ColorSelector];

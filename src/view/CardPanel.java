@@ -3,6 +3,8 @@ package view;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -76,13 +78,34 @@ public class CardPanel extends JPanel
         setBackground(Color.black);
         setBorder(BorderFactory.createLineBorder(Color.white));
 
-        add(_CardButtons.get(0));
-        add(_CardButtons.get(1));
-        add(_CardButtons.get(2));
-        add(_CardButtons.get(3));
-        add(_CardButtons.get(4));
+        setLayout(new GridBagLayout());
+        GridBagConstraints gc = new GridBagConstraints();
 
+        gc.fill = GridBagConstraints.NONE;
+
+        // Single Row
+        gc.gridy = 0;
+
+        gc.weightx = 1;
+        gc.weighty = 0;
+
+        gc.gridx = 0;
         add(_FoldButton);
+
+        gc.gridx++;
+        add(_CardButtons.get(0));
+
+        gc.gridx++;
+        add(_CardButtons.get(1));
+
+        gc.gridx++;
+        add(_CardButtons.get(2));
+
+        gc.gridx++;
+        add(_CardButtons.get(3));
+
+        gc.gridx++;
+        add(_CardButtons.get(4));
 
         setPreferredSize(new Dimension(10, 110));
     }

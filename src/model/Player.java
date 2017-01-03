@@ -9,10 +9,12 @@ public class Player
     private ArrayList<Spot> _FinishSpots = null;
     private int _MarblesNeededToFinish = 4;
     private String _Name = "";
+    private String _Color;
 
-    public Player(ArrayList<Spot> finishSpots)
+    public Player(ArrayList<Spot> finishSpots, String color)
     {
         _FinishSpots = finishSpots;
+        _Color = color;
     }
 
     public void setName(String name)
@@ -22,7 +24,19 @@ public class Player
 
     public String getName()
     {
-        return _Name;
+        String name = _Name;
+
+        if (_Name == "")
+        {
+            name = getColor();
+        }
+
+        return name;
+    }
+
+    public String getColor()
+    {
+        return _Color;
     }
 
     public void addCard(Card dealtCard)
@@ -94,7 +108,7 @@ public class Player
 
     public void foldCards()
     {
-        System.out.println("Player " + this.getName() + " has folded their cards.");
+        System.out.println(getName() + " has folded their cards.");
         _CardsInHand.clear();
     }
 

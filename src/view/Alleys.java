@@ -91,7 +91,7 @@ public class Alleys extends JFrame
         // Sends cards to panel
         _CardPanel.displayCards(PlayersCards);
 
-        System.out.println(_Controller.getCurrentPlayersName() + " turn.");
+        System.out.println(_Controller.getCurrentPlayersName() + "'s turn.");
     }
 
     public static void main(String[] args)

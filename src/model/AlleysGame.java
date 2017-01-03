@@ -267,10 +267,10 @@ public class AlleysGame
         ArrayList<Spot> player2FinishSpots = new ArrayList<Spot>(Arrays.asList(Player2FinishSpots));
         ArrayList<Spot> player3FinishSpots = new ArrayList<Spot>(Arrays.asList(Player3FinishSpots));
 
-        _Players.add(0, new Player(player0FinishSpots));
-        _Players.add(1, new Player(player1FinishSpots));
-        _Players.add(2, new Player(player2FinishSpots));
-        _Players.add(3, new Player(player3FinishSpots));
+        _Players.add(0, new Player(player0FinishSpots, "Yellow"));
+        _Players.add(1, new Player(player1FinishSpots, "Red"));
+        _Players.add(2, new Player(player2FinishSpots, "Blue"));
+        _Players.add(3, new Player(player3FinishSpots, "Green"));
     }
 
     private void nextPlayer()
