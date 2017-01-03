@@ -13,7 +13,7 @@ import model.Card;
 public class Alleys extends JFrame
 {
     private final int MINIMUM_X = 600;
-    private final int MINIMUM_Y = 700;
+    private final int MINIMUM_Y = 750;
 
     private Thread _AlleysThread;
     private Controller _Controller;

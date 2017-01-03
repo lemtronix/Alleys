@@ -74,6 +74,7 @@ public class CardPanel extends JPanel
     private void layoutComponents()
     {
         setBackground(Color.black);
+        setBorder(BorderFactory.createLineBorder(Color.white));
 
         add(_CardButtons.get(0));
         add(_CardButtons.get(1));
@@ -83,7 +84,7 @@ public class CardPanel extends JPanel
 
         add(_FoldButton);
 
-        setPreferredSize(new Dimension(10, 100));
+        setPreferredSize(new Dimension(10, 110));
     }
 
     private void createCardButtons()
