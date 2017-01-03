@@ -83,29 +83,31 @@ public class CardPanel extends JPanel
 
         gc.fill = GridBagConstraints.NONE;
 
+        gc.insets = new Insets(0, 5, 0, 5);
+
         // Single Row
         gc.gridy = 0;
 
-        gc.weightx = 1;
+        gc.weightx = 0.0;
         gc.weighty = 0;
 
         gc.gridx = 0;
-        add(_FoldButton);
+        add(_FoldButton, gc);
 
         gc.gridx++;
-        add(_CardButtons.get(0));
+        add(_CardButtons.get(0), gc);
 
         gc.gridx++;
-        add(_CardButtons.get(1));
+        add(_CardButtons.get(1), gc);
 
         gc.gridx++;
-        add(_CardButtons.get(2));
+        add(_CardButtons.get(2), gc);
 
         gc.gridx++;
-        add(_CardButtons.get(3));
+        add(_CardButtons.get(3), gc);
 
         gc.gridx++;
-        add(_CardButtons.get(4));
+        add(_CardButtons.get(4), gc);
 
         setPreferredSize(new Dimension(10, 110));
     }
@@ -129,8 +131,6 @@ public class CardPanel extends JPanel
             // Show a hand when over the button
             cardButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-            // cardButton.setBorderPainted(false);
-
             cardButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
@@ -138,8 +138,6 @@ public class CardPanel extends JPanel
                     if (_CardListener != null)
                     {
                         _CardListener.cardPlayed(cardButton, cardButton.getCard());
-
-                        // cardButton.setVisible(false);
                     }
                 }
             });

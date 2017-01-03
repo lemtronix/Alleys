@@ -35,13 +35,18 @@ public class Controller
         return _AlleysGame.getCurrentPlayersCards();
     }
 
-    public boolean currentPlayerPlays(int marbleIdNumber, Card playedCard)
+    public boolean currentPlayerPlays(Card playedCard, int marbleIdNumber)
     {
-        return _AlleysGame.play(marbleIdNumber, playedCard);
+        return _AlleysGame.play(playedCard, marbleIdNumber);
+    }
+
+    public boolean currentPlayerPlaysJack(Card playedCard, int marbleToMove, int marbleToMoveTo)
+    {
+        return _AlleysGame.playJack(playedCard, marbleToMove, marbleToMoveTo);
     }
 
     /// @pre Should be called before calling begin
-    public void setMarbleListener(MarbleListener marbleListener)
+    public void setMarbleListener(MarbleModelListener marbleListener)
     {
         _AlleysGame.setMarbleListener(marbleListener);
     }

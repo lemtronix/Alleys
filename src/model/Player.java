@@ -101,6 +101,35 @@ public class Player
         return ableToPlayCard;
     }
 
+    public boolean playJack(Card playedCard, Marble marbleToMove, Marble marbleToMoveTo)
+    {
+        boolean ableToPlayCard = false;
+
+        // Check that the card is owned by the player and marble is owned by the player
+        if (hasCard(playedCard) == false || marbleToMove.isOwner(this) == false)
+        {
+            if (marbleToMove.isOwner(this) == false)
+            {
+                System.err.println("Player: Player does not own this marble.");
+            }
+            else
+            {
+                System.err.println("Player: Player does not have this card.");
+            }
+
+            return false;
+        }
+
+        ableToPlayCard = marbleToMove.playJack(playedCard, marbleToMoveTo);
+
+        if (ableToPlayCard == true)
+        {
+            removeCard(playedCard);
+        }
+
+        return ableToPlayCard;
+    }
+
     public List<Spot> getFinishSpots()
     {
         return _FinishSpots;

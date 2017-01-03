@@ -169,6 +169,21 @@ public class MarbleStateMoving implements MarbleState
     }
 
     @Override
+    public MarbleState playJack(Marble marble, Card card, Marble marbleToMoveTo)
+    {
+
+        // We're able to move, the first time the marble is moved, we transition out of the protected state
+        if (_IsProtected == true)
+        {
+            _IsProtected = false;
+        }
+
+        // swap spots and IDs with the other marble, calculate the new values to move
+        marble.setMoveResultSuccess(true);
+        return null;
+    }
+
+    @Override
     public boolean isProtected()
     {
         return _IsProtected;

@@ -80,6 +80,14 @@ public class MarbleStateFinish implements MarbleState
     }
 
     @Override
+    public MarbleState playJack(Marble marble, Card card, Marble marbleToMoveTo)
+    {
+        System.out.println("MarbleStateFinish: Jacks cannot be played in or out of home!");
+        marble.setMoveResultSuccess(false);
+        return null;
+    }
+
+    @Override
     public void enter(Marble marble)
     {
         Player owner = marble.getOwner();

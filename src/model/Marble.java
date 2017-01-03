@@ -1,7 +1,7 @@
 package model;
 
 import controller.MarbleEvent;
-import controller.MarbleListener;
+import controller.MarbleModelListener;
 
 public class Marble
 {
@@ -15,7 +15,7 @@ public class Marble
 
     private Player _Owner = null;
 
-    private MarbleListener _MarbleListener = null;
+    private MarbleModelListener _MarbleListener = null;
 
     private boolean _MoveResultWasSuccessful = false;
 
@@ -65,7 +65,7 @@ public class Marble
         return _StartingSpot;
     }
 
-    public void setMarbleListener(MarbleListener listener)
+    public void setMarbleListener(MarbleModelListener listener)
     {
         if (listener != null)
         {
@@ -78,6 +78,26 @@ public class Marble
         clearMoveResult();
 
         MarbleState newMarbleState = _MarbleState.play(this, card);
+
+        if (newMarbleState != null)
+        {
+            // Exit the current state
+            _MarbleState.exit(this);
+
+            _MarbleState = newMarbleState;
+
+            // Enter the new state
+            _MarbleState.enter(this);
+        }
+
+        return wasMoveSuccessful();
+    }
+
+    public boolean playJack(Card card, Marble marbleToMoveTo)
+    {
+        clearMoveResult();
+
+        MarbleState newMarbleState = _MarbleState.playJack(this, card, marbleToMoveTo);
 
         if (newMarbleState != null)
         {

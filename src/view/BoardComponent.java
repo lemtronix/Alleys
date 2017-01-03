@@ -12,9 +12,9 @@ import javax.swing.JComponent;
 
 import controller.Controller;
 import controller.MarbleEvent;
-import controller.MarbleListener;
+import controller.MarbleModelListener;
 
-public class BoardComponent extends JComponent implements MarbleListener
+public class BoardComponent extends JComponent implements MarbleModelListener
 {
     private final int NewDirection = 16;
 
@@ -23,10 +23,10 @@ public class BoardComponent extends JComponent implements MarbleListener
     private SpotGraphic _Spots[] = new SpotGraphic[96];
     private MarbleGraphic _Marbles[] = new MarbleGraphic[16];
 
-    private MarbleGraphic _SelectedMarble;
-
     private int DirectionX = 0;
     private int DirectionY = 0;
+
+    private MarbleListener _MarbleListener;
 
     public BoardComponent(Controller GameController)
     {
@@ -65,15 +65,9 @@ public class BoardComponent extends JComponent implements MarbleListener
         });
     }
 
-    public int GetSelectedMarble()
+    public void setMarbleListener(MarbleListener marbleListener)
     {
-        if (_SelectedMarble != null)
-        {
-            // System.out.println("BoardComponent: Returning actual marble");
-            return _SelectedMarble.getMarbleIdNumber();
-        }
-
-        return -1;
+        _MarbleListener = marbleListener;
     }
 
     @Override
@@ -86,11 +80,6 @@ public class BoardComponent extends JComponent implements MarbleListener
         _Marbles[me.getMarbleIdNumber()].MoveTo(_Spots[me.getSpotIdNumber()]);
         repaint();
 
-    }
-
-    public void clearSelectedMarble()
-    {
-        _SelectedMarble = null;
     }
 
     @Override
@@ -224,26 +213,22 @@ public class BoardComponent extends JComponent implements MarbleListener
         }
     }
 
-    private synchronized void CheckMarbleSelected()
+    private void CheckMarbleSelected()
     {
-        boolean MarbleSelected = false;
-
         // Check all marbles if they were selected
         for (int i = 0; i < _Controller.GetMaxNumberOfMarbles(); i++)
         {
             if (_Marbles[i].IsHit() == true)
             {
                 System.out.println("Marble hit.");
-                _SelectedMarble = _Marbles[i];
-                MarbleSelected = true;
-                notify();
+
+                if (_MarbleListener != null)
+                {
+                    _MarbleListener.MarbleSelected(_Marbles[i]);
+                }
+
                 break;
             }
-        }
-
-        if (MarbleSelected == false)
-        {
-            _SelectedMarble = null;
         }
     }
 

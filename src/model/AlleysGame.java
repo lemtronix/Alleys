@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import controller.MarbleListener;
+import controller.MarbleModelListener;
 
 public class AlleysGame
 {
@@ -95,7 +95,7 @@ public class AlleysGame
         _Dealer.deal();
     }
 
-    public void setMarbleListener(MarbleListener marbleListener)
+    public void setMarbleListener(MarbleModelListener marbleListener)
     {
         for (int i = 0; i < MaxNumberOfMarbles; i++)
         {
@@ -148,7 +148,7 @@ public class AlleysGame
         nextPlayer();
     }
 
-    public boolean play(int marbleIdNumber, Card playedCard)
+    public boolean play(Card playedCard, int marbleIdNumber)
     {
         boolean playSuccessful = false;
 
@@ -163,6 +163,27 @@ public class AlleysGame
 
             // TODO would you like to play again?
         }
+
+        if (playSuccessful == true)
+        {
+            nextPlayer();
+        }
+
+        // If the last player doesn't have any more cards
+        // Then we need to shuffle the cards and re-deal to all of the players
+
+        return playSuccessful;
+    }
+
+    public boolean playJack(Card playedCard, int marbleIdToMove, int marbleIdToMoveTo)
+    {
+        boolean playSuccessful = false;
+
+        Player player = _Players.get(_CurrentPlayersTurn);
+        Marble marbleToMove = _Marbles.get(marbleIdToMove);
+        Marble marbleToMoveTo = _Marbles.get(marbleIdToMoveTo);
+
+        playSuccessful = player.playJack(playedCard, marbleToMove, marbleToMoveTo);
 
         if (playSuccessful == true)
         {
@@ -284,6 +305,6 @@ public class AlleysGame
             _CurrentPlayersTurn = 0;
         }
 
-        System.out.println("Now player " + _CurrentPlayersTurn + "'s turn.");
+        // System.out.println("Now player " + _CurrentPlayersTurn + "'s turn.");
     }
 }

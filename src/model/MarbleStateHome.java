@@ -47,6 +47,14 @@ public class MarbleStateHome implements MarbleState
     }
 
     @Override
+    public MarbleState playJack(Marble marble, Card card, Marble marbleToMoveTo)
+    {
+        System.out.println("MarbleStateHome: Jacks cannot be played on a marble in home.");
+        marble.setMoveResultSuccess(false);
+        return null;
+    }
+
+    @Override
     public boolean isProtected()
     {
         return true;
