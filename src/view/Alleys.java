@@ -86,6 +86,7 @@ public class Alleys extends JFrame
                         System.out.println("Alleys: Too many marbles selected...");
                         _MarbleToMove = -1;
                         _MarbleToMoveTo = -1;
+                        _Card = null;
                     }
                 }
             });

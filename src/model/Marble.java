@@ -13,6 +13,8 @@ public class Marble
     private Spot _StartingSpot = null;
     private Spot _CurrentSpot = null;
 
+    private int _NumberOfBoardSpotsToGo;
+
     private Player _Owner = null;
 
     private MarbleModelListener _MarbleListener = null;
@@ -63,6 +65,16 @@ public class Marble
     public Spot getStartingSpot()
     {
         return _StartingSpot;
+    }
+
+    public void setNumberOfBoardSpotsToGo(int numberOfSpots)
+    {
+        _NumberOfBoardSpotsToGo = numberOfSpots;
+    }
+
+    public int getNumberOfBoardSpotsToGo()
+    {
+        return _NumberOfBoardSpotsToGo;
     }
 
     public void setMarbleListener(MarbleModelListener listener)

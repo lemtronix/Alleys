@@ -4,8 +4,8 @@ import java.util.List;
 
 public class MarbleStateMoving implements MarbleState
 {
+    private final int _StartingNumberOfSpotsToGo = 63;
     private boolean _IsProtected = true;
-    private int _NumberOfSpotsToGo = 63;
 
     @Override
     public MarbleState play(Marble marble, Card card)
@@ -16,20 +16,20 @@ public class MarbleStateMoving implements MarbleState
         Spot finalSpotToMoveTo = null;
         int numberOfFinishSpotsNeeded = 0;
         int numberOfBoardSpotsNeeded = 0;
-
+        int numberOfBoardSpotsToGo = marble.getNumberOfBoardSpotsToGo();
         // Is this its move method?
         int cardValue = card.toInt();
 
         // Make sure that the move is valid
-        if (cardValue < _NumberOfSpotsToGo)
+        if (cardValue < numberOfBoardSpotsToGo)
         {
             // No additional checks if the card value is less than the number of spots to go
             numberOfBoardSpotsNeeded = cardValue;
         }
-        else if (cardValue <= (_NumberOfSpotsToGo + AlleysGame.TotalNumberOfFinishSpots))
+        else if (cardValue <= (numberOfBoardSpotsToGo + AlleysGame.TotalNumberOfFinishSpots))
         {
             // Figure out how many finish spots does this marble need?
-            numberOfFinishSpotsNeeded = cardValue - _NumberOfSpotsToGo;
+            numberOfFinishSpotsNeeded = cardValue - numberOfBoardSpotsToGo;
             numberOfBoardSpotsNeeded = cardValue - numberOfFinishSpotsNeeded;
             System.out.println("MarbleStateMoving: Marble Finishing and needs " + numberOfBoardSpotsNeeded + " of board spots and "
                     + numberOfFinishSpotsNeeded + " finishing spots!");
@@ -146,31 +146,51 @@ public class MarbleStateMoving implements MarbleState
         marble.move(finalSpotToMoveTo);
 
         // After the move is successful, then handle the number of spots left to move
-        _NumberOfSpotsToGo = _NumberOfSpotsToGo - cardValue;
+        numberOfBoardSpotsToGo -= cardValue;
 
         // handle the case where a 4 is played in start
-        if (_NumberOfSpotsToGo >= AlleysGame.TotalNumberOfBoardSpots)
+        if (numberOfBoardSpotsToGo >= AlleysGame.TotalNumberOfBoardSpots)
         {
-            _NumberOfSpotsToGo = _NumberOfSpotsToGo - AlleysGame.TotalNumberOfBoardSpots;
+            numberOfBoardSpotsToGo -= AlleysGame.TotalNumberOfBoardSpots;
         }
 
+        marble.setNumberOfBoardSpotsToGo(numberOfBoardSpotsToGo);
+
         System.out.println("Player: Exposed Marble is currently on spot: " + currentSpotNumber + " and moving to "
-                + finalSpotToMoveTo.getSpotNumber() + " and has " + _NumberOfSpotsToGo + " number of spots to go!");
+                + finalSpotToMoveTo.getSpotNumber() + " and has " + marble.getNumberOfBoardSpotsToGo() + " number of spots to go!");
 
         marble.setMoveResultSuccess(true);
 
-        // Stay in the same state
-        if (newMarbleState != null)
-        {
-            return newMarbleState;
-        }
-
-        return null;
+        return newMarbleState;
     }
 
     @Override
-    public MarbleState playJack(Marble marble, Card card, Marble marbleToMoveTo)
+    public MarbleState playJack(Marble marbleToMove, Card card, Marble marbleToMoveTo)
     {
+        // Make sure the marble we're moving to isn't protected
+        if (marbleToMoveTo.isProtected() == true)
+        {
+            System.out.println("MarbleStateMoving: Cannot swap with a protected marble!");
+            marbleToMove.setMoveResultSuccess(false);
+            return null;
+        }
+        Spot marbleToMoveSpot = marbleToMove.getCurrentSpot();
+        Spot marbleToMoveToSpot = marbleToMoveTo.getCurrentSpot();
+
+        int marbleToMoveSpotsToGo = calculateNumberOfSpotsToGo(marbleToMove, marbleToMoveTo);
+        int marbleToMoveToSpotsToGo = calculateNumberOfSpotsToGo(marbleToMoveTo, marbleToMove);
+
+        System.out.println("MarbleStateMoving: MarbleToMove used to have " + marbleToMove.getNumberOfBoardSpotsToGo()
+                + " spots to go and now has " + marbleToMoveSpotsToGo + " spots to go!");
+
+        // TODO Need some way to set this on the marble!
+        System.out.println("MarbleStateMoving: MarbleToMoveTo now has " + marbleToMoveToSpotsToGo + " spots to go!");
+
+        marbleToMove.setNumberOfBoardSpotsToGo(marbleToMoveSpotsToGo);
+        marbleToMove.move(marbleToMoveToSpot);
+
+        marbleToMoveTo.setNumberOfBoardSpotsToGo(marbleToMoveToSpotsToGo);
+        marbleToMoveTo.move(marbleToMoveSpot);
 
         // We're able to move, the first time the marble is moved, we transition out of the protected state
         if (_IsProtected == true)
@@ -179,7 +199,7 @@ public class MarbleStateMoving implements MarbleState
         }
 
         // swap spots and IDs with the other marble, calculate the new values to move
-        marble.setMoveResultSuccess(true);
+        marbleToMove.setMoveResultSuccess(true);
         return null;
     }
 
@@ -192,13 +212,38 @@ public class MarbleStateMoving implements MarbleState
     @Override
     public void enter(Marble marble)
     {
-        System.out.println("MarbleState: Marble on the board! I have " + _NumberOfSpotsToGo + " spots to go!");
+        marble.setNumberOfBoardSpotsToGo(_StartingNumberOfSpotsToGo);
+
+        System.out.println("MarbleState: Marble on the board! I have " + marble.getNumberOfBoardSpotsToGo() + " spots to go!");
         marble.move(marble.getStartingSpot());
     }
 
     @Override
     public void exit(Marble marble)
     {
+        marble.setNumberOfBoardSpotsToGo(0);
+        System.out.println("MarbleState: Marble leaving the board and has " + marble.getNumberOfBoardSpotsToGo() + " spots to go.");
+    }
 
+    private int calculateNumberOfSpotsToGo(Marble marbleToMove, Marble marbleToMoveTo)
+    {
+        int numberOfSpotsToGo = 0;
+        int newSpotNumber = marbleToMoveTo.getCurrentSpot().getSpotNumber();
+        int startingSpotNumber = marbleToMove.getStartingSpot().getSpotNumber();
+
+        if (newSpotNumber < startingSpotNumber)
+        {
+            // If the new marble spot is less than the current marble spot;
+            // TODO magic number of one added to new spot number, why?
+            numberOfSpotsToGo = startingSpotNumber - (newSpotNumber + 1);
+        }
+        else if (newSpotNumber >= startingSpotNumber)
+        {
+            // otherwise, the new marble spot is greater than the current marble spot number
+            int numberOfSpotsAdvanced = newSpotNumber - startingSpotNumber;
+            numberOfSpotsToGo = _StartingNumberOfSpotsToGo - numberOfSpotsAdvanced;
+        }
+
+        return numberOfSpotsToGo;
     }
 }
