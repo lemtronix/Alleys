@@ -9,8 +9,7 @@ public class Controller
 {
     private AlleysGame _AlleysGame;
 
-    public Controller()
-    {
+    public Controller() {
         _AlleysGame = new AlleysGame(4);
     }
 
@@ -37,12 +36,19 @@ public class Controller
 
     public boolean currentPlayerPlays(Card playedCard, int marbleIdNumber)
     {
-        return _AlleysGame.play(playedCard, marbleIdNumber);
+        boolean splitSeven = false;
+        return _AlleysGame.play(playedCard, marbleIdNumber, splitSeven);
     }
 
     public boolean currentPlayerPlaysJack(Card playedCard, int marbleToMove, int marbleToMoveTo)
     {
         return _AlleysGame.playJack(playedCard, marbleToMove, marbleToMoveTo);
+    }
+
+    public boolean currentPlayerPlaysSeven(Card playedCard, int firstMarble, int numberOfSpotsToMoveFirstMarble,
+            int secondMarble)
+    {
+        return _AlleysGame.playSeven(playedCard, firstMarble, numberOfSpotsToMoveFirstMarble, secondMarble);
     }
 
     /// @pre Should be called before calling begin

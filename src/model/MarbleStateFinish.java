@@ -9,13 +9,12 @@ public class MarbleStateFinish implements MarbleState
 
     private int _FinishSpotNumberOccupied = 0;
 
-    public MarbleStateFinish(int finishSpotNumberOccupied)
-    {
+    public MarbleStateFinish(int finishSpotNumberOccupied) {
         _FinishSpotNumberOccupied = finishSpotNumberOccupied;
     }
 
     @Override
-    public MarbleState play(Marble marble, Card card)
+    public MarbleState play(Marble marble, Card card, boolean splitSeven)
     {
 
         // Jacks and 4s cannot be played in finish!
@@ -29,7 +28,7 @@ public class MarbleStateFinish implements MarbleState
         }
 
         // Make sure the cardValue is able to fit within the remaining spaces
-        int cardValue = card.toInt();
+        int cardValue = card.toInt(splitSeven);
 
         if (cardValue > (AlleysGame.TotalNumberOfFinishSpots - _FinishSpotNumberOccupied))
         {
@@ -93,7 +92,8 @@ public class MarbleStateFinish implements MarbleState
         Player owner = marble.getOwner();
         // When we enter this state, decrement the number of marbles needed to finish.
         owner.decrementMarblesNeededToFinish();
-        System.out.println("Player now needs " + owner.getMarblesNeededToFinish() + " marbles in finish to end the game!");
+        System.out.println(
+                "Player now needs " + owner.getMarblesNeededToFinish() + " marbles in finish to end the game!");
     }
 
     @Override

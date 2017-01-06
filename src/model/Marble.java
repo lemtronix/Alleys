@@ -21,9 +21,28 @@ public class Marble
 
     private boolean _MoveResultWasSuccessful = false;
 
-    public Marble(int marbleIdNumber)
-    {
+    public Marble(int marbleIdNumber) {
         _MarbleIdNumber = marbleIdNumber;
+    }
+
+    public MarbleMemento getMarbleMemento()
+    {
+        System.out.println("Marble: Created a memento with " + _MarbleState.toString() + " " + getCurrentSpot() + " "
+                + _NumberOfBoardSpotsToGo);
+
+        return new MarbleMemento(_MarbleState, getCurrentSpot(), _NumberOfBoardSpotsToGo);
+    }
+
+    public void setMarbleMemento(MarbleMemento marbleMemento)
+    {
+        if (move(marbleMemento.getCurrentSpot()) == true)
+        {
+            _MarbleState = marbleMemento.getMarbleState();
+            _NumberOfBoardSpotsToGo = marbleMemento.getNumberOfSpotsToGo();
+
+            System.out.println("Marble: Used a memento to return the marble to " + _MarbleState.toString() + " "
+                    + getCurrentSpot() + " " + _NumberOfBoardSpotsToGo);
+        }
     }
 
     public int getId()
@@ -85,11 +104,11 @@ public class Marble
         }
     }
 
-    public boolean play(Card card)
+    public boolean play(Card card, boolean splitSeven)
     {
         clearMoveResult();
 
-        MarbleState newMarbleState = _MarbleState.play(this, card);
+        MarbleState newMarbleState = _MarbleState.play(this, card, splitSeven);
 
         if (newMarbleState != null)
         {

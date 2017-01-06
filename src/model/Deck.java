@@ -107,7 +107,6 @@ public class Deck
         return CardToDeal;
     }
 
-    @Deprecated
     public Card GetCardOfKnownValue(int cardNumber)
     {
         return _Deck[cardNumber];

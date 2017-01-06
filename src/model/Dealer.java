@@ -26,7 +26,6 @@ public class Dealer
         _NumberOfPlayerIndex = _NumberOfPlayers - 2;
     }
 
-    // TODO need to change how cards are dealt; the dealer needs to start dealing to the player to the left of them?
     // TODO Dealer is determined by the player that draws the highest card. Ace high wins?
     public void deal()
     {
@@ -70,6 +69,12 @@ public class Dealer
     public int getPlayerLeftOfDealer()
     {
         return _PlayerLeftOfDealer;
+    }
+
+    // Used for splitting a seven card into two different cards
+    public Card GetCardOfKnownValue(int cardNumber)
+    {
+        return _Deck.GetCardOfKnownValue(cardNumber);
     }
 
     private int getNumberOfCardsToDeal()

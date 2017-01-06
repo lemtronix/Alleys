@@ -4,7 +4,7 @@ public class MarbleStateHome implements MarbleState
 {
 
     @Override
-    public MarbleState play(Marble marble, Card card)
+    public MarbleState play(Marble marble, Card card, boolean splitSeven)
     {
         Spot startingSpot = marble.getStartingSpot();
 
@@ -25,7 +25,8 @@ public class MarbleStateHome implements MarbleState
                 else
                 {
                     // Marble on the starting spot is not protected, send it home!
-                    System.out.println("MarbleStateHome: Marble on the starting spot is not protected, sending it home!");
+                    System.out
+                            .println("MarbleStateHome: Marble on the starting spot is not protected, sending it home!");
                     startingSpot.getOccupyingMarble().setState(new MarbleStateHome());
                 }
             }

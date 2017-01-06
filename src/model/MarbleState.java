@@ -2,7 +2,7 @@ package model;
 
 public interface MarbleState
 {
-    public MarbleState play(Marble marble, Card card);
+    public MarbleState play(Marble marble, Card card, boolean splitSeven);
 
     public MarbleState playJack(Marble marble, Card card, Marble marbleToMoveTo);
 

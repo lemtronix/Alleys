@@ -29,14 +29,13 @@ public class AlleysGame
 
     private Dealer _Dealer;
 
-    public AlleysGame(int numberOfPlayers)
-    {
+    public AlleysGame(int numberOfPlayers) {
         _AlleysGame = this;
 
         if (numberOfPlayers < MIN_NUMBER_OF_PLAYERS && numberOfPlayers > MAX_NUMBER_OF_PLAYERS)
         {
-            System.out.println("Invalid number of players specified. Please enter a number between " + MIN_NUMBER_OF_PLAYERS + " and "
-                    + MAX_NUMBER_OF_PLAYERS);
+            System.out.println("Invalid number of players specified. Please enter a number between "
+                    + MIN_NUMBER_OF_PLAYERS + " and " + MAX_NUMBER_OF_PLAYERS);
         }
 
         _NumberOfPlayers = numberOfPlayers;
@@ -148,14 +147,15 @@ public class AlleysGame
         nextPlayer();
     }
 
-    public boolean play(Card playedCard, int marbleIdNumber)
+    // TODO might be able to propigate the information in playSeven into this method
+    public boolean play(Card playedCard, int marbleIdNumber, boolean splitSeven)
     {
         boolean playSuccessful = false;
 
         Player player = _Players.get(_CurrentPlayersTurn);
         Marble marble = _Marbles.get(marbleIdNumber);
 
-        playSuccessful = player.play(playedCard, marble);
+        playSuccessful = player.play(playedCard, marble, splitSeven);
 
         if (player.getMarblesNeededToFinish() == 0)
         {
@@ -168,9 +168,6 @@ public class AlleysGame
         {
             nextPlayer();
         }
-
-        // If the last player doesn't have any more cards
-        // Then we need to shuffle the cards and re-deal to all of the players
 
         return playSuccessful;
     }
@@ -190,10 +187,64 @@ public class AlleysGame
             nextPlayer();
         }
 
-        // If the last player doesn't have any more cards
-        // Then we need to shuffle the cards and re-deal to all of the players
-
         return playSuccessful;
+    }
+
+    public boolean playSeven(Card playedCard, int firstMarbleId, int numberOfSpotsToMoveFirstMarble, int secondMarbleId)
+    {
+        if (playedCard.getRank() != CardValue.Seven)
+        {
+            System.out.println("Player: Seven not played.");
+            return false;
+        }
+
+        if (numberOfSpotsToMoveFirstMarble > 7)
+        {
+            System.out.println("Player: " + numberOfSpotsToMoveFirstMarble + " is greater than 7!");
+            return false;
+        }
+
+        boolean splitSeven = false;
+
+        if (numberOfSpotsToMoveFirstMarble == 7)
+        {
+            // Player wants to use all 7 spots on a single marble, this is a standard move
+            splitSeven = false;
+            return play(playedCard, firstMarbleId, false);
+        }
+        else
+        {
+            splitSeven = true;
+            int numberOfSpotsToMoveSecondMarble = 7 - numberOfSpotsToMoveFirstMarble;
+
+            Player player = _Players.get(_CurrentPlayersTurn);
+            Marble firstMarble = _Marbles.get(firstMarbleId);
+            Marble secondMarble = _Marbles.get(secondMarbleId);
+
+            Card firstCard = _Dealer.GetCardOfKnownValue(numberOfSpotsToMoveFirstMarble - 1);
+            Card secondCard = _Dealer.GetCardOfKnownValue(numberOfSpotsToMoveSecondMarble - 1);
+
+            MarbleMemento firstMarbleMemento = firstMarble.getMarbleMemento();
+            MarbleMemento secondMarbleMemento = secondMarble.getMarbleMemento();
+
+            boolean firstMarbleResult = player.play(firstCard, firstMarble, splitSeven);
+            boolean secondMarbleResult = player.play(secondCard, secondMarble, splitSeven);
+
+            if (firstMarbleResult == false || secondMarbleResult == false)
+            {
+                // One of the moves wasn't valid, set them back and report that it didn't work!
+                firstMarble.setMarbleMemento(firstMarbleMemento);
+                secondMarble.setMarbleMemento(secondMarbleMemento);
+                return false;
+            }
+            else
+            {
+                // Both moves valid
+                nextPlayer();
+                player.removeCard(playedCard);
+                return true;
+            }
+        }
     }
 
     private void CreateSpots()
@@ -296,8 +347,7 @@ public class AlleysGame
 
     private void nextPlayer()
     {
-        // Advance the number of turns
-        // Then advance the counter to the next player
+        // Advance the number of turns, then advance the counter to the next player
         _CurrentPlayersTurn++;
 
         if (_CurrentPlayersTurn >= _NumberOfPlayers)

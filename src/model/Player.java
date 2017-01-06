@@ -11,8 +11,7 @@ public class Player
     private String _Name = "";
     private String _Color;
 
-    public Player(ArrayList<Spot> finishSpots, String color)
-    {
+    public Player(ArrayList<Spot> finishSpots, String color) {
         _FinishSpots = finishSpots;
         _Color = color;
     }
@@ -72,26 +71,27 @@ public class Player
         _MarblesNeededToFinish--;
     }
 
-    public boolean play(Card playedCard, Marble marble)
+    public boolean play(Card playedCard, Marble marble, boolean splitSeven)
     {
         boolean ableToPlayCard = false;
 
-        // Check that the card is owned by the player and marble is owned by the player
-        if (hasCard(playedCard) == false || marble.isOwner(this) == false)
+        // Check that the player own the marble
+        if (marble.isOwner(this) == false)
         {
-            if (marble.isOwner(this) == false)
-            {
-                System.err.println("Player: Player does not own this marble.");
-            }
-            else
-            {
-                System.err.println("Player: Player does not have this card.");
-            }
-
+            System.err.println("Player: Player does not own this marble.");
             return false;
         }
 
-        ableToPlayCard = marble.play(playedCard);
+        // When sevens are split into two cards, the player doesn't technically own those card, make checking conditional
+        if (splitSeven == false)
+        {
+            if (hasCard(playedCard) == false)
+            {
+                System.err.println("Player: Player does not have this card!");
+            }
+        }
+
+        ableToPlayCard = marble.play(playedCard, splitSeven);
 
         if (ableToPlayCard == true)
         {
@@ -141,7 +141,7 @@ public class Player
         _CardsInHand.clear();
     }
 
-    private void removeCard(Card card)
+    public void removeCard(Card card)
     {
         _CardsInHand.remove(card);
     }

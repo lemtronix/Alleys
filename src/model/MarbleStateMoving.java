@@ -8,7 +8,7 @@ public class MarbleStateMoving implements MarbleState
     private boolean _IsProtected = true;
 
     @Override
-    public MarbleState play(Marble marble, Card card)
+    public MarbleState play(Marble marble, Card card, boolean splitSeven)
     {
         MarbleState newMarbleState = null;
         boolean movingForward = true;
@@ -18,7 +18,7 @@ public class MarbleStateMoving implements MarbleState
         int numberOfBoardSpotsNeeded = 0;
         int numberOfBoardSpotsToGo = marble.getNumberOfBoardSpotsToGo();
         // Is this its move method?
-        int cardValue = card.toInt();
+        int cardValue = card.toInt(splitSeven);
 
         // Make sure that the move is valid
         if (cardValue < numberOfBoardSpotsToGo)
@@ -31,8 +31,8 @@ public class MarbleStateMoving implements MarbleState
             // Figure out how many finish spots does this marble need?
             numberOfFinishSpotsNeeded = cardValue - numberOfBoardSpotsToGo;
             numberOfBoardSpotsNeeded = cardValue - numberOfFinishSpotsNeeded;
-            System.out.println("MarbleStateMoving: Marble Finishing and needs " + numberOfBoardSpotsNeeded + " of board spots and "
-                    + numberOfFinishSpotsNeeded + " finishing spots!");
+            System.out.println("MarbleStateMoving: Marble Finishing and needs " + numberOfBoardSpotsNeeded
+                    + " of board spots and " + numberOfFinishSpotsNeeded + " finishing spots!");
         }
         else
         {
@@ -123,7 +123,8 @@ public class MarbleStateMoving implements MarbleState
                 if (finishSpot.isOccupied() == true)
                 {
                     // Finish spots are always protected...
-                    System.out.println("MarbleStateMoving: Bumped up against a marble already in home, unable to move!");
+                    System.out
+                            .println("MarbleStateMoving: Bumped up against a marble already in home, unable to move!");
                     marble.setMoveResultSuccess(false);
                     return null;
                 }
@@ -157,7 +158,8 @@ public class MarbleStateMoving implements MarbleState
         marble.setNumberOfBoardSpotsToGo(numberOfBoardSpotsToGo);
 
         System.out.println("Player: Exposed Marble is currently on spot: " + currentSpotNumber + " and moving to "
-                + finalSpotToMoveTo.getSpotNumber() + " and has " + marble.getNumberOfBoardSpotsToGo() + " number of spots to go!");
+                + finalSpotToMoveTo.getSpotNumber() + " and has " + marble.getNumberOfBoardSpotsToGo()
+                + " number of spots to go!");
 
         marble.setMoveResultSuccess(true);
 
@@ -214,7 +216,8 @@ public class MarbleStateMoving implements MarbleState
     {
         marble.setNumberOfBoardSpotsToGo(_StartingNumberOfSpotsToGo);
 
-        System.out.println("MarbleState: Marble on the board! I have " + marble.getNumberOfBoardSpotsToGo() + " spots to go!");
+        System.out.println(
+                "MarbleState: Marble on the board! I have " + marble.getNumberOfBoardSpotsToGo() + " spots to go!");
         marble.move(marble.getStartingSpot());
     }
 
@@ -222,7 +225,8 @@ public class MarbleStateMoving implements MarbleState
     public void exit(Marble marble)
     {
         marble.setNumberOfBoardSpotsToGo(0);
-        System.out.println("MarbleState: Marble leaving the board and has " + marble.getNumberOfBoardSpotsToGo() + " spots to go.");
+        System.out.println("MarbleState: Marble leaving the board and has " + marble.getNumberOfBoardSpotsToGo()
+                + " spots to go.");
     }
 
     private int calculateNumberOfSpotsToGo(Marble marbleToMove, Marble marbleToMoveTo)

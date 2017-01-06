@@ -7,8 +7,7 @@ public class Card
     private CardSuit _CardSuit;
     private String _ImagePath;
 
-    public Card(CardValue Value, CardSuit Suit, String imagePath)
-    {
+    public Card(CardValue Value, CardSuit Suit, String imagePath) {
         _CardValue = Value;
         _CardSuit = Suit;
         _ImagePath = imagePath;
@@ -19,14 +18,21 @@ public class Card
         return _CardValue;
     }
 
-    public int toInt()
+    public int toInt(boolean useAbsoluteValue)
     {
         int CardValue = -1;
 
         switch (_CardValue)
         {
             case Four:
-                CardValue = -4;
+                if (useAbsoluteValue == false)
+                {
+                    CardValue = -4;
+                }
+                else
+                {
+                    CardValue = 4;
+                }
             break;
             case Jack:
                 CardValue = -1;
