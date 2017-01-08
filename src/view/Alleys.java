@@ -66,6 +66,11 @@ public class Alleys extends JFrame
                         System.out.println("First Marble " + _FirstMarbleSelected + " selected.");
                         checkAndPlayCard();
                     }
+                    else if (_Card == null)
+                    {
+                        System.out.println("Alleys: Please select a card before selecting a second marble.");
+                        return;
+                    }
                     else if ((isCardJack() || isCardSeven()) && _SecondMarbleSelected == -1)
                     {
                         // Jacks and Sevens require two marbles to be selected
@@ -219,6 +224,11 @@ public class Alleys extends JFrame
 
     private boolean isCardJack()
     {
+        if (_Card == null)
+        {
+            return false;
+        }
+
         if (_Card.getRank() == CardValue.Jack)
         {
             return true;
@@ -229,6 +239,11 @@ public class Alleys extends JFrame
 
     private boolean isCardSeven()
     {
+        if (_Card == null)
+        {
+            return false;
+        }
+
         if (_Card.getRank() == CardValue.Seven)
         {
             return true;
