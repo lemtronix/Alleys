@@ -53,7 +53,7 @@ public class Card
 
     public String toString()
     {
-        return "" + _CardValue + " of " + _CardSuit;
+        return "" + _CardValue.name() + " of " + _CardSuit;
     }
 
     public String getImagePath()

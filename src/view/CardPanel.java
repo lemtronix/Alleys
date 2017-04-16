@@ -117,7 +117,7 @@ public class CardPanel extends JPanel
         for (int i = 0; i < 5; i++)
         {
             CardButton cardButton = new CardButton();
-            cardButton.setBackground(Color.black);
+            cardButton.setBackground(new Color(0x2f, 0x4f, 0x4f));      // don't see this color...
             cardButton.setPreferredSize(new Dimension(75, 100));
 
             cardButton.setBorder(BorderFactory.createEmptyBorder());

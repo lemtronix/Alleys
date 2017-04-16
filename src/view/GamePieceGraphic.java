@@ -9,10 +9,10 @@ import java.awt.geom.Rectangle2D;
 
 public abstract class GamePieceGraphic extends MouseAdapter
 {
-    private int _Size = 15;
-    private Color _Color;
-    private Ellipse2D.Double _Piece;
-    private boolean _IsHit = false;
+    private int                 _Size = 15;
+    private Color               _Color;
+    private Ellipse2D.Double    _Piece;
+    private boolean             _IsHit = false;
 
     public GamePieceGraphic(int X, int Y, Color DesiredColor)
     {
@@ -111,7 +111,7 @@ public abstract class GamePieceGraphic extends MouseAdapter
     
     protected void SelectedAction()
     {
-//        System.out.println("GamePiece SelectedAction()");
+        System.out.println("GamePiece SelectedAction()");
         _IsHit = true;
     }
     protected void UnSelectedAction()
