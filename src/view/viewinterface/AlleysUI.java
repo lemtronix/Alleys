@@ -1,0 +1,15 @@
+package view.viewinterface;
+
+import model.Marble;
+import model.Player;
+
+public interface AlleysUI
+{
+    public void message(String s);
+    public void message(String f, String ... pa);
+    
+    public void startTurn(Player player);
+    
+    public void setSpotMarble(int spotIndex, Marble marble);
+    public void moveMarble(int fromIndex, int toIndex);
+}

@@ -3,57 +3,70 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player
+public class Player implements Comparable<Player>
 {
-    private ArrayList<Card> _CardsInHand = new ArrayList<Card>(5);
+    private String name = "";
+    private MarbleColor color;
+    private MarbleColor partnerColor;
+
+    private ArrayList<Card> cards = new ArrayList<>();
+    
     private ArrayList<Spot> _FinishSpots = null;
     private int _MarblesNeededToFinish = 4;
-    private String _Name = "";
-    private String _Color;
-
-    public Player(ArrayList<Spot> finishSpots, String color) {
-        _FinishSpots = finishSpots;
-        _Color = color;
+    
+    public Player(String name, MarbleColor color, MarbleColor partnerColor)
+    {
+        this.name = name;
+        this.color = color;
+        this.partnerColor = partnerColor;
     }
+    
+    public String toString()
+    {
+        return String.format("%s (%s", name, color.toString());
+    }
+
+//    public Player(ArrayList<Spot> finishSpots, String color) {
+//        _FinishSpots = finishSpots;
+//        this.color = color;
+//    }
 
     public void setName(String name)
     {
-        _Name = name;
+        this.name = name;
     }
 
     public String getName()
     {
-        String name = _Name;
+        String name = this.name;
 
-        if (_Name == "")
+        if (name == "")
         {
-            name = getColor();
+            name = color.toString();
         }
 
         return name;
     }
 
-    public String getColor()
-    {
-        return _Color;
-    }
+    public MarbleColor getColor()    {        return color;    }
+    public MarbleColor getPartnerColor() { return partnerColor; }
 
     public void addCard(Card dealtCard)
     {
         if (dealtCard != null)
         {
-            _CardsInHand.add(dealtCard);
+            cards.add(dealtCard);
         }
     }
 
     public List<Card> getCards()
     {
-        return _CardsInHand;
+        return cards;
     }
 
     public boolean hasCard(Card card)
     {
-        if (_CardsInHand.contains(card) == true)
+        if (cards.contains(card) == true)
         {
             return true;
         }
@@ -76,11 +89,11 @@ public class Player
         boolean ableToPlayCard = false;
 
         // Check that the player own the marble
-        if (marble.isOwner(this) == false)
-        {
-            System.err.println("Player: Player does not own this marble.");
-            return false;
-        }
+//        if (marble.isOwner(this) == false)
+//        {
+//            System.err.println("Player: Player does not own this marble.");
+//            return false;
+//        }
 
         // When sevens are split into two cards, the player doesn't technically own those card, make checking conditional
         if (splitSeven == false)
@@ -91,7 +104,7 @@ public class Player
             }
         }
 
-        ableToPlayCard = marble.play(playedCard, splitSeven);
+//        ableToPlayCard = marble.play(playedCard, splitSeven);
 
         if (ableToPlayCard == true)
         {
@@ -106,21 +119,21 @@ public class Player
         boolean ableToPlayCard = false;
 
         // Check that the card is owned by the player and marble is owned by the player
-        if (hasCard(playedCard) == false || marbleToMove.isOwner(this) == false)
-        {
-            if (marbleToMove.isOwner(this) == false)
-            {
-                System.err.println("Player: Player does not own this marble.");
-            }
-            else
-            {
-                System.err.println("Player: Player does not have this card.");
-            }
+//        if (hasCard(playedCard) == false || marbleToMove.isOwner(this) == false)
+//        {
+//            if (marbleToMove.isOwner(this) == false)
+//            {
+//                System.err.println("Player: Player does not own this marble.");
+//            }
+//            else
+//            {
+//                System.err.println("Player: Player does not have this card.");
+//            }
+//
+//            return false;
+//        }
 
-            return false;
-        }
-
-        ableToPlayCard = marbleToMove.playJack(playedCard, marbleToMoveTo);
+//        ableToPlayCard = marbleToMove.playJack(playedCard, marbleToMoveTo);
 
         if (ableToPlayCard == true)
         {
@@ -138,11 +151,22 @@ public class Player
     public void foldCards()
     {
         System.out.println(getName() + " has folded their cards.");
-        _CardsInHand.clear();
+        cards.clear();
     }
 
     public void removeCard(Card card)
     {
-        _CardsInHand.remove(card);
+        cards.remove(card);
     }
+
+    @Override
+    public int compareTo(Player otherPlayer)
+    {
+        int result = 0;
+        try { result = color.compareTo(otherPlayer.color); } 
+        catch (Exception e) { e.printStackTrace(); }  // TODO: figure out what to do with model exceptions
+        
+        return result;
+    }
+        
 }
