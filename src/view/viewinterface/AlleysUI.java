@@ -12,4 +12,5 @@ public interface AlleysUI
     
     public void setSpotMarble(int spotIndex, Marble marble);
     public void moveMarble(int fromIndex, int toIndex);
+    public void swapMarbles(int firstIndex, int secondIndex);
 }

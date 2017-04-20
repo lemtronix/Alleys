@@ -325,6 +325,17 @@ public class Alleys extends JFrame implements AlleysUI
         toSpot.setMarble(marble);
         repaint();
     }
+    
+    public void swapMarbles(int firstIndex, int secondIndex)
+    {
+        SpotGraphic firstSpot = _BoardPanel.getSpot(firstIndex);
+        SpotGraphic secondSpot = _BoardPanel.getSpot(secondIndex);
+        Marble firstMarble = firstSpot.getMarble();
+        Marble secondMarble = secondSpot.getMarble();
+        firstSpot.setMarble(secondMarble);
+        secondSpot.setMarble(firstMarble);
+        repaint();
+    }
 
     public static void main(String[] args)
     {

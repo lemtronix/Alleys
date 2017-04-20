@@ -71,33 +71,54 @@ public class AlleysGame implements Messager
     public void cardChosen(Card card)    
     { 
         say("chose " + card.toString());
-        turnManager.cardChosen(card);  
+        Turn currentTurn = turnManager.getCurrentTurn();
+        currentTurn.setCard(card, this);    // TODO: figure a way to do this without passing in the messager
     }
 
-    public void marbleChosen(int spotIndex)
+    public void marbleChosen(int marbleSpotIndex)
     {
-        Spot spot = board.getSpot(spotIndex);
+        Spot marbleSpot = board.getSpot(marbleSpotIndex);
         Turn currentTurn = turnManager.getCurrentTurn();
-        currentTurn = board.validateChosenMarble(currentTurn, spot);
+        if (marbleSpot == null || currentTurn == null) { throw new InternalLogicError("either marbleSpot or currentTurn null at start of AlleysGame.marbleChosen"); }
         
-        MoveState moveState = currentTurn.getLastMoveState();
-        if (moveState.isError())
+        if (currentTurn.getCard() == null)
         {
-            // problem -- doing things this way doesn't allow parameters to the
-            // message; perhaps we should put the error *message* into the current
-            // turn, instead of just its state, or along with its state.
-            message(moveState.getMessageKey());
+            message("error.chooseCardFirst");
         }
         else
         {
-            // if we were ever to implement a confirmation of a move -- say,
-            // on a mobile device where it might be too easy to select the 
-            // wrong thing, and we wanted to give the user a chance to cancel
-            // before the move was made -- here is where we could get confirmation
-            // before execution.
-//            currentTurn.addMarble(spot);
-            board.executeTurn(currentTurn);
-            startNewTurn();
+            
+            currentTurn = currentTurn.validateMove(board, marbleSpot); // board.validateChosenMarble(currentTurn, marbleSpot);
+            
+            MoveState moveState = currentTurn.getMoveState();
+            TurnState turnState = moveState.getTurnState();
+            switch(turnState)
+            {
+            case ERROR:
+                // problem -- doing things this way doesn't allow parameters to the
+                // message; perhaps we should put the error *message* into the current
+                // turn, instead of just its state, or along with its state.
+                // Alternately, we could make a class to hold moveState and its parameters
+                // and return that, or just put parameters in the currentTurn with its
+                // move state.
+                message(moveState.getMessageKey());
+                currentTurn.clearMarbles();
+                break;
+            case CONTINUING:
+                message(moveState.getMessageKey());
+                break;
+            case READY:
+                // if we were ever to implement a confirmation of a move -- say,
+                // on a mobile device where it might be too easy to select the 
+                // wrong thing, and we wanted to give the user a chance to cancel
+                // before the move was made -- here is where we could get confirmation
+                // before execution.
+                board.executeTurn(currentTurn);
+                startNewTurn();
+                break;
+            case START:
+                throw new InternalLogicError("Shouldn't get START state after marble is chosen");
+            }
         }
     }
     
