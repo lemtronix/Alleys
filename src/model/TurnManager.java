@@ -73,19 +73,6 @@ public class TurnManager
     }
     
     /**
-     * sets the chosen card into the current turn; if a card was already
-     * chosen, this replaces it.
-     * @param card
-     */
-    public void cardChosen(Card card)
-    {
-        Card replacedCard = currentTurn.setCard(card);
-        if (replacedCard == null) 
-                { messager.message("info.setCard", card.toString()); }
-        else    { messager.message("info.replacedCard", replacedCard.toString(), card.toString()); }
-    }
-    
-    /**
      * get the index of the next player who has any cards; this skips
      * players who have folded. Returns null if no one has any more 
      * cards (all cards are played). Can return the startIndex, if
@@ -95,7 +82,6 @@ public class TurnManager
     {
         Integer result = null;
         Integer nextPlayerIndex = currentPlayerIndex;
-        boolean found = false;
         
         // this loops through all players from an arbitrary starting point,
         // and ENDS with the player at the position given in the method
@@ -116,6 +102,7 @@ public class TurnManager
             else if (nextPlayerIndex.equals(currentPlayerIndex)) // true if we just checked for cards
             {                                                    // for the player originally passed to this method.
                 break;                                           // and therefore we've now checked all players.
+                // result will still be null;
             }
         }
 

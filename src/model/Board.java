@@ -41,6 +41,8 @@ public class Board
     private Map<MarbleColor, Integer> homeSpots          = new HashMap<>();
     private Map<MarbleColor, Integer> firstFinishingSpots = new HashMap<>();
     
+    // for each color, an array of ints indicating the current position of
+    // each marble for that color. We update this as we move the marbles.
     private EnumMap<MarbleColor, int[]> marbleSpots = new EnumMap<MarbleColor, int[]>(MarbleColor.class);
     
     // Now we have a map of moveTrack arrays.
@@ -171,9 +173,9 @@ public class Board
     
     public Integer getMoveTrackIndex(MarbleColor color, int allSpotsIndex)
     {
-        Integer[] moveTrack = moveTracks.get(color);
         int result = -1;
-        for (int i : moveTrack)
+        Integer[] moveTrack = moveTracks.get(color);
+        for (int i=0; i<moveTrack.length; i++)
         {
             if (allSpotsIndex == moveTrack[i])
             {
@@ -265,42 +267,33 @@ public class Board
         }
     }
     
-    public Turn validateChosenMarble(Turn currentTurn, Spot chosenSpot)
-    {
-        if (chosenSpot == null)  { throw new IllegalArgumentException("No chosenSpot passed to Board.marbleChosen()"); }
-        System.out.println("marble chosen, spot " + chosenSpot.toString());
-
-        if (currentTurn == null) { throw new IllegalArgumentException("currentTurn null");        }
-        
-        currentTurn.validateMove(this, chosenSpot);
-        return currentTurn;
-    }
-    
     public void executeTurn(Turn turn)
     {
-        MoveState   moveState           = turn.getLastMoveState();
-        Spot        chosenMarbleSpot    = turn.getMarbles().get(0);
-        Marble      firstMarble         = chosenMarbleSpot.getMarble();
-        MarbleColor firstMarbleColor    = firstMarble.getColor();
-        int         chosenSpotIndex     = chosenMarbleSpot.getSpotIndex();
+        MoveState   moveState           = turn.getMoveState();
         
         switch(moveState)
         {
         case VALID_MARBLE_START:
         case VALID_MARBLE_MOVE:
-        case VALID_MARBLE_BUMP:
-        {
-            List<Spot> marbles = turn.getMarbles();
-            List<Spot> destinations = turn.getDestinations();
-            int i=0;
-            while (i < marbles.size())
+        case VALID_MARBLE_BUMP:     // we implement bump by moving the bumped marble first.
             {
-                Spot start = marbles.get(i);
-                Spot end   = destinations.get(i);
-                moveMarble(start.getSpotIndex(), end.getSpotIndex());
-                i++;
+                List<Spot> marbles      = turn.getMarbles();
+                List<Spot> destinations = turn.getDestinations();
+                int i=0;
+                while (i < marbles.size())
+                {
+                    Spot start = marbles.get(i);
+                    Spot end   = destinations.get(i);
+                    moveMarble(start.getSpotIndex(), end.getSpotIndex());
+                    i++;
+                }
             }
-        }
+            break;
+        case VALID_MARBLE_SWAP:
+            {
+                List<Spot> marbles      = turn.getMarbles();
+                swapMarbles(marbles.get(0), marbles.get(1));
+            }
             break;
         default:
             messager.message(moveState.name() + " not yet implemented");
@@ -320,16 +313,14 @@ public class Board
      * @param fromIndex
      * @param toIndex
      */
-    public void moveMarble(int fromIndex, int toIndex) throws IllegalArgumentException
+    private void moveMarble(int fromIndex, int toIndex) throws IllegalArgumentException
     {
         Spot fromSpot = allSpots[fromIndex];
         Spot toSpot = allSpots[toIndex];
 
         Marble marble = fromSpot.getMarble();
-        if (marble == null) { throw new IllegalArgumentException("attempt to move marble, no marble on from spot"); }
         
         fromSpot.setMarble(null);
-        if (toSpot.getMarble() != null) { throw new IllegalArgumentException("attempt to move marble, marble already on to spot"); }
         toSpot.setMarble(marble);
         
         // now update the array we keep of marble positions.
@@ -346,6 +337,36 @@ public class Board
         // now update the view
         alleysUI.moveMarble(fromIndex, toIndex);
         
+    }
+    
+    private void swapMarbles(Spot firstSpot, Spot secondSpot)
+    {
+        int firstIndex = firstSpot.getSpotIndex();
+        int secondIndex = secondSpot.getSpotIndex();
+        Marble firstMarble = firstSpot.getMarble();
+        Marble secondMarble = secondSpot.getMarble();
+        MarbleColor firstColor = firstMarble.getColor();
+        MarbleColor secondColor = secondMarble.getColor();
+        secondSpot.setMarble(firstMarble);
+        firstSpot.setMarble(secondMarble);
+        updateCurrentPosition(firstColor, firstIndex, secondIndex);
+        updateCurrentPosition(secondColor, secondIndex, firstIndex);
+        alleysUI.swapMarbles(firstIndex, secondIndex);
+    }
+    
+    private void updateCurrentPosition(MarbleColor marbleColor, int previousIndex, int newIndex)
+    {
+        int[] currentPositions = marbleSpots.get(marbleColor);
+        int positionIndex = getCurrentPositionsIndex(currentPositions, marbleColor, previousIndex);
+        currentPositions[positionIndex] = newIndex;
+    }
+    
+    private int getCurrentPositionsIndex(int[] currentPositions, MarbleColor color, int index)
+    {
+        int j = 0;
+        while (currentPositions[j] != index) { j++; if (j >= currentPositions.length) { break; }}
+        if (j >= currentPositions.length){ throw new RuntimeException("internal error: marble position not in currentPositions array"); }
+        return j;
     }
     
     public Spot findFirstEmptyBankSpot(MarbleColor color)
