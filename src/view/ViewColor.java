@@ -12,7 +12,7 @@ import model.MarbleColor;
  *
  */
 public class ViewColor
-{
+{   private static void say(String s) { System.out.println(s); }
     private static HashMap<MarbleColor, Color> marbleColors = new HashMap<>();
     private static HashMap<MarbleColor, Color> spotColors = new HashMap<>();
     
@@ -22,7 +22,20 @@ public class ViewColor
     {
         setColors(MarbleColor.RED,      Color.red,                      new Color(0xFF, 0x99, 0x99));
         setColors(MarbleColor.BLUE,     Color.blue,                     new Color(0x00, 0x99, 0xFF));
-        setColors(MarbleColor.YELLOW,   Color.yellow,                   new Color(0xff, 0xff, 0x99));
+        setColors(MarbleColor.YELLOW,   
+//                                        Color.yellow, // (0xffff00),
+                                        new Color
+//                                                  (0xfffd01),
+//                                                  (0xfffd38),
+//                                                  (0xfffd40),
+//                                                    (0xffff30),
+                                                    (0xffe000),
+                                                                        Color.white); 
+        String y = Color.yellow.toString(); 
+        say("yellow is " + y);
+                                                                        // new Color
+//                                                                                    (0xfffeed)); 
+//                                                                                    (0xff, 0xff, 0x99));
         setColors(MarbleColor.GREEN,    new Color(0x00, 0x66, 0x33),    new Color(0x66, 0xCC, 0x33));
     }
     

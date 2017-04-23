@@ -17,7 +17,7 @@ public class MoveValidator
         case Ace:
             // An ace may either move a marble from bank to home, or one square elsewhere
             // on the board.
-            if (spot.getSpotType() == SpotType.STARTING)
+            if (spot.getSpotType() == SpotType.BANK)
             {
                 moveState = validateBankToHome(player, board, spot);
             }
@@ -71,19 +71,19 @@ public class MoveValidator
                 Spot spot = board.getSpot(allSpotsIndex);
                 SpotType spotType = spot.getSpotType();
                 Marble marble = spot.getMarble();
-                if (spotType == SpotType.HOME && marble != null)
+                if (spotType == SpotType.STARTINGSPOT && marble != null)
                 {
                     MarbleColor spotColor = spot.getColor();
                     MarbleColor marbleColor = marble.getColor();
                     if (spotColor == marbleColor)
                     {
-                        moveState = MoveState.BLOCKED_BY_HOME_MARBLE;
+                        moveState = MoveState.BLOCKED_BY_PROTECTED_MARBLE;
                         break;
                     }
                 }
-                else if (spotType == SpotType.FINISHING && marble != null)
+                else if (spotType == SpotType.HOMEBASE && marble != null)
                 {
-                    moveState = MoveState.BLOCKED_BY_FINISHING_MARBLE;
+                    moveState = MoveState.BLOCKED_BY_HOMEBASE_MARBLE;
                 }
             }
             
@@ -120,7 +120,7 @@ public class MoveValidator
         }
         else
         {
-            if (spotType != SpotType.STARTING)
+            if (spotType != SpotType.BANK)
             {
                 say("Marble must be in the bank");
                 moveState = MoveState.MARBLE_NOT_IN_BANK;

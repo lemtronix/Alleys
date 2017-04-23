@@ -23,7 +23,7 @@ public class Player implements Comparable<Player>
     
     public String toString()
     {
-        return String.format("%s (%s", name, color.toString());
+        return String.format("%s (%s)", name, color.toString());
     }
 
 //    public Player(ArrayList<Spot> finishSpots, String color) {

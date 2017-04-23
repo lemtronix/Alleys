@@ -32,6 +32,7 @@ import controller.Constants;
 public class Board
 {
     private static void say(String msg) { System.out.println(msg); }
+    private static void say(String format, Object ... args) { say(String.format(format, args)); }
     
     private AlleysUI alleysUI = null;   
     private Messager messager = null;
@@ -80,7 +81,7 @@ public class Board
         for (MarbleColor color: MarbleColor.values())
         {
             homeSpots.put(color, spotIndex);        // save the home spot for each color
-            allSpots[spotIndex] = new Spot(spotIndex, SpotType.HOME, color);
+            allSpots[spotIndex] = new Spot(spotIndex, SpotType.STARTINGSPOT, color);
             spotIndex++;
             // put spots between one home marble and the next on the board's loop
             for (int i=0; i<17; i++)
@@ -96,7 +97,7 @@ public class Board
             firstFinishingSpots.put(color, spotIndex);  // save first finishing spot
             for (int i=0; i<4; i++)
             {
-                allSpots[spotIndex] = new Spot(spotIndex, SpotType.FINISHING, color);
+                allSpots[spotIndex] = new Spot(spotIndex, SpotType.HOMEBASE, color);
                 spotIndex++;
             }
         }
@@ -107,7 +108,7 @@ public class Board
             firstStartingSpots.put(color, spotIndex); // save first starting spot for each color
             for (int i=0; i<4; i++)
             {
-                allSpots[spotIndex] = new Spot(spotIndex, SpotType.STARTING, color);
+                allSpots[spotIndex] = new Spot(spotIndex, SpotType.BANK, color);
                 spotIndex++;
             }
         }
@@ -285,13 +286,18 @@ public class Board
                     Spot start = marbles.get(i);
                     Spot end   = destinations.get(i);
                     moveMarble(start.getSpotIndex(), end.getSpotIndex());
+                    start.setProtectedMarble(false);
+                    // if this is a valid start move, then the marble/spot is protected.
+                    boolean endProtected = (moveState == MoveState.VALID_MARBLE_START);
+                    end.setProtectedMarble(endProtected);
+                    // update marble positions
                     i++;
                 }
             }
             break;
         case VALID_MARBLE_SWAP:
             {
-                List<Spot> marbles      = turn.getMarbles();
+                List<Spot> marbles = turn.getMarbles();
                 swapMarbles(marbles.get(0), marbles.get(1));
             }
             break;
@@ -323,18 +329,10 @@ public class Board
         fromSpot.setMarble(null);
         toSpot.setMarble(marble);
         
-        // now update the array we keep of marble positions.
-        MarbleColor marbleColor = marble.getColor();
-        int[] currentPositions = marbleSpots.get(marbleColor);
-        // find the currentPosition that holds this 'from' index
-        int j = 0;
-        while (currentPositions[j] != fromIndex) { j++; if (j >= currentPositions.length) { break; } }
-        if (j >= currentPositions.length) { throw new IllegalArgumentException("internal error: attempt to move marble, not in position list"); }
-        
-        // j now points to the current stored position
-        currentPositions[j] = toIndex;
-        
-        // now update the view
+        // update the array we keep of marble positions.
+        updateCurrentPosition(marble.getColor(), fromIndex, toIndex);
+
+        // update the view
         alleysUI.moveMarble(fromIndex, toIndex);
         
     }
@@ -349,16 +347,28 @@ public class Board
         MarbleColor secondColor = secondMarble.getColor();
         secondSpot.setMarble(firstMarble);
         firstSpot.setMarble(secondMarble);
+        firstSpot.setProtectedMarble(false);
+        secondSpot.setProtectedMarble(false);
         updateCurrentPosition(firstColor, firstIndex, secondIndex);
         updateCurrentPosition(secondColor, secondIndex, firstIndex);
         alleysUI.swapMarbles(firstIndex, secondIndex);
     }
     
+    /**
+     * update the position of a marble of the given color that is moving
+     * from one spot to another, given as indices. NOTE: The marble may no
+     * longer BE at the 'from' spot; this method is used internally during
+     * moves.
+     * @param color
+     * @param from
+     * @param to
+     */
     private void updateCurrentPosition(MarbleColor marbleColor, int previousIndex, int newIndex)
     {
         int[] currentPositions = marbleSpots.get(marbleColor);
         int positionIndex = getCurrentPositionsIndex(currentPositions, marbleColor, previousIndex);
         currentPositions[positionIndex] = newIndex;
+        say("Marble moved from %d to %d", previousIndex, newIndex);
     }
     
     private int getCurrentPositionsIndex(int[] currentPositions, MarbleColor color, int index)

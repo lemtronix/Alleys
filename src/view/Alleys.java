@@ -107,7 +107,7 @@ public class Alleys extends JFrame implements AlleysUI
                 _Card = card;
                 alleysGame.cardChosen(card);
     
-                checkAndPlayCard(card);
+//                checkAndPlayCard(card);
             }
          });
         
@@ -122,6 +122,7 @@ public class Alleys extends JFrame implements AlleysUI
         _CardPanel.displayCards(cards);
 
         message("info.newTurn", player.getName(), player.getColor().toString().toLowerCase());
+        _CardPanel.setNameLabel(player.getName(), player.getColor());
     }
 
     private void resetSelectedCardsAndMarbles()
@@ -149,127 +150,22 @@ public class Alleys extends JFrame implements AlleysUI
         setVisible(true);
     }
 
-    private void checkAndPlayCard(Card card)
+    public void getMoveCount()
     {
-        // Check that cards and marbles have been selected. All cards require at least 1 card and 1 marble to be selected. Return early if this is not
-        // the case
-        if (card == null)
-        {
-            return;
+        String numberOfSpotsString = (String) JOptionPane.showInputDialog
+                (_BoardPanel, "Enter number of spots to move this marble", "Split Seven?", JOptionPane.QUESTION_MESSAGE);
+        int numberOfSpots = 0;
+        try 
+        { 
+            numberOfSpots = Integer.parseInt(numberOfSpotsString);
+            alleysGame.moveCountForSevenChosen(numberOfSpots);
         }
-        else if (_FirstMarbleSelected == -1)
+        catch (NumberFormatException nfe)
         {
-            return;
-        }
-        else if (isCardJack() && _SecondMarbleSelected == -1)
-        {
-            // Jacks always require a second marble
-            System.out.println("Alleys: Select a second marble");
-            return;
-        }
-        else if (isCardSeven() && _NumberOfSpotsToMoveFirstMarble == -1)
-        {
-            // Player has not input how many spots they'd like to move...
-            String numberOfSpots = (String) JOptionPane.showInputDialog(_BoardPanel,
-                    "How many spots would you like to move?", "Split Seven?", JOptionPane.QUESTION_MESSAGE);
-
-            try
-            {
-                _NumberOfSpotsToMoveFirstMarble = Integer.parseInt(numberOfSpots);
-
-                if (_NumberOfSpotsToMoveFirstMarble < 1 || _NumberOfSpotsToMoveFirstMarble > 7)
-                {
-                    resetSelectedCardsAndMarbles();
-                    throw new NumberFormatException();
-                }
-                else if (_NumberOfSpotsToMoveFirstMarble == 7)
-                {
-                    // If the player wants to move the first marble
-                    _SecondMarbleSelected = _FirstMarbleSelected;
-                }
-                else
-                {
-                    System.out.println("Alleys: Select a second marble");
-                }
-
-                System.out.println(
-                        "Alleys: User wants to move " + _NumberOfSpotsToMoveFirstMarble + " on their first marble.");
-            }
-            catch (NumberFormatException nfe)
-            {
-                System.err.println("Alleys: Please enter a number from 1 to 7");
-            }
-
-        }
-
-        if (isCardJack())
-        {
-            System.out.println("Alleys: Player is swapping marble " + _FirstMarbleSelected + " with "
-                    + _SecondMarbleSelected + " using the " + _Card.toString());
-
-//            if (_Controller.currentPlayerPlaysJack(_Card, _FirstMarbleSelected, _SecondMarbleSelected) == true)
-//            {
-//                _CardPanel.hideCard(_CardButton);
-//                newTurn();
-//            }
-        }
-        else if (isCardSeven() && _SecondMarbleSelected != -1)
-        {
-            // if yes, then present the slider option
-
-            System.out.println("Alleys: Player is playing a seven with the first marble " + _FirstMarbleSelected
-                    + " moving " + _NumberOfSpotsToMoveFirstMarble + " number of spots and the second marble "
-                    + _SecondMarbleSelected + " using the remaining spots.");
-
-//            if (_Controller.currentPlayerPlaysSeven(_Card, _FirstMarbleSelected, _NumberOfSpotsToMoveFirstMarble,
-//                    _SecondMarbleSelected) == true)
-//            {
-//                _CardPanel.hideCard(_CardButton);
-//                newTurn();
-//            }
-        }
-        else if (!isCardSeven())
-        {
-            // Not playing a jack or seven
-            System.out.println("Alleys: Player playing the " + _Card.toString());
-
-//            if (_Controller.currentPlayerPlays(_Card, _FirstMarbleSelected) == true)
-//            {
-//                _CardPanel.hideCard(_CardButton);
-//                newTurn();
-//            }
+            message("error.needNumber");
         }
     }
-
-    private boolean isCardJack()
-    {
-        if (_Card == null)
-        {
-            return false;
-        }
-
-        if (_Card.getRank() == CardValue.Jack)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean isCardSeven()
-    {
-        if (_Card == null)
-        {
-            return false;
-        }
-
-        if (_Card.getRank() == CardValue.Seven)
-        {
-            return true;
-        }
-
-        return false;
-    }
+    
     
     private ResourceBundle messageBundle = ResourceBundle.getBundle("messages", Locale.getDefault());
     private String TEXT_AREA_FORMAT = "%s%n";
@@ -351,4 +247,127 @@ public class Alleys extends JFrame implements AlleysUI
             }
         });
     }
+
+//    private void checkAndPlayCard(Card card)
+//    {
+//        // Check that cards and marbles have been selected. All cards require at least 1 card and 1 marble to be selected. Return early if this is not
+//        // the case
+//        if (card == null)
+//        {
+//            return;
+//        }
+//        else if (_FirstMarbleSelected == -1)
+//        {
+//            return;
+//        }
+//        else if (isCardJack() && _SecondMarbleSelected == -1)
+//        {
+//            // Jacks always require a second marble
+//            System.out.println("Alleys: Select a second marble");
+//            return;
+//        }
+//        else if (isCardSeven() && _NumberOfSpotsToMoveFirstMarble == -1)
+//        {
+//            // Player has not input how many spots they'd like to move...
+//            String numberOfSpots = (String) JOptionPane.showInputDialog(_BoardPanel,
+//                    "How many spots would you like to move?", "Split Seven?", JOptionPane.QUESTION_MESSAGE);
+//
+//            try
+//            {
+//                _NumberOfSpotsToMoveFirstMarble = Integer.parseInt(numberOfSpots);
+//
+//                if (_NumberOfSpotsToMoveFirstMarble < 1 || _NumberOfSpotsToMoveFirstMarble > 7)
+//                {
+//                    resetSelectedCardsAndMarbles();
+//                    throw new NumberFormatException();
+//                }
+//                else if (_NumberOfSpotsToMoveFirstMarble == 7)
+//                {
+//                    // If the player wants to move the first marble
+//                    _SecondMarbleSelected = _FirstMarbleSelected;
+//                }
+//                else
+//                {
+//                    System.out.println("Alleys: Select a second marble");
+//                }
+//
+//                System.out.println(
+//                        "Alleys: User wants to move " + _NumberOfSpotsToMoveFirstMarble + " on their first marble.");
+//            }
+//            catch (NumberFormatException nfe)
+//            {
+//                System.err.println("Alleys: Please enter a number from 1 to 7");
+//            }
+//
+//        }
+//
+//        if (isCardJack())
+//        {
+//            System.out.println("Alleys: Player is swapping marble " + _FirstMarbleSelected + " with "
+//                    + _SecondMarbleSelected + " using the " + _Card.toString());
+//
+////            if (_Controller.currentPlayerPlaysJack(_Card, _FirstMarbleSelected, _SecondMarbleSelected) == true)
+////            {
+////                _CardPanel.hideCard(_CardButton);
+////                newTurn();
+////            }
+//        }
+//        else if (isCardSeven() && _SecondMarbleSelected != -1)
+//        {
+//            // if yes, then present the slider option
+//
+//            System.out.println("Alleys: Player is playing a seven with the first marble " + _FirstMarbleSelected
+//                    + " moving " + _NumberOfSpotsToMoveFirstMarble + " number of spots and the second marble "
+//                    + _SecondMarbleSelected + " using the remaining spots.");
+//
+////            if (_Controller.currentPlayerPlaysSeven(_Card, _FirstMarbleSelected, _NumberOfSpotsToMoveFirstMarble,
+////                    _SecondMarbleSelected) == true)
+////            {
+////                _CardPanel.hideCard(_CardButton);
+////                newTurn();
+////            }
+//        }
+//        else if (!isCardSeven())
+//        {
+//            // Not playing a jack or seven
+//            System.out.println("Alleys: Player playing the " + _Card.toString());
+//
+////            if (_Controller.currentPlayerPlays(_Card, _FirstMarbleSelected) == true)
+////            {
+////                _CardPanel.hideCard(_CardButton);
+////                newTurn();
+////            }
+//        }
+//    }
+//
+//    private boolean isCardJack()
+//    {
+//        if (_Card == null)
+//        {
+//            return false;
+//        }
+//
+//        if (_Card.getRank() == CardValue.Jack)
+//        {
+//            return true;
+//        }
+//
+//        return false;
+//    }
+//
+//    private boolean isCardSeven()
+//    {
+//        if (_Card == null)
+//        {
+//            return false;
+//        }
+//
+//        if (_Card.getRank() == CardValue.Seven)
+//        {
+//            return true;
+//        }
+//
+//        return false;
+//    }
+
 }
