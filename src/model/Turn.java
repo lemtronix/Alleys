@@ -20,13 +20,12 @@ public class Turn
         System.out.println(msg);
     }
 
-    Player player = null;
-    Card card = null; // card chosen to be played
-    List<Spot> marbles = new ArrayList<>(); // spots (with marbles) chosen for
-                                            // this turn
-    List<Spot> destinations = new ArrayList<>(); // destinations for marbles if
-                                                 // move successful.
-    MoveState moveState = null;
+    Player      player              = null;
+    Card        card                = null;                 // card chosen to be played
+    List<Spot>  marbles             = new ArrayList<>();    // spots (with marbles) chosen for this turn
+    List<Spot>  destinations        = new ArrayList<>();    // destinations for marbles if move successful.
+    MoveState   moveState           = null;
+    int         moveCountForSeven   = 0;
 
     public Turn(Player player)
     {
@@ -151,7 +150,7 @@ public class Turn
             // try to move
             // it to home, otherwise (home, normal, or finishing) we try to move
             // it one spot.
-            if (spot.getSpotType() == SpotType.STARTING)
+            if (spot.getSpotType() == SpotType.BANK)
             {
                 moveState = validateBankToHome(player, board, spot);
             }
@@ -164,7 +163,7 @@ public class Turn
             moveState = validateMoveJack(player, board, spot);
             break;
         case Seven:
-            say(card.toString() + " not yet implemented");
+            moveState = validateMoveSeven(player, board, spot);
             break;
         default:
             moveState = validateMoveMarble(player, board, spot, card.toInt(false));
@@ -174,15 +173,99 @@ public class Turn
         return this;
     }
 
-    // private MoveState validateSwapMarble(Player player, Board board, Spot
-    // currentSpot)
-
+    private MoveState validateMoveSeven(Player player, Board board, Spot currentSpot)
+    {
+        MoveState result = null;
+        
+        Marble marble = currentSpot.getMarble();
+        MarbleColor marbleColor = marble.getColor();
+        MarbleColor playerColor = player.getColor();
+        
+        // this method gets called either once or twice for a seven; remember the player
+        // may move either one or two marbles, where the total number of moves is 7.
+        // A different method on this object handles putting the number of moves somewhere.
+        
+        // both marbles must belong to the player
+        if (marbleColor != playerColor)
+        {
+            result = MoveState.MARBLE_NOT_CURRENT_PLAYER;
+        }
+        else
+        {
+            // all we know on the first marble is to store it; we don't know
+            // at the time it is chosen how many it will move. I guess we can
+            if (marbles.isEmpty())
+            {
+                marbles.add(currentSpot);
+                result = MoveState.ENTER_FIRST_MOVE_COUNT;
+            }
+            else
+            {  
+                // ok, we have a second marble; let's make sure they didn't click the first one again
+                Spot firstMarbleSpot = marbles.get(0);
+                if (firstMarbleSpot == currentSpot)
+                {
+                    result = MoveState.NEED_DIFFERENT_MARBLE;
+                }
+                else
+                {
+                    // ok, we have two marbles and a count we're going to use on the first one.
+                    // validate the move of the second marble
+                    result = validateMoveMarble(player, board, currentSpot, 7 - moveCountForSeven);
+                }
+                
+            }
+        }
+        return result;
+    }
+    
+    public Turn validateMoveCountForSeven(Board board, int moveCount)
+    {
+        if (moveCount > 7 || moveCount < 1)
+        {
+            moveState = MoveState.COUNT_1_TO_7;
+        }
+        else
+        {
+            moveCountForSeven = moveCount;
+            Spot currentSpot = marbles.get(0);
+            if (moveCount == 7)
+            {
+                // just moving 7
+                // clear out the marble we saved earlier, and treat this like
+                // any other numbered-card move.
+                marbles.clear();
+                moveState = validateMoveMarble(player, board, currentSpot, 7);
+            }
+            else
+            {
+                // validate that we can move the number of spaces entered.
+                moveState = validateMoveMarble(player, board, currentSpot, moveCount);
+                
+                // if we're good to go, then change the state to be waiting for the second
+                // marble pick
+                if (moveState.getTurnState() == TurnState.READY)
+                {
+                    moveState = MoveState.WAITING_FOR_SECOND_MARBLE;
+                }
+                
+//                // marble is already stored; store the destination for that first marble
+//                Spot marbleSpot = marbles.get(0);
+//                int destinationIndex = marbleSpot.getSpotIndex() + moveCountForSeven;
+//                Spot destinationSpot = board.getSpot(destinationIndex);
+//                destinations.add(destinationSpot);
+//                
+//                moveState = MoveState.WAITING_FOR_SECOND_MARBLE;
+            }
+        }
+        return this;
+    }
+    
     private MoveState validateMoveJack(Player player, Board board, Spot currentSpot)
     {
         MoveState result = null;
         // we call this once on the first marble and once on the second; we use
-        // the
-        // marbles list to tell us which one we're doing.
+        // the marbles list to tell us which one we're doing.
         if (marbles.isEmpty())
         {
             // chose first marble for Jack; we cannot swap out of starting or
@@ -199,7 +282,9 @@ public class Turn
             {
                 SpotType spotType = currentSpot.getSpotType();
                 
-                if (spotType == SpotType.STARTING || spotType == SpotType.FINISHING)
+                if (   spotType == SpotType.BANK 
+                    || spotType == SpotType.HOMEBASE
+                   )
                 {
                     result = MoveState.CANNOT_SWAP_FROM_SPOT;
                 }
@@ -226,10 +311,11 @@ public class Turn
             {
                 SpotType    spotType    = currentSpot.getSpotType();
                 // cannot swap into a finishing or starting spot
-                if (spotType == SpotType.FINISHING || spotType == SpotType.STARTING)
+                if (   spotType == SpotType.HOMEBASE 
+                    || spotType == SpotType.BANK
+                    || currentSpot.isProtected())
                 {
                     // cannot swap a marble that's on any special spot
-                    // TODO: do we have a protected status of a marble on its own home?
                     result = MoveState.CANNOT_SWAP_ONTO_SPOT;
                 }
                 else
@@ -260,12 +346,16 @@ public class Turn
         // if we're moving backwards, we may move backwards beyond the start of
         // the moveTrack (i.e., past the home spot). In that case, we need to calculate the
         // main loop spot to which it would move.
-        targetMoveTrackIndex = ensurePositiveMoveTrackIndex(targetMoveTrackIndex);
+        targetMoveTrackIndex = translateTrackIndex(targetMoveTrackIndex);
 
         Integer[] moveTrack = board.getMoveTrack(currentMarbleColor);
 
         // ensure there are enough spots for the length of the move
-        if (targetMoveTrackIndex >= moveTrack.length)
+        if (currentSpotType == SpotType.BANK)
+        {
+            moveState = MoveState.CANNOT_MOVE_FROM_BANK;
+        }
+        else if (targetMoveTrackIndex >= moveTrack.length)
         {
             moveState = MoveState.MOVE_TOO_LONG;
         }
@@ -277,30 +367,28 @@ public class Turn
             int increment = 1;
             if (moveCount < 0) { increment = -1; }
 
+            // for each spot, determine whether there are obstacles
+            // a marble cannot move past a protected marble,
+            // nor past its own marble in a finishing spot.
             do
             {
-                moveTrackIndex = ensurePositiveMoveTrackIndex(moveTrackIndex + increment);
+                moveTrackIndex = translateTrackIndex(moveTrackIndex + increment);
 
-                // for each spot, determine whether there are obstacles
-                // a marble cannot move past another color marble in its own
-                // home spot, nor past its own marble in a finishing spot.
                 int allSpotsIndex = moveTrack[moveTrackIndex];
                 Spot spot = board.getSpot(allSpotsIndex);
-//                SpotType spotType = spot.getSpotType();
-                Marble marble = spot.getMarble();
-                if (currentSpotType == SpotType.HOME && marble != null)
+                // check on protected marble (has not moved since moving from bank to starting spot)
+                if (spot.isProtected())
                 {
-                    MarbleColor spotColor = spot.getColor();
-                    MarbleColor marbleColor = marble.getColor();
-                    if (spotColor == marbleColor)
-                    {
-                        moveState = MoveState.BLOCKED_BY_HOME_MARBLE;
+                        moveState = MoveState.BLOCKED_BY_PROTECTED_MARBLE;
                         break;
-                    }
                 }
-                else if (currentSpotType == SpotType.FINISHING && marble != null)
-                {
-                    moveState = MoveState.BLOCKED_BY_FINISHING_MARBLE;
+                else
+                {   // check on homebase marble (one on of four finishing spots, can't be passed or bumped)
+                    Marble marble = spot.getMarble();
+                    if (currentSpotType == SpotType.HOMEBASE && marble != null)
+                    {
+                        moveState = MoveState.BLOCKED_BY_HOMEBASE_MARBLE;
+                    }
                 }
             } while (moveTrackIndex != targetMoveTrackIndex);
 
@@ -312,22 +400,22 @@ public class Turn
                 // only legal move, and he could hope something would come free before it was his
                 // turn again.
                 Spot lastSpot = board.getSpot(moveTrack[targetMoveTrackIndex]);
+                // check if there's a marble being bumped.
+                // TODO: determine if we allow bumping of one's own marble.
                 if (lastSpot.hasMarble())
                     {
-                      if (currentSpotType == SpotType.FINISHING)
-                      {
-                          moveState = MoveState.BLOCKED_BY_FINISHING_MARBLE;
-                      }
-                      else
-                      {
-                          moveState = MoveState.VALID_MARBLE_BUMP;
-                          setMarblesForBump(board, lastSpot, currentSpot);
-                      }
+                      moveState = MoveState.VALID_MARBLE_BUMP;
+                      setMarblesForBump(board, lastSpot, currentSpot);
                     }
                 else
                 {
                     moveState = MoveState.VALID_MARBLE_MOVE;
-                    marbles.add(currentSpot);
+                    // if the turn is in this moveState, then the marble and destination have already
+                    // been added, and so we don't add them again.
+                    if (moveState != MoveState.ENTER_FIRST_MOVE_COUNT)
+                    {
+                        marbles.add(currentSpot);
+                    }
                     destinations.add(lastSpot);
                 }
             }
@@ -354,12 +442,9 @@ public class Turn
      * @param index
      * @return
      */
-    private int ensurePositiveMoveTrackIndex(int index)
+    private int translateTrackIndex(int index)
     {
-        if (index < 0)
-        {
-            index += 72;
-        }
+        if (index < 0) { index += 72; } // -1 -> 71, -2 -> 70, etc.
         return index;
     }
 
@@ -377,7 +462,7 @@ public class Turn
         }
         else
         {
-            if (spotType != SpotType.STARTING)
+            if (spotType != SpotType.BANK)
             {
                 say("Marble must be in the bank");
                 moveState = MoveState.MARBLE_NOT_IN_BANK;

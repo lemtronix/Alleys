@@ -28,10 +28,11 @@ public class Spot
     // are on the board; every time a spot is updated, it is done through the board, so that the board 
     // can notify the view.
     
-    private int         spotIndex;              // index into big array of spots on the board.
-    private Marble      marble      = null;     // null when no marble is on the spot.
-    private SpotType    spotType    = null;     // never null;
-    private MarbleColor color       = null;     // null unless a starting, home, or finishing type
+    private int         spotIndex;                  // index into big array of spots on the board.
+    private Marble      marble          = null;     // null when no marble is on the spot.
+    private SpotType    spotType        = null;     // never null;
+    private MarbleColor color           = null;     // null unless a starting, home, or finishing type
+    private boolean     protectedMarble = false;    // true iff a marble landed on a starting spot from its bank.
     
     private AlleysUI    alleysUI    = null;     // window to a view
     public void setAlleysUI(AlleysUI aui) { alleysUI = aui; }
@@ -48,11 +49,6 @@ public class Spot
         color = c;
     }
 
-    public void setMarble(Marble m)
-    {
-        marble = m;
-    }
-    
     public String toString() 
     { 
         StringBuilder result = new StringBuilder();
@@ -64,6 +60,7 @@ public class Spot
         return result.toString();
     } 
 
+    public void     setMarble(Marble m)         { marble = m;    }
     public Marble   getMarble()                 { return marble;    }
     public void     clearMarble()               { marble = null;    }
     public boolean  hasMarble()                 { return (marble != null); }
@@ -74,6 +71,16 @@ public class Spot
     public MarbleColor getColor()                 { return color; }
     public void     setMarbleColor(MarbleColor c) { color = c; }
     public boolean  hasColor()                      { return color != null; }
+    
+    public void     setProtectedMarble(boolean p) { protectedMarble = p; }
+    public boolean  getProtectedMarble()        { return protectedMarble; }
+    
+    /**
+     * returns true iff this spot is a home spot, and there is a marble on it that
+     * arrived on the spot by being moved out of its bank, i.e., a starting move.
+     * @return
+     */
+    public boolean  isProtected()               { return protectedMarble; }
     
     public int getSpotIndex() { return spotIndex; }
 }

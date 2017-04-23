@@ -1,10 +1,10 @@
 package view;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,17 +12,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import model.Card;
+import model.MarbleColor;
 
 public class CardPanel extends JPanel
 {
     private CardListener _CardListener = null;
 
     private ArrayList<CardButton> _CardButtons = new ArrayList<CardButton>(5);
+    private JLabel nameLabel = new JLabel("", SwingConstants.CENTER);
     private JButton _FoldButton;
+    private JPanel innerButtonPanel = null;
+    
 
     public CardPanel()
     {
@@ -41,6 +49,41 @@ public class CardPanel extends JPanel
 
         createCardButtons();
         layoutComponents();
+    }
+    
+    private void layoutComponents()
+    {
+        setBackground(Color.black);
+        setBorder(BorderFactory.createLineBorder(Color.white));
+        
+        innerButtonPanel = new JPanel();
+        innerButtonPanel.setLayout(new GridLayout(4,1));
+        nameLabel.setBorder(BorderFactory.createLineBorder(Color.black));
+        nameLabel.setOpaque(true);
+        innerButtonPanel.add(nameLabel);
+        innerButtonPanel.add(_FoldButton);
+        
+        setLayout(new BorderLayout());
+        add(innerButtonPanel, BorderLayout.WEST);
+        
+        JPanel cardPanel = new JPanel();
+        BoxLayout cardPanelLayout = new BoxLayout(cardPanel, BoxLayout.LINE_AXIS);
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.LINE_AXIS));
+        Dimension spacerDimension = new Dimension(5, 1);
+        for (int i=0; i<5; i++) 
+        { 
+            cardPanel.add(Box.createRigidArea(spacerDimension)); 
+            cardPanel.add(_CardButtons.get(i)); 
+        }
+        add(cardPanel, BorderLayout.CENTER);
+
+//        setPreferredSize(new Dimension(10, 110));
+    }
+
+    public void setNameLabel(String name, MarbleColor marbleColor)
+    {
+        nameLabel.setText(name);
+        nameLabel.setBackground(ViewColor.getSpotColor(marbleColor));
     }
 
     public void displayCards(List<Card> playersCards)
@@ -71,45 +114,6 @@ public class CardPanel extends JPanel
     public void setCardListener(CardListener cardListener)
     {
         _CardListener = cardListener;
-    }
-
-    private void layoutComponents()
-    {
-        setBackground(Color.black);
-        setBorder(BorderFactory.createLineBorder(Color.white));
-
-        setLayout(new GridBagLayout());
-        GridBagConstraints gc = new GridBagConstraints();
-
-        gc.fill = GridBagConstraints.NONE;
-
-        gc.insets = new Insets(0, 5, 0, 5);
-
-        // Single Row
-        gc.gridy = 0;
-
-        gc.weightx = 0.0;
-        gc.weighty = 0;
-
-        gc.gridx = 0;
-        add(_FoldButton, gc);
-
-        gc.gridx++;
-        add(_CardButtons.get(0), gc);
-
-        gc.gridx++;
-        add(_CardButtons.get(1), gc);
-
-        gc.gridx++;
-        add(_CardButtons.get(2), gc);
-
-        gc.gridx++;
-        add(_CardButtons.get(3), gc);
-
-        gc.gridx++;
-        add(_CardButtons.get(4), gc);
-
-        setPreferredSize(new Dimension(10, 110));
     }
 
     private void createCardButtons()

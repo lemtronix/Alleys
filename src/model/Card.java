@@ -5,7 +5,8 @@ public class Card
     private static final int ORDINAL_OFFSET = 1;
     private CardValue _CardValue;
     private CardSuit _CardSuit;
-    private String _ImagePath;
+    private String _ImagePath;          // image path, returned by public method, therefore is
+                                        // relative to the class getting the path, not this class.
 
     public Card(CardValue Value, CardSuit Suit, String imagePath) {
         _CardValue = Value;

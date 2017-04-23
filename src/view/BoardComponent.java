@@ -7,18 +7,25 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.net.URL;
 
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 import model.AlleysGame;
 import model.Board;
+import model.Card;
+import model.CardSuit;
+import model.CardValue;
 import model.Marble;
 import model.MarbleColor;
 import controller.Constants;
 
 public class BoardComponent extends JComponent implements MarbleListener, MouseListener
 {
-//    private Controller _Controller;
+    private static void say(String formatString, Object... args) { System.out.println(String.format(formatString, args)); }
+    
     private AlleysGame alleysGame;
 
     private SpotGraphic     viewSpots[] = new SpotGraphic[Constants.TOTAL_SPOTS];
@@ -32,40 +39,46 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
 
     public BoardComponent(AlleysGame alleysGame)
     {
-        this.alleysGame = alleysGame;
+        setLayout(null);
+        
+          this.alleysGame = alleysGame;
         
 //        _Controller = GameController;
 
         CreateSpots();
         CreateMarbles();
         
-//        addMouseListener(new MouseAdapter()
+        String baseDir = "images/";
+        String suffix = ".gif";
+
+//        // TEST see if we can put a card graphic on the board
+//        Card card = new Card(CardValue.Ace, CardSuit.Hearts, baseDir + "ah" + suffix);
+//        String imagePath = card.getImagePath();
+//        
+//        URL imageUrl = getClass().getResource(imagePath);
+//
+//        ImageIcon cardIcon = new ImageIcon(imageUrl, "AceHearts");
+//        int cardHeight = cardIcon.getIconHeight();
+//        int cardWidth  = cardIcon.getIconWidth();
+//        
+//        JLabel cardLabel = new JLabel(cardIcon); // ("boo", cardIcon, JLabel.LEFT); // ("boo");
+//        add(cardLabel);
+//        
+//        cardLabel.setBounds(245,275,cardWidth,cardHeight);
+        
+        addMouseListener(this);
+//
+//        addMouseMotionListener(new MouseMotionListener()
 //        {
-//            public void mousePressed(MouseEvent e)
+//            public void mouseMoved(MouseEvent e)
 //            {
-//                CheckMarbleSelected();
-//                repaint();
 //            }
 //
-//            public void mouseReleased(MouseEvent e)
+//            public void mouseDragged(MouseEvent e)
 //            {
-//                CheckSelectedMarbleDroppedOnSpot();
 //                repaint();
 //            }
 //        });
-        addMouseListener(this);
-
-        addMouseMotionListener(new MouseMotionListener()
-        {
-            public void mouseMoved(MouseEvent e)
-            {
-            }
-
-            public void mouseDragged(MouseEvent e)
-            {
-                repaint();
-            }
-        });
         
     }
     
@@ -384,10 +397,12 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
     {        
         int x = e.getX();
         int y = e.getY();
+        say("Mouse click at %d,%d", x, y);
         for (SpotGraphic spot : viewSpots)
         {
             if (spot.containsPosition(x,y) && spot.getMarble() != null)
             {
+                say("Found spot %d", spot.getSpotIndex());
                 marbleClicked(spot);
                 break;
             }

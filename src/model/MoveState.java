@@ -5,28 +5,34 @@ public enum MoveState
      AWAITING_CARD              (TurnState.CONTINUING,  "info.needCard")
     ,AWAITING_SWAP_MARBLE       (TurnState.CONTINUING,  "info.needSwapMarble")
     
-    ,NO_LEGAL_MOVE              (TurnState.ERROR,  "error.noLegalMove")
+    ,NO_LEGAL_MOVE              (TurnState.ERROR,       "error.noLegalMove")
     
-    ,MARBLE_NOT_CURRENT_PLAYER  (TurnState.ERROR,  "error.marbleNotCurrentPlayer")
-    ,MARBLE_NOT_IN_BANK         (TurnState.ERROR,  "error.marbleNotInBank")
-    ,HOME_SPOT_OCCUPIED         (TurnState.ERROR,  "error.homeSpotOccupied")
+    ,MARBLE_NOT_CURRENT_PLAYER  (TurnState.ERROR,       "error.marbleNotCurrentPlayer")
+    ,MARBLE_NOT_IN_BANK         (TurnState.ERROR,       "error.marbleNotInBank")
+    ,HOME_SPOT_OCCUPIED         (TurnState.ERROR,       "error.homeSpotOccupied")
+    ,CANNOT_MOVE_FROM_BANK      (TurnState.ERROR,       "error.cannotMoveFromBank")
     
-    ,CANNOT_SWAP_FROM_SPOT      (TurnState.ERROR,  "error.cannotSwapFromSpot")
-    ,CANNOT_SWAP_ONTO_SPOT      (TurnState.ERROR,  "error.cannotSwapOntoSpot")
-    ,MUST_CHOOSE_MARBLE         (TurnState.ERROR,  "error.mustChooseMarble")
-    ,CANNOT_SWAP_SAME_MARBLE    (TurnState.ERROR,  "error.cannotChooseSameMarble")
+    ,CANNOT_SWAP_FROM_SPOT      (TurnState.ERROR,       "error.cannotSwapFromSpot")
+    ,CANNOT_SWAP_ONTO_SPOT      (TurnState.ERROR,       "error.cannotSwapOntoSpot")
+    ,MUST_CHOOSE_MARBLE         (TurnState.ERROR,       "error.mustChooseMarble")
+    ,CANNOT_SWAP_SAME_MARBLE    (TurnState.ERROR,       "error.cannotChooseSameMarble")
     
-    ,MOVE_TOO_LONG              (TurnState.ERROR,  "error.moveTooLong")
-    ,BLOCKED_BY_HOME_MARBLE     (TurnState.ERROR,  "error.blockedByHomeMarble")
-    ,BLOCKED_BY_FINISHING_MARBLE (TurnState.ERROR, "error.blockedByFinishingMarble")
+    ,ENTER_FIRST_MOVE_COUNT     (TurnState.CONTINUING_GET_NUMBER,  "info.enterNumberToMove")
+    ,VALID_MOVE_SEVEN           (TurnState.READY,       "info.validMoveSeven")
+    ,COUNT_1_TO_7               (TurnState.ERROR,       "error.count1to7")
+    ,NEED_DIFFERENT_MARBLE      (TurnState.ERROR,       "error.needDifferentMarble")
     
-    ,VALID_MARBLE_START         (TurnState.READY, "info.validMarbleStart")   // valid to move chosen marble to home spot
-    ,VALID_MARBLE_MOVE          (TurnState.READY, "info.validMarbleMove")   // valid to move chosen marble to square indicated by card count
-    ,VALID_MARBLE_BUMP          (TurnState.READY, "info.validMarbleBump")   // valid move with marble to bump back to bank
-    ,VALID_MARBLE_SWAP          (TurnState.READY, "info.validMarbleSwap")
+    ,MOVE_TOO_LONG              (TurnState.ERROR,       "error.moveTooLong")
+    ,BLOCKED_BY_PROTECTED_MARBLE(TurnState.ERROR,       "error.blockedByProtectedMarble")
+    ,BLOCKED_BY_HOMEBASE_MARBLE (TurnState.ERROR,       "error.blockedByHomebaseMarble")
     
-    ,WAITING_FOR_SWAP_MARBLE    (TurnState.CONTINUING, "info.chooseMarbleSwap")
-    ,WAITING_FOR_SECOND_MARBLE  (TurnState.CONTINUING, "info.chooseSecondMarble")
+    ,VALID_MARBLE_START         (TurnState.READY,       "info.validMarbleStart")   // valid to move chosen marble to home spot
+    ,VALID_MARBLE_MOVE          (TurnState.READY,       "info.validMarbleMove")   // valid to move chosen marble to square indicated by card count
+    ,VALID_MARBLE_BUMP          (TurnState.READY,       "info.validMarbleBump")   // valid move with marble to bump back to bank
+    ,VALID_MARBLE_SWAP          (TurnState.READY,       "info.validMarbleSwap")
+    
+    ,WAITING_FOR_SWAP_MARBLE    (TurnState.CONTINUING,  "info.chooseMarbleSwap")
+    ,WAITING_FOR_SECOND_MARBLE  (TurnState.CONTINUING,  "info.chooseSecondMarble")
     
     ;
     
