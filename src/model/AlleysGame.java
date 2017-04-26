@@ -3,6 +3,10 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+
+import view.CardGraphic;
 import view.viewinterface.AlleysUI;
 import controller.Constants;
 import controller.MarbleModelListener;
@@ -82,8 +86,21 @@ public class AlleysGame implements Messager
     { 
         say("chose " + card.toString());
         Turn currentTurn = turnManager.getCurrentTurn();
-        currentTurn.setCard(card, this);    // TODO: determine if we should put the messager in the
-                                            // turn constructor, so it doesn't have to get passed in here.
+        // TODO: determine if we should put the messager in the
+        // turn constructor, so it doesn't have to get passed in here.
+        Card previousCard = currentTurn.setCard(card, this);
+        
+        Player player = currentTurn.getPlayer();
+        
+        // if we had a previous card, add it back to the player's hand.
+        if (previousCard != null) { player.addCard(previousCard); }
+        // remove the just-played card from his hand
+        player.removeCard(card);
+        
+        // if we had a previous card, move it back from the middle of the
+        // board to the player's hand on the UI.
+        if (previousCard != null) { alleysUI.unChooseCard(); }
+        alleysUI.chooseCard(card);
     }
 
     /**
@@ -177,5 +194,5 @@ public class AlleysGame implements Messager
 
     public void message(String s) { alleysUI.message(s); }
     public void message(String format, String ... parameterValues) { alleysUI.message(format, parameterValues); }
-
+    
 }

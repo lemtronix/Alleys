@@ -1,5 +1,6 @@
 package view.viewinterface;
 
+import model.Card;
 import model.Marble;
 import model.Player;
 
@@ -15,4 +16,7 @@ public interface AlleysUI
     public void swapMarbles(int firstIndex, int secondIndex);
     
     public void getMoveCount();
+    
+    public void chooseCard(Card card);
+    public void unChooseCard();
 }

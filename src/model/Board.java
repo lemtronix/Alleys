@@ -285,10 +285,14 @@ public class Board
                 {
                     Spot start = marbles.get(i);
                     Spot end   = destinations.get(i);
+                    SpotType endType = end.getSpotType();
                     moveMarble(start.getSpotIndex(), end.getSpotIndex());
                     start.setProtectedMarble(false);
                     // if this is a valid start move, then the marble/spot is protected.
-                    boolean endProtected = (moveState == MoveState.VALID_MARBLE_START);
+                    boolean endProtected = (endType == SpotType.STARTINGSPOT
+                                            && (moveState == MoveState.VALID_MARBLE_START
+                                                || moveState == MoveState.VALID_MARBLE_BUMP)
+                                           );
                     end.setProtectedMarble(endProtected);
                     // update marble positions
                     i++;
@@ -305,11 +309,6 @@ public class Board
             messager.message(moveState.name() + " not yet implemented");
             break;
         }
-        
-        // remove card from player's hand
-        Player player = turn.getPlayer();
-        Card card = turn.getCard();
-        player.removeCard(card);
         
     }
     
