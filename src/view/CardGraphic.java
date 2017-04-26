@@ -1,6 +1,8 @@
 package view;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 
@@ -8,31 +10,53 @@ import model.Card;
 
 public class CardGraphic
 {
-    private ImageIcon _CardImageIcon = null;
-
-    // TODO this should be the flyweight pattern
-    // TODO also include a card back graphic
+    private static void say(String msg) { System.out.println(msg); }
+    private static String baseImageDir  = "images/";
+    private static String suffix        = ".gif";
+    
+    private Card        card;
+    private ImageIcon   icon;
+    
+    // static collection of card icons; we load this lazily as cards are displayed
+    private static Map<String, ImageIcon> cardIcons = new HashMap<>();
+    
     public CardGraphic(Card card)
     {
-        // Attempt to load the card's image
-        _CardImageIcon = createImageIcon(card.getImagePath(), card.toString());
+        this.card = card;
+        icon = getCardGraphic(card);
     }
-
-    public ImageIcon getImageIcon()
+    
+    public Card         getCard() { return card; }
+    public ImageIcon    getIcon() { return icon; }
+    
+    private static ImageIcon getCardGraphic(Card card)
     {
-        return _CardImageIcon;
-    }
-
-    private ImageIcon createImageIcon(String path, String description)
-    {
-        URL imageUrl = getClass().getResource(path);
-
-        if (imageUrl != null)
+        String cardIndex = card.getIndex();
+        ImageIcon result = cardIcons.get(cardIndex);
+        if (result == null)
         {
-            return new ImageIcon(imageUrl, description);
+            // Load card image
+            String imagePath = baseImageDir + card.getIndex() + suffix;
+            result = createImageIcon(imagePath, card.toString());
+            cardIcons.put(cardIndex, result);
         }
+        return result;
+    }
+    
+    private static ImageIcon createImageIcon(String path, String description)
+    {
+        ImageIcon result = null;
+        URL imageUrl = CardGraphic.class.getResource(path);
 
-        System.err.println("CardGraphic: Could not find the file in the specified path: " + path);
-        return null;
+        if (imageUrl == null)
+        {
+            System.err.println("CardGraphic: Could not find the file in the specified path: " + path);
+        }
+        else
+        {
+            result = new ImageIcon(imageUrl, description);
+        }
+        
+        return result;
     }
 }

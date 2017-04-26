@@ -6,18 +6,13 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.net.URL;
 
-import javax.swing.ImageIcon;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 import model.AlleysGame;
 import model.Board;
-import model.Card;
-import model.CardSuit;
-import model.CardValue;
 import model.Marble;
 import model.MarbleColor;
 import controller.Constants;
@@ -27,6 +22,8 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
     private static void say(String formatString, Object... args) { System.out.println(String.format(formatString, args)); }
     
     private AlleysGame alleysGame;
+    
+    private JLabel      topPlayedCard = null;
 
     private SpotGraphic     viewSpots[] = new SpotGraphic[Constants.TOTAL_SPOTS];
 //    private MarbleGraphic   _Marbles[] = new MarbleGraphic[Constants.TOTAL_MARBLES];
@@ -79,6 +76,33 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
 //                repaint();
 //            }
 //        });
+        
+    }
+    
+    /**
+     * display the given card icon in the middle of the board panel.
+     * If one is already there, remove it from the UI. If the given
+     * icon is null, nothing is displayed, but a currently displayed
+     * card is still removed.
+     * @param icon
+     */
+    public void displayPlayedCard(Icon icon)
+    {
+        JLabel cardLabel = null;
+        if (topPlayedCard != null)
+        {
+            remove(topPlayedCard);
+            topPlayedCard = null;
+        }
+        
+        if (icon != null)
+        {
+            cardLabel = new JLabel(icon);
+            cardLabel.setBounds(245, 275, icon.getIconWidth(), icon.getIconHeight());
+            add(cardLabel); // adds card to the panel
+            topPlayedCard = cardLabel;
+            repaint();
+        }
         
     }
     

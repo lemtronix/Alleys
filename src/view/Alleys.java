@@ -11,8 +11,10 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -21,10 +23,11 @@ import javax.swing.SwingUtilities;
 
 import model.AlleysGame;
 import model.Card;
-import model.CardValue;
 import model.Marble;
 import model.MarbleColor;
 import model.Player;
+import model.Turn;
+import model.TurnManager;
 import view.viewinterface.AlleysUI;
 
 public class Alleys extends JFrame implements AlleysUI
@@ -101,13 +104,10 @@ public class Alleys extends JFrame implements AlleysUI
             }
     
             @Override
-            public void cardPlayed(CardButton source, Card card)
+            public void cardPlayed(Card card)
             {
-                _CardButton = source;
                 _Card = card;
                 alleysGame.cardChosen(card);
-    
-//                checkAndPlayCard(card);
             }
          });
         
@@ -117,9 +117,9 @@ public class Alleys extends JFrame implements AlleysUI
 //    public void newTurn()
     public void startTurn(Player player)
     {
-        resetSelectedCardsAndMarbles();
+//        resetSelectedCardsAndMarbles();
         List<Card> cards = player.getCards();
-        _CardPanel.displayCards(cards);
+        _CardPanel.displayCardList(cards);
 
         message("info.newTurn", player.getName(), player.getColor().toString().toLowerCase());
         _CardPanel.setNameLabel(player.getName(), player.getColor());
@@ -233,6 +233,21 @@ public class Alleys extends JFrame implements AlleysUI
         repaint();
     }
 
+    @Override
+    public void chooseCard(Card card)
+    {
+        moveCardToMiddle(card);
+    }
+    
+    public void unChooseCard()
+    {
+        CardGraphic graphic = retrieveCardFromMiddle();
+        if (graphic != null)
+        {
+            _CardPanel.addCard(graphic);
+        }
+    }
+
     public static void main(String[] args)
     {
 
@@ -246,6 +261,66 @@ public class Alleys extends JFrame implements AlleysUI
                 alleys.setVisible(true);
             }
         });
+    }
+
+    // ===== handling played/discarded pile in the middle of the board
+
+    ArrayList<CardGraphic>  playedPile         = new ArrayList<>();
+    
+    private void moveCardToMiddle(Card card)
+    {
+        // remove the card from the currently displayed player's cards
+        _CardPanel.removeCard(card);
+        
+        CardGraphic cardGraphic = new CardGraphic(card);
+        playedPile.add(cardGraphic);
+        displayTopPlayed();
+    }
+    
+    /**
+     * removes the card from the middle of the board and returns it to
+     * its own hand (oh, lord, where is that?)
+     * @return
+     */
+    private CardGraphic retrieveCardFromMiddle()
+    {
+        // remove the card from the board panel and from the pile if there is one.
+        CardGraphic cardGraphic = getTopPlayed();
+        if (cardGraphic != null)
+        {
+            playedPile.remove(cardGraphic);
+        }
+        
+        // if there's another card on the pile under that, make a label out of it and display it.
+        displayTopPlayed();
+        
+        return cardGraphic;
+    }
+    
+    /**
+     * return the CardGraphic from the top of the played/discard pile, or null
+     * @return
+     */
+    private CardGraphic getTopPlayed()
+    {
+        int size = playedPile.size();
+        return (size > 0) 
+                ? playedPile.get(size - 1)
+                : null;
+    }
+    
+    /**
+     * display the top card on the played/discard pile, if there is one.
+     * If one is currently displayed, remove it.
+     */
+    private void displayTopPlayed()
+    {
+        CardGraphic cardGraphic = getTopPlayed();
+        if (cardGraphic != null)
+        {
+            ImageIcon icon = cardGraphic.getIcon();
+            _BoardPanel.displayPlayedCard(icon);
+        }
     }
 
 //    private void checkAndPlayCard(Card card)

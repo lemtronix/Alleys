@@ -35,21 +35,21 @@ public class Turn
 
     /**
      * sets the chosen card into the current turn; if a card was already chosen,
-     * this replaces it.
+     * this replaces it and returns it, otherwise this returns null.
      * 
-     * @param card
+     * @param card already set in the turn, if there is one, or null.
      */
     public Card setCard(Card newCard, Messager messager)
     {
-        Card result = card;
+        Card previousCard = card;
         card = newCard;
-        if (result == null)
+        if (previousCard == null)
         {
             messager.message("info.setCard", card.toString());
         }
         else
         {
-            messager.message("info.replacedCard", result.toString(), card.toString());
+            messager.message("info.replacedCard", previousCard.toString(), card.toString());
         }
         if (!marbles.isEmpty())
         {
@@ -57,7 +57,7 @@ public class Turn
             messager.message("info.marblesCleared");
         }
 
-        return result;
+        return previousCard;
     }
 
     public boolean hasCard()
@@ -229,12 +229,16 @@ public class Turn
         {
             moveCountForSeven = moveCount;
             Spot currentSpot = marbles.get(0);
+            // now that we've gotten the marble we saved, clear it out
+            // so that we can just move that marble as though it were not
+            // already saved.
+            marbles.clear();
+            
             if (moveCount == 7)
             {
                 // just moving 7
                 // clear out the marble we saved earlier, and treat this like
                 // any other numbered-card move.
-                marbles.clear();
                 moveState = validateMoveMarble(player, board, currentSpot, 7);
             }
             else
@@ -248,14 +252,6 @@ public class Turn
                 {
                     moveState = MoveState.WAITING_FOR_SECOND_MARBLE;
                 }
-                
-//                // marble is already stored; store the destination for that first marble
-//                Spot marbleSpot = marbles.get(0);
-//                int destinationIndex = marbleSpot.getSpotIndex() + moveCountForSeven;
-//                Spot destinationSpot = board.getSpot(destinationIndex);
-//                destinations.add(destinationSpot);
-//                
-//                moveState = MoveState.WAITING_FOR_SECOND_MARBLE;
             }
         }
         return this;
@@ -332,16 +328,16 @@ public class Turn
 
     private MoveState validateMoveMarble(Player player, Board board, Spot currentSpot, int moveCount)
     {
-        MoveState moveState = null;
-        Marble currentMarble = currentSpot.getMarble();
-        MarbleColor currentMarbleColor = currentMarble.getColor();
-        SpotType    currentSpotType = currentSpot.getSpotType();
+        MoveState   moveState           = null;
+        Marble      currentMarble       = currentSpot.getMarble();
+        MarbleColor currentMarbleColor  = currentMarble.getColor();
+        SpotType    currentSpotType     = currentSpot.getSpotType();
 
         // get the move track for this color, and the index into the move track
         // for the marble's current position
-        int currentSpotIndex = currentSpot.getSpotIndex();
-        int currentMoveTrackIndex = board.getMoveTrackIndex(currentMarbleColor, currentSpotIndex);
-        int targetMoveTrackIndex = currentMoveTrackIndex + moveCount;
+        int currentSpotIndex        = currentSpot.getSpotIndex();
+        int currentMoveTrackIndex   = board.getMoveTrackIndex(currentMarbleColor, currentSpotIndex);
+        int targetMoveTrackIndex    = currentMoveTrackIndex + moveCount;
 
         // if we're moving backwards, we may move backwards beyond the start of
         // the moveTrack (i.e., past the home spot). In that case, we need to calculate the
@@ -350,7 +346,8 @@ public class Turn
 
         Integer[] moveTrack = board.getMoveTrack(currentMarbleColor);
 
-        // ensure there are enough spots for the length of the move
+        // ensure that we aren't moving from the bank, 
+        // and that there are enough spots for the length of the move
         if (currentSpotType == SpotType.BANK)
         {
             moveState = MoveState.CANNOT_MOVE_FROM_BANK;
@@ -409,14 +406,9 @@ public class Turn
                     }
                 else
                 {
-                    moveState = MoveState.VALID_MARBLE_MOVE;
-                    // if the turn is in this moveState, then the marble and destination have already
-                    // been added, and so we don't add them again.
-                    if (moveState != MoveState.ENTER_FIRST_MOVE_COUNT)
-                    {
-                        marbles.add(currentSpot);
-                    }
+                    marbles.add(currentSpot);
                     destinations.add(lastSpot);
+                    moveState = MoveState.VALID_MARBLE_MOVE;
                 }
             }
         }
