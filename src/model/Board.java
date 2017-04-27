@@ -38,24 +38,23 @@ public class Board
     private Messager messager = null;
     
     private Spot[] allSpots = new Spot[Constants.TOTAL_SPOTS];
-    private Map<MarbleColor, Integer> firstStartingSpots = new HashMap<>();
+    private Map<MarbleColor, Integer> firstBankSpots = new HashMap<>();
     private Map<MarbleColor, Integer> homeSpots          = new HashMap<>();
-    private Map<MarbleColor, Integer> firstFinishingSpots = new HashMap<>();
+    private Map<MarbleColor, Integer> firstHomebaseSpots = new HashMap<>();
     
     // for each color, an array of ints indicating the current position of
     // each marble for that color. We update this as we move the marbles.
     private EnumMap<MarbleColor, int[]> marbleSpots = new EnumMap<MarbleColor, int[]>(MarbleColor.class);
     
-    // Now we have a map of moveTrack arrays.
-    // a moveTrack is an Integer array corresponding to one color; 
-    // each item in the array represents one spot that a marble of that color
-    // can move to. So each array starts with the home spot for that color, 
-    // travels around the board until the spot just before the home spot, then
-    // moves up through the finishing spots for that color. This way, when
-    // a marble of a given color is going to move a certain number of spots,
-    // it corresponds to a certain number of spots in its moveTrack. See
-    // the moveIndex() method.
+    // A moveTrack is an Integer array, for one color, holding the indices
+    // from the allSpots array which define the movement track for that color.
+    // It starts from the starting spot, moves around the board to the homebase
+    // spots, and includes those. This facilitates computing where a move of 
+    // a given number of spots will take a marble, since each color of marble
+    // has a different track, and they're mostly non-contiguous on the allSpots
+    // array.
     private Map<MarbleColor, Integer[]> moveTracks          = new HashMap<>();
+    
     // this 3d array is used to fill in the moveTracks; each pair of numbers
     // represents a sequence of indices into the allSpots array.
     private Integer[][][] moveTrackSequences= 
@@ -76,8 +75,8 @@ public class Board
         // the next 3 for loops each create different types of spot each and add them to
         // one array that holds all the spots on the board.
 
-        // for each color, create the home spot, then the spots between it
-        // and the next color's home spot.
+        // for each color, create the starting spot, then the spots between it
+        // and the next color's starting spot.
         for (MarbleColor color: MarbleColor.values())
         {
             homeSpots.put(color, spotIndex);        // save the home spot for each color
@@ -91,10 +90,10 @@ public class Board
             }
         }
         
-        // for each color, create 4 finishing spots
+        // for each color, create 4 homebase spots
         for (MarbleColor color: MarbleColor.values())
         {
-            firstFinishingSpots.put(color, spotIndex);  // save first finishing spot
+            firstHomebaseSpots.put(color, spotIndex);  // save first homebase spot
             for (int i=0; i<4; i++)
             {
                 allSpots[spotIndex] = new Spot(spotIndex, SpotType.HOMEBASE, color);
@@ -102,10 +101,10 @@ public class Board
             }
         }
 
-        // for each color, create 4 starting spots
+        // for each color, create 4 bank spots
         for (MarbleColor color: MarbleColor.values())
         {
-            firstStartingSpots.put(color, spotIndex); // save first starting spot for each color
+            firstBankSpots.put(color, spotIndex); // save first bank spot for each color
             for (int i=0; i<4; i++)
             {
                 allSpots[spotIndex] = new Spot(spotIndex, SpotType.BANK, color);
@@ -144,7 +143,8 @@ public class Board
         }
         
         // now initialize the arrays that will hold the current positions of each of the 
-        // marbles on the board
+        // marbles on the board. We'll use this when we start to determine if a player has
+        // any legal moves.
         for (MarbleColor color : MarbleColor.values())
         {
             int[] positions = new int[4];
@@ -153,24 +153,13 @@ public class Board
         
     }
     
-    public int getFirstStartingIndex (MarbleColor color)  { return firstStartingSpots.get(color); }
-    public int getHomeIndex          (MarbleColor color)  { return homeSpots.get(color); }
-    public int getFirstFinishingIndex(MarbleColor color)  { return firstFinishingSpots.get(color); }
+    public int getFirstStartingIndex (MarbleColor color)  { return firstBankSpots.get(color); }
+    public int getStartingIndex          (MarbleColor color)  { return homeSpots.get(color); }
+    public int getFirstFinishingIndex(MarbleColor color)  { return firstHomebaseSpots.get(color); }
     
-    public void setAlleysUI(AlleysUI aui)
-    {
-        alleysUI = aui;
-    }
-    
-    public Spot getSpot(int spotIndex)
-    {
-        return allSpots[spotIndex];
-    }
-    
-    public Integer[] getMoveTrack(MarbleColor color)
-    {
-        return moveTracks.get(color);
-    }
+    public void setAlleysUI(AlleysUI aui)               { alleysUI = aui;               }
+    public Spot getSpot(int spotIndex)                  { return allSpots[spotIndex];   }
+    public Integer[] getMoveTrack(MarbleColor color)    { return moveTracks.get(color); }
     
     public Integer getMoveTrackIndex(MarbleColor color, int allSpotsIndex)
     {
@@ -187,64 +176,63 @@ public class Board
         return result;
     }
    
-   /**
-     * Return the allSpots array index that would be moved to after moving the indicated number of spots.
-     * The number of spots may be positive or negative. If the move would take the marble outside
-     * the bounds of the track of moves for this color, this returns -1.
-     * <P>A 'moveTrack' is an array of integers; each position in the moveTrack represents
-     * a position that a marble moves in its trip around the board, and the integer at that
-     * index is the position of the corresponding spot in the 'allSpots' array. Each color
-     * has its own moveTrack, starting at its home spot, traveling around the board, and
-     * going through its finishing spots.
-     * <P>A marble moving backwards from its own home spot crosses to the end of the normal
-     * spots in its track, i.e., the spot before the finishing spots for that color. This 
-     * method allows for that.
-     * @param moveFrom: an index into an allSpots array or list
-     * @param numberToMove: number of spots to be moved, may be positive or negative
-     * @return an index into allSpots at which the move would finish
-     */
-    public int moveIndex(MarbleColor color, int moveFromIndex, int numberToMove)
-    {
-        int result = -1;
-        // our moveFromIndex is the index into the allSpots array. Get the
-        // track sequence for this color, and search it for that index.
-        // (the track sequence is an integer array of allSpots indices).
-        Integer[] moveTrack = moveTracks.get(color);
-        int i = 0;
-        while (i<moveTrack.length && moveTrack[i] != moveFromIndex) { i++; }
-        // If we didn't find the index, something is badly wrong;
-        // it means the moveFromIndex we were given is not in the moveTrack
-        // array, i.e., that the marble was outside the track somehow. In that case
-        // we just return -1, so all the processing below is only done if we
-        // found the moveFromIndex on the track.
-        if (i < moveTrack.length)
-        {
-            i = i + numberToMove;
-            // if the index is now past the end of moveTrack, the marble is trying to
-            // move too far; there's no reason to support this, it is not an operation
-            // that is ever done in the game, so we only continue to process if the
-            // resulting index is within the array.
-            if (i < moveTrack.length)
-            {
-                if (i < 0)
-                {
-                    // this is legal -- the marble is moving backwards through its home spot.
-                    // So we need to calculate the main loop spot to which it would move.
-                    // -1 would correspond to the last normal spot before finishing spots, which
-                    // would be in moveTrack position 71 (positions 72-75 are occupied by
-                    // finishing spots); so we add i to 72 to get the moveTrack position
-                    // to which the negative amount corresponds.
-                    result = moveTrack[i + 72];
-                } 
-                else 
-                {
-                    result = moveTrack[i];
-                }
-            }
-            // TODO: is this the best place to check for marbles we cannot move past? 
-        }
-        return result;
-    }
+//   /**
+//     * Return the allSpots array index that would be moved to after moving the indicated number of spots.
+//     * The number of spots may be positive or negative. If the move would take the marble outside
+//     * the bounds of the track of moves for this color, this returns -1.
+//     * <P>A 'moveTrack' is an array of integers; each position in the moveTrack represents
+//     * a position that a marble moves in its trip around the board, and the integer at that
+//     * index is the position of the corresponding spot in the 'allSpots' array. Each color
+//     * has its own moveTrack, starting at its home spot, traveling around the board, and
+//     * going through its homebase spots.
+//     * <P>A marble moving backwards from its own starting spot crosses to the end of the normal
+//     * spots in its track, i.e., the spot before the finishing spots for that color. This 
+//     * method allows for that.
+//     * @param moveFrom: an index into an allSpots array or list
+//     * @param numberToMove: number of spots to be moved, may be positive or negative
+//     * @return an index into allSpots at which the move would finish
+//     */
+//    public int moveIndex(MarbleColor color, int moveFromIndex, int numberToMove)
+//    {
+//        int result = -1;
+//        // our moveFromIndex is the index into the allSpots array. Get the
+//        // track sequence for this color, and search it for that index.
+//        // (the track sequence is an integer array of allSpots indices).
+//        Integer[] moveTrack = moveTracks.get(color);
+//        int i = 0;
+//        while (i<moveTrack.length && moveTrack[i] != moveFromIndex) { i++; }
+//        // If we didn't find the index, something is badly wrong;
+//        // it means the moveFromIndex we were given is not in the moveTrack
+//        // array, i.e., that the marble was outside the track somehow. In that case
+//        // we just return -1, so all the processing below is only done if we
+//        // found the moveFromIndex on the track.
+//        if (i < moveTrack.length)
+//        {
+//            i = i + numberToMove;
+//            // if the index is now past the end of moveTrack, the marble is trying to
+//            // move too far; there's no reason to support this, it is not an operation
+//            // that is ever done in the game, so we only continue to process if the
+//            // resulting index is within the array.
+//            if (i < moveTrack.length)
+//            {
+//                if (i < 0)
+//                {
+//                    // this is legal -- the marble is moving backwards through its starting spot.
+//                    // So we need to calculate the main loop spot to which it would move.
+//                    // -1 would correspond to the last normal spot before finishing spots, which
+//                    // would be in moveTrack position 71 (positions 72-75 are occupied by
+//                    // finishing spots); so we add i to 72 to get the moveTrack position
+//                    // to which the negative amount corresponds.
+//                    result = moveTrack[i + 72];
+//                } 
+//                else 
+//                {
+//                    result = moveTrack[i];
+//                }
+//            }
+//        }
+//        return result;
+//    }
     
     /**
      * put marbles in their starting positions on the board.
@@ -268,9 +256,14 @@ public class Board
         }
     }
     
+    /**
+     * Once a turn is validated and ready to move, execution comes here to actually do
+     * the moving.
+     * @param turn
+     */
     public void executeTurn(Turn turn)
     {
-        MoveState   moveState           = turn.getMoveState();
+        MoveState   moveState = turn.getMoveState();
         
         switch(moveState)
         {
@@ -306,7 +299,7 @@ public class Board
             }
             break;
         default:
-            messager.message(moveState.name() + " not yet implemented");
+            messager.message("Internal logic error, " + moveState.name() + " not yet implemented");
             break;
         }
         
@@ -336,6 +329,11 @@ public class Board
         
     }
     
+    /**
+     * this does the swap for the move of a jack, after everything is validated.
+     * @param firstSpot
+     * @param secondSpot
+     */
     private void swapMarbles(Spot firstSpot, Spot secondSpot)
     {
         int firstIndex = firstSpot.getSpotIndex();
@@ -356,8 +354,9 @@ public class Board
     /**
      * update the position of a marble of the given color that is moving
      * from one spot to another, given as indices. NOTE: The marble may no
-     * longer BE at the 'from' spot; this method is used internally during
-     * moves.
+     * longer BE at the 'from' spot; since this method is used internally during
+     * moves, the marble may have already moved, though the currentPosition
+     * array still thinks it is at that spot.
      * @param color
      * @param from
      * @param to
@@ -370,6 +369,14 @@ public class Board
         say("Marble moved from %d to %d", previousIndex, newIndex);
     }
     
+    /**
+     * get the index into the currentPositions array for the marble with the given
+     * color at the given allSpots index.
+     * @param currentPositions
+     * @param color
+     * @param index
+     * @return
+     */
     private int getCurrentPositionsIndex(int[] currentPositions, MarbleColor color, int index)
     {
         int j = 0;
@@ -378,6 +385,11 @@ public class Board
         return j;
     }
     
+    /**
+     * find the first empty bank spot so we can return a poor bumped marble there.
+     * @param color
+     * @return
+     */
     public Spot findFirstEmptyBankSpot(MarbleColor color)
     {
         Spot resultSpot = null;

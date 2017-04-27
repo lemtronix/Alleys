@@ -1,8 +1,6 @@
 package view;
 
-import java.util.EventListener;
-
-public interface MarbleListener extends EventListener
+public interface MarbleListener
 {
-    public void marbleClicked(SpotGraphic spotGraphic);
+    public void marbleClicked(SpotGraphic spot);
 }

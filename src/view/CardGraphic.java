@@ -18,6 +18,7 @@ public class CardGraphic
     private ImageIcon   icon;
     
     // static collection of card icons; we load this lazily as cards are displayed
+    // we index this map with the 'index' of a card, a string representing value and suit.
     private static Map<String, ImageIcon> cardIcons = new HashMap<>();
     
     public CardGraphic(Card card)

@@ -18,15 +18,13 @@ public class TurnManager
     private DealManager     dealManager;
     
     private Messager        messager;
-    private Board           board;
     
     private Turn            currentTurn;    public Turn getCurrentTurn() { return currentTurn; }
     
     private void say(String msg) { System.out.println(msg); }
     
-    public TurnManager(Messager messager, Board board, List<Player> players)
+    public TurnManager(Messager messager, List<Player> players)
     {
-        this.board      = board;
         this.messager   = messager;
         
         this.players = new ArrayList<>(players);    // not clear making a copy of the list is necessary
@@ -68,7 +66,7 @@ public class TurnManager
             }
         }
         Player player = players.get(currentPlayerIndex);
-        currentTurn = new Turn(player);
+        currentTurn = new Turn(messager, player);
         return player;
     }
     

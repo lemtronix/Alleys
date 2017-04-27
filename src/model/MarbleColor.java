@@ -2,7 +2,8 @@ package model;
 
 /**
  * The colors of the marbles in the game; this enum also defines the order in which players move and 
- * in which the colors appear on the playing board.
+ * in which the colors appear on the playing board. The rules specify that Red is the dealer, so we
+ * use that as a starting color.
  * @author rcook
  *
  */

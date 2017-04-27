@@ -1,7 +1,5 @@
 package model;
 
-import view.viewinterface.AlleysUI;
-
 /**
  * A spot on the (virtual) board. An alleys board has several kinds of spots: 
  * <ul>
@@ -13,7 +11,7 @@ import view.viewinterface.AlleysUI;
  * <el>
  * 
  * <P>A spot may or may not have a marble on it. It can only have one.
- * <P>A spot may or may not have a marble's color on it; only starting, home, and finishing spots
+ * <P>A spot may or may not have a marble's color on it; only bank, starting, and homebase spots
  * have a color. If the spot has a marble, it may be any color in general, though in practice
  * starting and finishing spots only have marble of their own color.
  * 
@@ -24,18 +22,11 @@ import view.viewinterface.AlleysUI;
  */
 public class Spot
 {
-    // IDEA: only the board calls methods on spot; this eliminates the need for spots to know where they
-    // are on the board; every time a spot is updated, it is done through the board, so that the board 
-    // can notify the view.
-    
     private int         spotIndex;                  // index into big array of spots on the board.
     private Marble      marble          = null;     // null when no marble is on the spot.
     private SpotType    spotType        = null;     // never null;
     private MarbleColor color           = null;     // null unless a starting, home, or finishing type
     private boolean     protectedMarble = false;    // true iff a marble landed on a starting spot from its bank.
-    
-    private AlleysUI    alleysUI    = null;     // window to a view
-    public void setAlleysUI(AlleysUI aui) { alleysUI = aui; }
     
     public Spot(int spotIndex, SpotType st)
     {
