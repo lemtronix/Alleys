@@ -22,6 +22,11 @@ import javax.swing.SwingConstants;
 import model.Card;
 import model.MarbleColor;
 
+/**
+ * contains the cards on the screen; at this writing, also contains the player's
+ * name label and a button for folding the hand.
+ * @author rcook
+ */
 public class CardPanel extends JPanel
 {
     private CardListener _CardListener = null;
@@ -53,6 +58,13 @@ public class CardPanel extends JPanel
         layoutComponents();
     }
     
+    /**
+     * add a card to the view
+     * <BR>In practice, we find a cardButton that does not
+     * currently have a cardGraphic, and set the given cardGraphic
+     * onto that cardButton.
+     * @param cardGraphic
+     */
     public void addCard(CardGraphic cardGraphic)
     {
         CardButton emptyButton = null;
@@ -70,6 +82,13 @@ public class CardPanel extends JPanel
         repaint();
     }
     
+    /**
+     * removes a card from view.
+     * <BR>In practice, we remove the graphic from the card button
+     * and leave the button in place; if later the card comes back to
+     * the hand, we merely set the cardButton graphic again.
+     * @param card
+     */
     public void removeCard(Card card)
     {
         CardButton cardButtonForRemoval = null;
@@ -84,7 +103,6 @@ public class CardPanel extends JPanel
         }
         if (cardButtonForRemoval != null)
         {
-//            _CardButtons.remove(cardButtonForRemoval);
             cardButtonForRemoval.setCardGraphic(null);
             cardButtonForRemoval.setVisible(false);
             revalidate();
@@ -110,23 +128,38 @@ public class CardPanel extends JPanel
         cardCardPanel = new JPanel();
         GridLayout cardCardPanelLayout = new GridLayout(1, 5, 2, 0);
         cardCardPanel.setLayout(cardCardPanelLayout);
-//        Dimension spacerDimension = new Dimension(5, 1);
         for (int i=0; i<5; i++) 
         { 
-//            cardCardPanel.add(Box.createRigidArea(spacerDimension)); 
             cardCardPanel.add(_CardButtons.get(i)); 
         }
         add(cardCardPanel, BorderLayout.CENTER);
 
-//        setPreferredSize(new Dimension(10, 110));
     }
 
+    /**
+     * set the given name and background color onto the name label.
+     * We're currently using the lighter "spot" colors instead of the
+     * richer ones, because we would need to determine which of the
+     * richer colors require a white foreground for the name to show up.
+     * But I suppose that might be worth it.
+     * TODO: use real marble colors for the player's name label;
+     * add logic to determine whether the text needs to be white 
+     * or black. I suppose that could be a characteristic
+     * of the color in ViewColor.
+     * @param name
+     * @param marbleColor
+     */
     public void setNameLabel(String name, MarbleColor marbleColor)
     {
+        nameLabel.setForeground(ViewColor.getTextColor(marbleColor));
         nameLabel.setText(name);
-        nameLabel.setBackground(ViewColor.getSpotColor(marbleColor));
+        nameLabel.setBackground(ViewColor.getMarbleColor(marbleColor));
     }
 
+    /**
+     * display the given list of cards as the current list.
+     * @param playersCards
+     */
     public void displayCardList(List<Card> playersCards)
     {
         for (int i = 0; i < _CardButtons.size(); i++)
@@ -149,6 +182,10 @@ public class CardPanel extends JPanel
         }
     }
 
+    /**
+     * sets the given object as the card listener for this panel.
+     * @param cardListener
+     */
     public void setCardListener(CardListener cardListener)
     {
         _CardListener = cardListener;

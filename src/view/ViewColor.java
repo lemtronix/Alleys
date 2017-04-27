@@ -15,35 +15,41 @@ public class ViewColor
 {   private static void say(String s) { System.out.println(s); }
     private static HashMap<MarbleColor, Color> marbleColors = new HashMap<>();
     private static HashMap<MarbleColor, Color> spotColors = new HashMap<>();
+    private static HashMap<MarbleColor, Color> textColors = new HashMap<>();
     
     // initialize the two maps, one with marble colors and one with the corresponding
     // spot colors.
     static
     {
-        setColors(MarbleColor.RED,      Color.red,                      new Color(0xFF, 0x99, 0x99));
-        setColors(MarbleColor.BLUE,     Color.blue,                     new Color(0x00, 0x99, 0xFF));
-        setColors(MarbleColor.YELLOW,   
+        setColors(MarbleColor.RED,      Color.red,                      new Color(0xFF, 0x99, 0x99), Color.white);
+        setColors(MarbleColor.BLUE,     Color.blue,                     new Color(0x00, 0x99, 0xFF), Color.white);
+        setColors(MarbleColor.YELLOW,   Color.yellow,                   new Color(0xffffcc), Color.black);
+        setColors(MarbleColor.GREEN,    new Color(0x00, 0x66, 0x33),    new Color(0x66, 0xCC, 0x33), Color.white);
+    }
+
+// as marble color new Color(0xffe000)
+// we've tried different things for yellow        
 //                                        Color.yellow, // (0xffff00),
-                                        new Color
+//                                        new Color
 //                                                  (0xfffd01),
 //                                                  (0xfffd38),
 //                                                  (0xfffd40),
 //                                                    (0xffff30),
-                                                    (0xffe000),
-                                                                        Color.white); 
-        String y = Color.yellow.toString(); 
-        say("yellow is " + y);
-                                                                        // new Color
-//                                                                                    (0xfffeed)); 
+//                                                    (0xffe000),   <--
+//                                                    Color.white
+//                                        new Color
+//                                                    (0xFFFFE0) 
+//                                                    (0xfafad2) 
+//                                                    (0xffffcc)    <-- 
 //                                                                                    (0xff, 0xff, 0x99));
-        setColors(MarbleColor.GREEN,    new Color(0x00, 0x66, 0x33),    new Color(0x66, 0xCC, 0x33));
-    }
+//                ); 
     
     // set the marble color map and the spot color map for the given marble color.
-    private static void setColors(MarbleColor marbleColor, Color realColor, Color spotColor)
+    private static void setColors(MarbleColor marbleColor, Color realColor, Color spotColor, Color textColor)
     {
         marbleColors.put(marbleColor, realColor);
         spotColors.put(marbleColor, spotColor);
+        textColors.put(marbleColor, textColor);
     }
     
     /**
@@ -59,4 +65,9 @@ public class ViewColor
      * @return Color
      */
     public static Color getSpotColor(MarbleColor marbleColor) { return spotColors.get(marbleColor); }
+    
+    /**
+     * return the text color for the given marble color.
+     */
+    public static Color getTextColor(MarbleColor marbleColor) { return textColors.get(marbleColor); }
 }

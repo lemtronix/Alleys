@@ -21,62 +21,21 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
 {
     private static void say(String formatString, Object... args) { System.out.println(String.format(formatString, args)); }
     
-    private AlleysGame alleysGame;
+    private AlleysGame  alleysGame;
+    private JLabel      topPlayedCard   = null;   // card on top of the "stack" in the middle of the board
     
-    private JLabel      topPlayedCard = null;
-
-    private SpotGraphic     viewSpots[] = new SpotGraphic[Constants.TOTAL_SPOTS];
-//    private MarbleGraphic   _Marbles[] = new MarbleGraphic[Constants.TOTAL_MARBLES];
-
-    private static void trace(String formatString, Object ... args)
-    {
-        String outputString = String.format(formatString, args);
-        System.out.println(outputString);
-    }
+    // this array mirrors one in the model; this represents the spots on the board, while
+    // that one represents the virtual spots in the actual game. The same indices apply to
+    // each array.
+    private SpotGraphic viewSpots[]     = new SpotGraphic[Constants.TOTAL_SPOTS];
 
     public BoardComponent(AlleysGame alleysGame)
     {
-        setLayout(null);
-        
-          this.alleysGame = alleysGame;
-        
-//        _Controller = GameController;
+        this.alleysGame = alleysGame;
 
+        setLayout(null);        // we use a null layout so we can put the spots at x,y positions.
         CreateSpots();
-        CreateMarbles();
-        
-        String baseDir = "images/";
-        String suffix = ".gif";
-
-//        // TEST see if we can put a card graphic on the board
-//        Card card = new Card(CardValue.Ace, CardSuit.Hearts, baseDir + "ah" + suffix);
-//        String imagePath = card.getImagePath();
-//        
-//        URL imageUrl = getClass().getResource(imagePath);
-//
-//        ImageIcon cardIcon = new ImageIcon(imageUrl, "AceHearts");
-//        int cardHeight = cardIcon.getIconHeight();
-//        int cardWidth  = cardIcon.getIconWidth();
-//        
-//        JLabel cardLabel = new JLabel(cardIcon); // ("boo", cardIcon, JLabel.LEFT); // ("boo");
-//        add(cardLabel);
-//        
-//        cardLabel.setBounds(245,275,cardWidth,cardHeight);
-        
         addMouseListener(this);
-//
-//        addMouseMotionListener(new MouseMotionListener()
-//        {
-//            public void mouseMoved(MouseEvent e)
-//            {
-//            }
-//
-//            public void mouseDragged(MouseEvent e)
-//            {
-//                repaint();
-//            }
-//        });
-        
     }
     
     /**
@@ -111,23 +70,6 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
         return viewSpots[index];
     }
 
-//    public void setMarbleListener(MarbleListener marbleListener)
-//    {
-//        _MarbleListener = marbleListener;
-//    }
-
-//    @Override
-//    public void marbleUpdateEventOccurred(MarbleEvent me)
-//    {
-//        // System.out.println("BoardComponent: Marble Event Occurred!");
-//        // System.out.println("Marble# " + me.getMarbleIdNumber());
-//        // System.out.println("NewSpot# " + me.getSpotIdNumber());
-//
-//        _Marbles[me.getMarbleIdNumber()].MoveTo(viewSpots[me.getSpotIdNumber()]);
-//        repaint();
-//
-//    }
-
     @Override
     protected void paintComponent(Graphics g)
     {
@@ -140,7 +82,6 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         UpdateSpots(g2d);
-//        UpdateMarbles(g2d);
     }
 
     private void CreateSpots()
@@ -259,12 +200,6 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
           }
         }
         
-//        // add a mouse listener for every spot.
-//        for (int i = 0; i < viewSpots.length; i++)
-//        {
-//            addMouseListener(viewSpots[i]);
-//        }
-        
         // add colors to the spots that have them
         // NOTE: the model has 4 MarbleColor values, but they are not "colors" in any particular
         // UI library; here we use java.awt.Color, in another UI we might use something
@@ -274,7 +209,7 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
         {
             Color correspondingSpotColor = ViewColor.getSpotColor(color);
 
-            int i = board.getHomeIndex(color);
+            int i = board.getStartingIndex(color);
             viewSpots[i].setBaseColor(correspondingSpotColor);
             
             i = board.getFirstStartingIndex(color);
@@ -298,48 +233,6 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
         alleysGame.marbleChosen(spot.getSpotIndex());
     }
 
-    private void CreateMarbles()
-    {
-//        final int MarbleSpacing = 20;
-//        final int MarbleSpotX = 20;
-//        final int MarbleSpotY = 20;
-//
-//        int LastSpotX = MarbleSpotX;
-//        int LastSpotY = MarbleSpotY;
-//        
-//        int marbleStartingSpotsStart = 88;
-//
-//        // TODO these colors are hard coded, look to pull these from Player instead.
-////        Color[] MarbleColors = { Color.yellow, Color.red, Color.blue, Color.green };
-//        int ColorSelector = 0;
-//        Color color = _marbleColors[ColorSelector];
-//
-//        int marbleSpot = marbleStartingSpotsStart;
-//
-//        for (int i = 0; i < _Controller.GetMaxNumberOfMarbles(); i++)
-//        {
-//            // System.out.println("MarbleX: " + LastSpotX);
-//            
-//            LastSpotX = viewSpots[marbleSpot].GetX();
-//            LastSpotY = viewSpots[marbleSpot].GetY();
-//            marbleSpot++;
-//            
-//            // Change colors every 4 marbles
-//            if ((i != 0) && ((i % 4) == 0))
-//            {
-//                ColorSelector++;
-//                color = _marbleColors[ColorSelector];
-//            }
-//
-//            _Marbles[i] = new MarbleGraphic(i, LastSpotX, LastSpotY, color);
-////            LastSpotX = (LastSpotX + MarbleSpacing);
-//
-//            addMouseListener(_Marbles[i]);
-//            addMouseMotionListener(_Marbles[i]);
-//        }
-
-    }
-
     private void UpdateSpots(Graphics2D g2d)
     {
         for (int i = 0; i < viewSpots.length; i++)
@@ -348,75 +241,16 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
             g2d.fill(viewSpots[i].getShape());
         }
     }
-
-//    private void UpdateMarbles(Graphics2D g2d)
-//    {
-//        for (int i = 0; i < _Marbles.length; i++)
-//        {
-//            g2d.setColor(_Marbles[i].GetColor());
-//            g2d.fill(_Marbles[i].GetShape());
-//        }
-//    }
-
-//    private void CheckMarbleSelected()
-//    {
-//        // Check all marbles if they were selected
-//        for (int i = 0; i < _Marbles.length; i++)
-//        {
-//            if (_Marbles[i].IsHit() == true)
-//            {
-//                System.out.println("Marble hit.");
-//
-//                if (_MarbleListener != null)
-//                {
-//                    _MarbleListener.MarbleSelected(_Marbles[i]);
-//                }
-//
-//                break;
-//            }
-//        }
-//    }
-
-//    private void CheckSelectedMarbleDroppedOnSpot()
-//    {
-        // Spot SelectedSpot = null;
-        //
-        // // Check if a marble was previously selected
-        // if (GetSelectedMarble() != null)
-        // {
-        // for (int i=0; i<MaxNumberOfSpots; i++)
-        // {
-        // if (_Spots[i].IsHit() == true)
-        // {
-        // SelectedSpot = _Spots[i];
-        // break;
-        // }
-        // }
-        //
-        // if (SelectedSpot != null)
-        // {
-        //
-        // // TODO Test if this is okay... then...
-        //
-        // // Drop the marble on top of the spot perfectly
-        // GetSelectedMarble().MoveTo(SelectedSpot);
-        // }
-        // }
-//    }
     
     public void setSpotMarble(int spotIndex, Marble marble)
     {
         viewSpots[spotIndex].setMarble(marble);
-        MarbleColor marbleColor = marble.getColor();
-        Color color = ViewColor.getMarbleColor(marbleColor);
-        
-        SpotGraphic spotGraphic = viewSpots[spotIndex];
-//        spotGraphic.setBaseColor(color);      // bug -- we don't set the base color to the marble color.
     }
 
-    /// methods implementing the MouseListener interface
-    // All this does now is see if we clicked on a spot that has
-    // a marble.
+    // MouseListener methods
+    // we trap each mouse click and see if it is on a spot that contains
+    // a marble. If so, we report it with "mouseClicked()", otherwise we
+    // just let it go.
     @Override    public void mouseClicked(MouseEvent e) 
     {        
         int x = e.getX();
@@ -439,38 +273,5 @@ public class BoardComponent extends JComponent implements MarbleListener, MouseL
     @Override    public void mouseExited(MouseEvent e)    {            }
     
     /// end of MouseListener methods
-
-//  _BoardPanel.setMarbleListener(new MarbleListener()
-//  {
-//      public void MarbleSelected(MarbleGraphic marbleGraphic)
-//      {
-//          if (_FirstMarbleSelected == -1)
-//          {
-//              _FirstMarbleSelected = marbleGraphic.getMarbleIdNumber();
-//              System.out.println("First Marble " + _FirstMarbleSelected + " selected.");
-//              checkAndPlayCard(null);
-//          }
-//          else if (_Card == null)
-//          {
-//              System.out.println("Alleys: Please select a card before selecting a second marble.");
-//              return;
-//          }
-//          else if ((isCardJack() || isCardSeven()) && _SecondMarbleSelected == -1)
-//          {
-//              // Jacks and Sevens require two marbles to be selected
-//              _SecondMarbleSelected = marbleGraphic.getMarbleIdNumber();
-//              System.out.println("Second Marble " + _SecondMarbleSelected + " selected.");
-//              checkAndPlayCard(null);
-//          }
-//          else
-//          {
-//              System.out.println("Alleys: Too many marbles selected...");
-//              resetSelectedCardsAndMarbles();
-//          }
-//      }
-//  });
-//
-//  InitUI();
-//}
 
 }

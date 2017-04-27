@@ -14,7 +14,6 @@ import java.util.ResourceBundle;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -26,8 +25,6 @@ import model.Card;
 import model.Marble;
 import model.MarbleColor;
 import model.Player;
-import model.Turn;
-import model.TurnManager;
 import view.viewinterface.AlleysUI;
 
 public class Alleys extends JFrame implements AlleysUI
@@ -35,21 +32,18 @@ public class Alleys extends JFrame implements AlleysUI
     private final int MINIMUM_X = 600;
     private final int MINIMUM_Y = 850;
 
-//    private Controller _Controller;
-    AlleysGame alleysGame;
+    private AlleysGame      alleysGame;
 
-    private BoardComponent _BoardPanel;
-    private CardPanel _CardPanel;
-    private JPanel topPanel;
-    private JTextArea messageTextArea;
-    private JScrollPane messagePane;
+    private BoardComponent  _BoardPanel;
+    private CardPanel       _CardPanel;
+    private JPanel          topPanel;
+    private JTextArea       messageTextArea;
+    private JScrollPane     messagePane;
 
-    private int _FirstMarbleSelected;
-    private int _SecondMarbleSelected;
-    private int _NumberOfSpotsToMoveFirstMarble;
-    private Card _Card;
-    private CardButton _CardButton;
-
+    /**
+     * create this Alleys view.
+     * @param alleysGame
+     */
     public Alleys(AlleysGame alleysGame) 
     {
         this.alleysGame = alleysGame;
@@ -80,15 +74,11 @@ public class Alleys extends JFrame implements AlleysUI
         buttonPanel.add(startGameButton);
         topPanel.add(buttonPanel, BorderLayout.WEST);
         
-    //            JPanel messagePanel = new JPanel();
-    //            messagePanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
         messageTextArea = new JTextArea(6, 0);
         messageTextArea.setMargin(new Insets(0,3,0,3));
         messagePane = new JScrollPane(messageTextArea);
-    //            messagePanel.add(messagePane);
         topPanel.add(messagePane, BorderLayout.CENTER);
         message("info.welcome");
-//        message("info.yourTurn", "Red");
     
         _CardPanel = new CardPanel();
         _CardPanel.setCardListener(new CardListener()
@@ -99,14 +89,11 @@ public class Alleys extends JFrame implements AlleysUI
             {
                 System.out.println("Alleys: Player folding cards.");
                 alleysGame.cardsFolded();
-    //                    _Controller.skipPlayerTurn();
-    //                    newTurn();
             }
     
             @Override
             public void cardPlayed(Card card)
             {
-                _Card = card;
                 alleysGame.cardChosen(card);
             }
          });
@@ -114,10 +101,14 @@ public class Alleys extends JFrame implements AlleysUI
         initUI();
     }
 
-//    public void newTurn()
+    /**
+     * start up a turn on the UI; display the given player's cards,
+     * and set the name label on the board. What the heck, display
+     * a message.
+     */
+    @Override
     public void startTurn(Player player)
     {
-//        resetSelectedCardsAndMarbles();
         List<Card> cards = player.getCards();
         _CardPanel.displayCardList(cards);
 
@@ -125,15 +116,9 @@ public class Alleys extends JFrame implements AlleysUI
         _CardPanel.setNameLabel(player.getName(), player.getColor());
     }
 
-    private void resetSelectedCardsAndMarbles()
-    {
-        _FirstMarbleSelected = -1;
-        _SecondMarbleSelected = -1;
-        _NumberOfSpotsToMoveFirstMarble = -1;
-        _Card = null;
-        _CardButton = null;
-    }
-
+    /**
+     * initialize this user interface.
+     */
     private void initUI()
     {
         setTitle("Alleys Game");
@@ -150,10 +135,19 @@ public class Alleys extends JFrame implements AlleysUI
         setVisible(true);
     }
 
+    /**
+     * display the dialog for entering the number of spots to move the first
+     * marble chosen after a 7 is played.
+     */
+    @Override
     public void getMoveCount()
     {
         String numberOfSpotsString = (String) JOptionPane.showInputDialog
-                (_BoardPanel, "Enter number of spots to move this marble", "Split Seven?", JOptionPane.QUESTION_MESSAGE);
+                (_BoardPanel, 
+                 "Enter number of spots to move this marble", 
+                 "Split Seven?", 
+                 JOptionPane.QUESTION_MESSAGE
+                );
         int numberOfSpots = 0;
         try 
         { 
@@ -166,10 +160,12 @@ public class Alleys extends JFrame implements AlleysUI
         }
     }
     
-    
+    // we keep our messages in this resource bundle, and centralize how we put the text into
+    // our message area.
     private ResourceBundle messageBundle = ResourceBundle.getBundle("messages", Locale.getDefault());
     private String TEXT_AREA_FORMAT = "%s%n";
     
+    @Override
     public void message(String messageKey)
     {
         String displayMessage;
@@ -186,6 +182,7 @@ public class Alleys extends JFrame implements AlleysUI
         messageTextArea.append(displayMessage);
     }
     
+    @Override
     public void message(String messageKey, String ... messageArguments)
     {
         String messageFormat;
@@ -196,21 +193,32 @@ public class Alleys extends JFrame implements AlleysUI
             messageFormat = messageBundle.getString(messageKey);
             message = String.format(messageFormat, (Object[]) messageArguments);
         }
-        catch (MissingResourceException mre) 
+        catch (Exception exception) 
         { 
-            message = "{" + messageKey + "}"; 
+            // we get here if a programmer has misspelled a message key, or forgotten
+            // to add that message to the message file; also, if the programmer has a
+            // mismatch between a format specifier and the parameter passed.
+            message = "{" + messageKey + "} : " + exception.getMessage(); 
         }
         
         displayMessage = String.format(TEXT_AREA_FORMAT, message);
         messageTextArea.append(displayMessage);
     }
     
+    /**
+     * put the given marble on the spot with the given index.
+     */
+    @Override
     public void setSpotMarble(int spotIndex, Marble marble)
     {
         _BoardPanel.setSpotMarble(spotIndex, marble);
         repaint();
     }
     
+    /**
+     * move the marble at the given fromIndex to the given toIndex.
+     */
+    @Override
     public void moveMarble(int fromIndex, int toIndex)
     {
         SpotGraphic fromSpot = _BoardPanel.getSpot(fromIndex);
@@ -222,6 +230,10 @@ public class Alleys extends JFrame implements AlleysUI
         repaint();
     }
     
+    /**
+     * swap the marbles at the two given indices.
+     */
+    @Override
     public void swapMarbles(int firstIndex, int secondIndex)
     {
         SpotGraphic firstSpot = _BoardPanel.getSpot(firstIndex);
@@ -233,12 +245,20 @@ public class Alleys extends JFrame implements AlleysUI
         repaint();
     }
 
+    /**
+     * Show the given card as chosen on the UI
+     */
     @Override
     public void chooseCard(Card card)
     {
         moveCardToMiddle(card);
     }
     
+    /**
+     * show a previously chosen card as going back to its hand
+     * on the UI.
+     */
+    @Override
     public void unChooseCard()
     {
         CardGraphic graphic = retrieveCardFromMiddle();

@@ -1,5 +1,22 @@
 package model;
 
+/**
+ * defines the state of a move, and of a turn. A turn is made up of moves; choosing a card and choosing
+ * a marble are examples of moves; all the moves for one turn define a turn. These states correspond to
+ * messages, so that the move validation logic can return a state which defines a message that may be
+ * displayed for the user. The TurnState indicates the status of the turn indicated by the MoveState:
+ * <ul>
+ * <li>CONTINUING - last move was valid, there is more to come.
+ * <li>ERROR - last move was invalid, display a message for the user and await correction.
+ * <li>CONTINUING_GET_NUMBER - specific to the 7 card; the game is ready for the player to enter the
+ * number of moves he wishes to move the first marble after playing a 7.
+ * <li>READY - the turn is ready to be executed; all validations are done.
+ * sometimes one move is valid and there is at least one more action to do to complete the move, so that
+ * move is CONTINUING; sometimes a turn is invalid and the turn needs to inform the user, that is an ERROR.
+ * 
+ * @author rcook
+ *
+ */
 public enum MoveState
 {
      AWAITING_CARD              (TurnState.CONTINUING,  "info.needCard")
@@ -9,7 +26,7 @@ public enum MoveState
     
     ,MARBLE_NOT_CURRENT_PLAYER  (TurnState.ERROR,       "error.marbleNotCurrentPlayer")
     ,MARBLE_NOT_IN_BANK         (TurnState.ERROR,       "error.marbleNotInBank")
-    ,HOME_SPOT_OCCUPIED         (TurnState.ERROR,       "error.homeSpotOccupied")
+    ,STARTING_SPOT_OCCUPIED         (TurnState.ERROR,       "error.homeSpotOccupied")
     ,CANNOT_MOVE_FROM_BANK      (TurnState.ERROR,       "error.cannotMoveFromBank")
     
     ,CANNOT_SWAP_FROM_SPOT      (TurnState.ERROR,       "error.cannotSwapFromSpot")

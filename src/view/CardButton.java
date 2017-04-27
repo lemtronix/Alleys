@@ -5,6 +5,11 @@ import javax.swing.JButton;
 
 import model.Card;
 
+/**
+ * A JButton that holds a card graphic, i.e., it looks like a card.
+ * @author rcook
+ *
+ */
 public class CardButton extends JButton
 {
     private CardGraphic cardGraphic;
@@ -28,5 +33,4 @@ public class CardButton extends JButton
         }
         return result;
     }
-    //    public ImageIcon   getCardIcon()    { return cardGraphic.getIcon(); }
 }

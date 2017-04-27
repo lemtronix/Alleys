@@ -1,15 +1,8 @@
 package model;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-
-import view.CardGraphic;
 import view.viewinterface.AlleysUI;
-import controller.Constants;
-import controller.MarbleModelListener;
 
 public class AlleysGame implements Messager
 {
@@ -63,7 +56,7 @@ public class AlleysGame implements Messager
      */
     public void startGame(List<Player> players)
     {
-        turnManager = new TurnManager(this, board, players);
+        turnManager = new TurnManager(this, players);
         board.setUpMarbles(players);
         startNewTurn();
     }
@@ -84,11 +77,9 @@ public class AlleysGame implements Messager
      */
     public void cardChosen(Card card)    
     { 
-        say("chose " + card.toString());
+//        say("chose " + card.toString());
         Turn currentTurn = turnManager.getCurrentTurn();
-        // TODO: determine if we should put the messager in the
-        // turn constructor, so it doesn't have to get passed in here.
-        Card previousCard = currentTurn.setCard(card, this);
+        Card previousCard = currentTurn.setCard(card);
         
         Player player = currentTurn.getPlayer();
         
@@ -114,7 +105,7 @@ public class AlleysGame implements Messager
         Turn currentTurn = turnManager.getCurrentTurn();
         if (marbleSpot == null || currentTurn == null) { throw new InternalLogicError("either marbleSpot or currentTurn null at start of AlleysGame.marbleChosen"); }
         
-        if (currentTurn.getCard() == null)
+        if (!currentTurn.hasCard())
         {
             message("error.chooseCardFirst");
         }
@@ -139,11 +130,9 @@ public class AlleysGame implements Messager
         {
         case ERROR:
             // problem -- doing things this way doesn't allow parameters to the
-            // message; perhaps we should put the error *message* into the current
-            // turn, instead of just its state, or along with its state.
-            // Alternately, we could make a class to hold moveState and its parameters
-            // and return that, or just put parameters in the currentTurn with its
-            // move state.
+            // message; perhaps we should format the message within the turn and
+            // put the whole *message* so we can output it here.
+            // TODO: consider making a noise on a move error.
             message(moveState.getMessageKey());
             currentTurn.clearMarbles();
             break;

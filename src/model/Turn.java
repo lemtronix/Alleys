@@ -15,11 +15,9 @@ import java.util.List;
  */
 public class Turn
 {
-    public static void say(String msg)
-    {
-        System.out.println(msg);
-    }
+    public static void say(String msg)    {       System.out.println(msg);    }
 
+    Messager    messager            = null;
     Player      player              = null;
     Card        card                = null;                 // card chosen to be played
     List<Spot>  marbles             = new ArrayList<>();    // spots (with marbles) chosen for this turn
@@ -27,8 +25,9 @@ public class Turn
     MoveState   moveState           = null;
     int         moveCountForSeven   = 0;
 
-    public Turn(Player player)
+    public Turn(Messager messager, Player player)
     {
+        this.messager = messager;
         this.player = player;
         moveState = MoveState.AWAITING_CARD;
     }
@@ -39,7 +38,7 @@ public class Turn
      * 
      * @param card already set in the turn, if there is one, or null.
      */
-    public Card setCard(Card newCard, Messager messager)
+    public Card setCard(Card newCard)
     {
         Card previousCard = card;
         card = newCard;
@@ -85,26 +84,6 @@ public class Turn
         return destinations;
     }
 
-    public Spot getFirstMarble()
-    {
-        return marbles.get(0);
-    }
-
-    public Spot getFirstDestination()
-    {
-        return destinations.get(0);
-    }
-
-    public Spot getSecondMarble()
-    {
-        return marbles.get(1);
-    }
-
-    public Spot getSecondDestination()
-    {
-        return destinations.get(1);
-    }
-
     public Player getPlayer()
     {
         return player;
@@ -113,11 +92,6 @@ public class Turn
     public MoveState getMoveState()
     {
         return moveState;
-    }
-
-    public void setLastMoveState(MoveState newState)
-    {
-        moveState = newState;
     }
 
     public void addMarble(Spot spot)
@@ -145,11 +119,8 @@ public class Turn
             break;
         case Ace:
             // An ace may either move a marble from bank to home, or one square
-            // elsewhere
-            // on the board. If he chose a marble in the starting spots, we'll
-            // try to move
-            // it to home, otherwise (home, normal, or finishing) we try to move
-            // it one spot.
+            // elsewhere on the board. If he chose a marble in the bank, we'll
+            // try to move it to home, otherwise we try to move it one spot.
             if (spot.getSpotType() == SpotType.BANK)
             {
                 moveState = validateBankToHome(player, board, spot);
@@ -166,164 +137,11 @@ public class Turn
             moveState = validateMoveSeven(player, board, spot);
             break;
         default:
-            moveState = validateMoveMarble(player, board, spot, card.toInt(false));
+            moveState = validateMoveMarble(player, board, spot, card.toInt());
             break;
         }
 
         return this;
-    }
-
-    private MoveState validateMoveSeven(Player player, Board board, Spot currentSpot)
-    {
-        MoveState result = null;
-        
-        Marble marble = currentSpot.getMarble();
-        MarbleColor marbleColor = marble.getColor();
-        MarbleColor playerColor = player.getColor();
-        
-        // this method gets called either once or twice for a seven; remember the player
-        // may move either one or two marbles, where the total number of moves is 7.
-        // A different method on this object handles putting the number of moves somewhere.
-        
-        // both marbles must belong to the player
-        if (marbleColor != playerColor)
-        {
-            result = MoveState.MARBLE_NOT_CURRENT_PLAYER;
-        }
-        else
-        {
-            // all we know on the first marble is to store it; we don't know
-            // at the time it is chosen how many it will move. I guess we can
-            if (marbles.isEmpty())
-            {
-                marbles.add(currentSpot);
-                result = MoveState.ENTER_FIRST_MOVE_COUNT;
-            }
-            else
-            {  
-                // ok, we have a second marble; let's make sure they didn't click the first one again
-                Spot firstMarbleSpot = marbles.get(0);
-                if (firstMarbleSpot == currentSpot)
-                {
-                    result = MoveState.NEED_DIFFERENT_MARBLE;
-                }
-                else
-                {
-                    // ok, we have two marbles and a count we're going to use on the first one.
-                    // validate the move of the second marble
-                    result = validateMoveMarble(player, board, currentSpot, 7 - moveCountForSeven);
-                }
-                
-            }
-        }
-        return result;
-    }
-    
-    public Turn validateMoveCountForSeven(Board board, int moveCount)
-    {
-        if (moveCount > 7 || moveCount < 1)
-        {
-            moveState = MoveState.COUNT_1_TO_7;
-        }
-        else
-        {
-            moveCountForSeven = moveCount;
-            Spot currentSpot = marbles.get(0);
-            // now that we've gotten the marble we saved, clear it out
-            // so that we can just move that marble as though it were not
-            // already saved.
-            marbles.clear();
-            
-            if (moveCount == 7)
-            {
-                // just moving 7
-                // clear out the marble we saved earlier, and treat this like
-                // any other numbered-card move.
-                moveState = validateMoveMarble(player, board, currentSpot, 7);
-            }
-            else
-            {
-                // validate that we can move the number of spaces entered.
-                moveState = validateMoveMarble(player, board, currentSpot, moveCount);
-                
-                // if we're good to go, then change the state to be waiting for the second
-                // marble pick
-                if (moveState.getTurnState() == TurnState.READY)
-                {
-                    moveState = MoveState.WAITING_FOR_SECOND_MARBLE;
-                }
-            }
-        }
-        return this;
-    }
-    
-    private MoveState validateMoveJack(Player player, Board board, Spot currentSpot)
-    {
-        MoveState result = null;
-        // we call this once on the first marble and once on the second; we use
-        // the marbles list to tell us which one we're doing.
-        if (marbles.isEmpty())
-        {
-            // chose first marble for Jack; we cannot swap out of starting or
-            // finishing spots
-            // TODO: find out if this is true for home.
-            Marble marble = currentSpot.getMarble();
-            MarbleColor marbleColor = marble.getColor();
-            MarbleColor playerColor = player.getColor();
-            if (marbleColor != playerColor)
-            {
-                result = MoveState.MARBLE_NOT_CURRENT_PLAYER;
-            }
-            else
-            {
-                SpotType spotType = currentSpot.getSpotType();
-                
-                if (   spotType == SpotType.BANK 
-                    || spotType == SpotType.HOMEBASE
-                   )
-                {
-                    result = MoveState.CANNOT_SWAP_FROM_SPOT;
-                }
-                else
-                {
-                    result = MoveState.AWAITING_SWAP_MARBLE;
-                    marbles.add(currentSpot);
-                    destinations.add(currentSpot);
-                }
-            }
-        }
-        else
-        {
-            // have chosen the second marble for Jack; cannot swap into bank,
-            // home, or finishing for the 2nd marble.
-            // TODO: do we limit this to swap with marbles of other colors?
-            int spotIndex = currentSpot.getSpotIndex();
-            int firstSpotIndex = marbles.get(0).getSpotIndex();
-            if (spotIndex == firstSpotIndex)
-            {
-                result = MoveState.CANNOT_SWAP_SAME_MARBLE;
-            }
-            else
-            {
-                SpotType    spotType    = currentSpot.getSpotType();
-                // cannot swap into a finishing or starting spot
-                if (   spotType == SpotType.HOMEBASE 
-                    || spotType == SpotType.BANK
-                    || currentSpot.isProtected())
-                {
-                    // cannot swap a marble that's on any special spot
-                    result = MoveState.CANNOT_SWAP_ONTO_SPOT;
-                }
-                else
-                {
-                    // this marble can be swapped
-                    marbles.add(currentSpot);
-                    destinations.add(currentSpot);
-                    result = MoveState.VALID_MARBLE_SWAP;
-                }
-            }
-        }
-        return result;
     }
 
     private MoveState validateMoveMarble(Player player, Board board, Spot currentSpot, int moveCount)
@@ -416,6 +234,158 @@ public class Turn
         return moveState;
     }
     
+    private MoveState validateMoveSeven(Player player, Board board, Spot currentSpot)
+    {
+        MoveState result = null;
+        
+        Marble marble = currentSpot.getMarble();
+        MarbleColor marbleColor = marble.getColor();
+        MarbleColor playerColor = player.getColor();
+        
+        // this method gets called either once or twice for a seven; remember the player
+        // may move either one or two marbles, where the total number of moves is 7.
+        // A different method on this object handles putting the number of moves somewhere.
+        
+        // both marbles must belong to the player
+        if (marbleColor != playerColor)
+        {
+            result = MoveState.MARBLE_NOT_CURRENT_PLAYER;
+        }
+        else
+        {
+            // all we know on the first marble is to store it; we don't know
+            // at the time it is chosen how many it will move. 
+            if (marbles.isEmpty())
+            {
+                marbles.add(currentSpot);
+                result = MoveState.ENTER_FIRST_MOVE_COUNT;
+            }
+            else
+            {  
+                // ok, we have a second marble; let's make sure they didn't click the first one again
+                Spot firstMarbleSpot = marbles.get(0);
+                if (firstMarbleSpot == currentSpot)
+                {
+                    result = MoveState.NEED_DIFFERENT_MARBLE;
+                }
+                else
+                {
+                    // ok, we have two marbles and a count we're going to use on the first one.
+                    // (see validateMoveCountForSeven). Validate the move of the second marble
+                    result = validateMoveMarble(player, board, currentSpot, 7 - moveCountForSeven);
+                }
+            }
+        }
+        return result;
+    }
+    
+    public Turn validateMoveCountForSeven(Board board, int moveCount)
+    {
+        if (moveCount > 7 || moveCount < 1)
+        {
+            moveState = MoveState.COUNT_1_TO_7;
+        }
+        else
+        {
+            moveCountForSeven = moveCount;
+            Spot currentSpot = marbles.get(0);
+            // now that we've gotten the marble we saved, clear it out
+            // so that we can just move that marble as though it were not
+            // already saved.
+            marbles.clear();
+            
+            if (moveCount == 7)
+            {
+                // just moving 7
+                // clear out the marble we saved earlier, and treat this like
+                // any other numbered-card move.
+                moveState = validateMoveMarble(player, board, currentSpot, 7);
+            }
+            else
+            {
+                // validate that we can move the number of spaces entered.
+                moveState = validateMoveMarble(player, board, currentSpot, moveCount);
+                
+                // if we're good to go, then change the state to be waiting for the second
+                // marble pick
+                if (moveState.getTurnState() == TurnState.READY)
+                {
+                    moveState = MoveState.WAITING_FOR_SECOND_MARBLE;
+                }
+            }
+        }
+        return this;
+    }
+    
+    private MoveState validateMoveJack(Player player, Board board, Spot currentSpot)
+    {
+        MoveState result = null;
+        // we call this once on the first marble and once on the second; we use
+        // the marbles list to tell us which one we're doing.
+        if (marbles.isEmpty())
+        {
+            // chose first marble for Jack; it must be a marble for the turn's
+            // player. We cannot swap out of bank or homebase spots.
+            Marble marble = currentSpot.getMarble();
+            MarbleColor marbleColor = marble.getColor();
+            MarbleColor playerColor = player.getColor();
+            if (marbleColor != playerColor)
+            {
+                result = MoveState.MARBLE_NOT_CURRENT_PLAYER;
+            }
+            else
+            {
+                SpotType spotType = currentSpot.getSpotType();
+                
+                if (   spotType == SpotType.BANK 
+                    || spotType == SpotType.HOMEBASE
+                   )
+                {
+                    result = MoveState.CANNOT_SWAP_FROM_SPOT;
+                }
+                else
+                {
+                    result = MoveState.AWAITING_SWAP_MARBLE;
+                    marbles.add(currentSpot);
+                    destinations.add(currentSpot);
+                }
+            }
+        }
+        else
+        {
+            // have chosen the second marble for Jack; cannot swap into bank,
+            // or finishing for the 2nd marble, and cannot swap a protected
+            // marble.
+            // TODO: can a player swap with his own marble?
+            int spotIndex = currentSpot.getSpotIndex();
+            int firstSpotIndex = marbles.get(0).getSpotIndex();
+            if (spotIndex == firstSpotIndex)
+            {
+                result = MoveState.CANNOT_SWAP_SAME_MARBLE;
+            }
+            else
+            {
+                SpotType    spotType    = currentSpot.getSpotType();
+                // cannot swap into a finishing or starting spot
+                if (   spotType == SpotType.HOMEBASE 
+                    || spotType == SpotType.BANK
+                    || currentSpot.isProtected())
+                {
+                    // cannot swap a marble that's on any special spot
+                    result = MoveState.CANNOT_SWAP_ONTO_SPOT;
+                }
+                else
+                {
+                    // this marble can be swapped
+                    marbles.add(currentSpot);
+                    destinations.add(currentSpot);
+                    result = MoveState.VALID_MARBLE_SWAP;
+                }
+            }
+        }
+        return result;
+    }
+
     private void setMarblesForBump(Board board, Spot destination, Spot source)
     {
         Spot bankSpot = board.findFirstEmptyBankSpot(destination.getMarble().getColor());
@@ -461,31 +431,30 @@ public class Turn
             }
             else
             {
-                int homeSpotIndex = board.getHomeIndex(marble.getColor());
-                Spot homeSpot = board.getSpot(homeSpotIndex);
+                int startingSpotIndex = board.getStartingIndex(marble.getColor());
+                Spot startingSpot = board.getSpot(startingSpotIndex);
                 MarbleColor playerColor = player.getColor();
-                if (homeSpot.hasMarble())
+                if (startingSpot.hasMarble())
                     {
-                        if (homeSpot.getMarble().getColor() == playerColor)
+                        if (startingSpot.getMarble().getColor() == playerColor)
                         {
-                            say("Home spot already occupied");
-                            moveState = MoveState.HOME_SPOT_OCCUPIED;
+                            say("Starting spot already occupied");
+                            moveState = MoveState.STARTING_SPOT_OCCUPIED;
                         }
                         else
                         {
                             // bumping marble from home spot
                             moveState = MoveState.VALID_MARBLE_BUMP;
-                            setMarblesForBump(board, homeSpot, marbleSpot);
+                            setMarblesForBump(board, startingSpot, marbleSpot);
                         }
                     }
                 else
                 {
-                    // we're validated -- can move this marble from bank to
-                    // home.
+                    // we're validated -- can move this marble from bank to home.
                     say("move is good");
                     moveState = MoveState.VALID_MARBLE_START;
                     marbles.add(marbleSpot);
-                    destinations.add(homeSpot);
+                    destinations.add(startingSpot);
                 }
             }
         }

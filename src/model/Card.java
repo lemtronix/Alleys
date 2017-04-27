@@ -12,46 +12,26 @@ public class Card
         _CardSuit = Suit;
     }
 
-    public CardValue getRank()
-    {
-        return _CardValue;
-    }
+    public CardValue getRank()    {        return _CardValue;    }
 
+    /**
+     * return a string unique to this card across the deck.
+     * @return
+     */
     public String getIndex() { return _CardValue.getIndex() + _CardSuit.getIndex(); }
     
-    public int toInt(boolean useAbsoluteValue)
+    /**
+     * return the numeric value of this card; see CardValue
+     * @return
+     */
+    public int toInt()
     {
-        int CardValue = -1;
-
-        switch (_CardValue)
-        {
-            case Four:
-                if (useAbsoluteValue == false)
-                {
-                    CardValue = -4;
-                }
-                else
-                {
-                    CardValue = 4;
-                }
-            break;
-            case Jack:
-                CardValue = -1;
-            break;
-            case Queen:
-                CardValue = 12;
-            break;
-            case King:
-                CardValue = 0;
-            break;
-            default:
-                CardValue = _CardValue.ordinal() + ORDINAL_OFFSET;
-            break;
-        }
-
-        return CardValue;
+        return _CardValue.getValue();
     }
 
+    /**
+     * return the name and suit of this card.
+     */
     public String toString()
     {
         return "" + _CardValue.name() + " of " + _CardSuit;
