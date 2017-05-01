@@ -50,9 +50,10 @@ public class Turn
         {
             messager.message("info.replacedCard", previousCard.toString(), card.toString());
         }
-        if (!marbles.isEmpty())
+        if (!marbles.isEmpty() || !destinations.isEmpty())
         {
             marbles.clear();
+            destinations.clear();
             messager.message("info.marblesCleared");
         }
 

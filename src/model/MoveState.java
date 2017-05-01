@@ -26,7 +26,7 @@ public enum MoveState
     
     ,MARBLE_NOT_CURRENT_PLAYER  (TurnState.ERROR,       "error.marbleNotCurrentPlayer")
     ,MARBLE_NOT_IN_BANK         (TurnState.ERROR,       "error.marbleNotInBank")
-    ,STARTING_SPOT_OCCUPIED         (TurnState.ERROR,       "error.homeSpotOccupied")
+    ,STARTING_SPOT_OCCUPIED     (TurnState.ERROR,       "error.homeSpotOccupied")
     ,CANNOT_MOVE_FROM_BANK      (TurnState.ERROR,       "error.cannotMoveFromBank")
     
     ,CANNOT_SWAP_FROM_SPOT      (TurnState.ERROR,       "error.cannotSwapFromSpot")
