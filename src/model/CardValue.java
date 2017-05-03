@@ -21,4 +21,6 @@ public enum CardValue {
     public int    getValue() { return value; }
     
     private CardValue(String s, int v) { index = s; value = v; }
+    
+    public String toString() { return value + " of " + index; }
 }

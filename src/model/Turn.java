@@ -38,26 +38,17 @@ public class Turn
      * 
      * @param card already set in the turn, if there is one, or null.
      */
-    public Card setCard(Card newCard)
+    public void setCard(Card newCard)
     {
-        Card previousCard = card;
         card = newCard;
-        if (previousCard == null)
-        {
-            messager.message("info.setCard", card.toString());
-        }
-        else
-        {
-            messager.message("info.replacedCard", previousCard.toString(), card.toString());
-        }
+        String cardString = (newCard == null ? "<null>" : newCard.toString());
+        messager.message("info.setCard", cardString);
         if (!marbles.isEmpty() || !destinations.isEmpty())
         {
             marbles.clear();
             destinations.clear();
             messager.message("info.marblesCleared");
         }
-
-        return previousCard;
     }
 
     public boolean hasCard()
@@ -105,9 +96,18 @@ public class Turn
         destinations.add(spot);
     }
 
-    public void clearMarbles()
+    public void clearMarblesAndDestinations()
     {
         marbles.clear();
+        destinations.clear();
+    }
+    
+    public void clearCardMarblesAndDestinations()
+    {
+        // TODO: I don't like this method -- marbles and cards need to 
+        // get moved somewhere, not 'cleared'
+        clearMarblesAndDestinations();
+        setCard(null);
     }
 
     public Turn validateMove(Board board, Spot spot)
@@ -201,7 +201,7 @@ public class Turn
                 else
                 {   // check on homebase marble (one on of four finishing spots, can't be passed or bumped)
                     Marble marble = spot.getMarble();
-                    if (currentSpotType == SpotType.HOMEBASE && marble != null)
+                    if (spot.getSpotType() == SpotType.HOMEBASE && marble != null)
                     {
                         moveState = MoveState.BLOCKED_BY_HOMEBASE_MARBLE;
                     }
@@ -272,8 +272,26 @@ public class Turn
                 else
                 {
                     // ok, we have two marbles and a count we're going to use on the first one.
-                    // (see validateMoveCountForSeven). Validate the move of the second marble
+                    // (see validateMoveCountForSeven). Validate the move of the second marble.
+                    
+                    // while we're checking on the move of the second marble, we temporarily
+                    // move the first one on the board to where it is going to go; this allows
+                    // validation to proceed normally, e.g., the second marble may move to 
+                    // or past a homebase spot that the first marble USED to occupy, but 
+                    // does not if it gets moved first.
+                    Spot firstMarbleStart = marbles.get(0);
+                    Spot firstMarbleEnd   = destinations.get(0);
+                    Marble firstMarble = firstMarbleStart.getMarble();
+                    firstMarbleStart.setMarble(null);
+                    firstMarbleEnd.setMarble(firstMarble);
+
                     result = validateMoveMarble(player, board, currentSpot, 7 - moveCountForSeven);
+                    
+                    // now we put the first marble BACK -- we don't know that we're going to make this
+                    // move yet, and there are other things that we do when we actually move that we 
+                    // did not do in the above temporarily-move-the-marble logic.
+                    firstMarbleEnd.setMarble(null);
+                    firstMarbleStart.setMarble(firstMarble);
                 }
             }
         }

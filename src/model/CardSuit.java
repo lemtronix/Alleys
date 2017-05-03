@@ -10,4 +10,6 @@ public enum CardSuit {
     public String getIndex() { return index; }
     
     private CardSuit(String s) { index = s; }
+    
+    public String toString() { return index; }
 }

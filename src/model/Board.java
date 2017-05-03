@@ -281,9 +281,10 @@ public class Board
                     SpotType endType = end.getSpotType();
                     moveMarble(start.getSpotIndex(), end.getSpotIndex());
                     start.setProtectedMarble(false);
-                    // if this is a valid start move, then the marble/spot is protected.
+                    // if this is a valid start move, or a start move that bumps a marble,
+                    // then the marble/spot is protected.
                     boolean endProtected = (endType == SpotType.STARTINGSPOT
-                                            && (moveState == MoveState.VALID_MARBLE_START
+                                            && (   moveState == MoveState.VALID_MARBLE_START
                                                 || moveState == MoveState.VALID_MARBLE_BUMP)
                                            );
                     end.setProtectedMarble(endProtected);
