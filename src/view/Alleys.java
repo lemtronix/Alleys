@@ -140,24 +140,40 @@ public class Alleys extends JFrame implements AlleysUI
      * marble chosen after a 7 is played.
      */
     @Override
-    public void getMoveCount()
+    public int getMoveCount()
     {
-        String numberOfSpotsString = (String) JOptionPane.showInputDialog
-                (_BoardPanel, 
-                 "Enter number of spots to move this marble", 
-                 "Split Seven?", 
-                 JOptionPane.QUESTION_MESSAGE
-                );
-        int numberOfSpots = 0;
-        try 
-        { 
-            numberOfSpots = Integer.parseInt(numberOfSpotsString);
-            alleysGame.moveCountForSevenChosen(numberOfSpots);
-        }
-        catch (NumberFormatException nfe)
+        int moveCount = 0;
+        boolean finished = false;
+        while (!finished)
         {
-            message("error.needNumber");
+            try 
+            { 
+                String moveCountString = (String) JOptionPane.showInputDialog
+                        (_BoardPanel, 
+                         "Enter number of spots to move this marble", 
+                         "Split Seven?", 
+                         JOptionPane.QUESTION_MESSAGE
+                        );
+                if (moveCountString == null)
+                {
+                    // user pressed cancel, what do we do now?
+                    message("info.cancelled7");
+                    moveCount = 0;
+                    finished = true;
+                }
+                else
+                {
+                    moveCount = Integer.parseInt(moveCountString);
+                    // no NFE, so we're done
+                    finished = true;
+                }
+            }
+            catch (NumberFormatException nfe)
+            {
+                message("error.needNumber");
+            }
         }
+        return moveCount;
     }
     
     // we keep our messages in this resource bundle, and centralize how we put the text into

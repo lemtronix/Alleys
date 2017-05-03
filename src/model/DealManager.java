@@ -11,9 +11,13 @@ public class DealManager
     // the deck is gone and needs to be reshuffled.
     private int[][] _NumberOfCardsToDeal = { { 5, 5, 4, 4, 4, 4, 0 }, { 5, 4, 4, 4, 4, 0 }, { 5, 4, 4, 0 } };
     private int round;
+    private Messager messager;
+    
+    private void message(String s) { messager.message(s); }
 
-    public DealManager()
+    public DealManager(Messager messager)
     {
+        this.messager = messager;
         deck = new Deck();
         round = 0;
     }
@@ -29,11 +33,12 @@ public class DealManager
         // Get number of cards to deal
         int numberOfCardsToDeal = getNumberOfCardsToDeal(players.size(), round);
 
-        // If the is zero we've dealt all the cards in this shuffle;
+        // If the number is zero we've dealt all the cards in this shuffle;
         // shuffle the cards and get the number of cards to deal again
         if (numberOfCardsToDeal == 0)
         {
             deck.shuffle();
+            message("info.newDeal");
             round = 1;
             numberOfCardsToDeal = getNumberOfCardsToDeal(players.size(), round);
         }

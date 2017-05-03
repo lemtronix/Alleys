@@ -32,7 +32,7 @@ public class TurnManager
         Collections.sort(this.players);      // ensure marble color order
         currentPlayerIndex  = null;
         currentDealerIndex  = null;
-        dealManager         = new DealManager();
+        dealManager         = new DealManager(messager);
     }
     
     /**

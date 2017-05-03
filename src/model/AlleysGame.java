@@ -79,19 +79,37 @@ public class AlleysGame implements Messager
     { 
 //        say("chose " + card.toString());
         Turn currentTurn = turnManager.getCurrentTurn();
-        Card previousCard = currentTurn.setCard(card);
-        
         Player player = currentTurn.getPlayer();
         
-        // if we had a previous card, add it back to the player's hand.
-        if (previousCard != null) { player.addCard(previousCard); }
-        // remove the just-played card from his hand
-        player.removeCard(card);
+        // first deal with the previous card if it's there
+        Card previousCard = currentTurn.getCard();
         
-        // if we had a previous card, move it back from the middle of the
+        // if we had a previous card, add it back to the player's hand.
+        // and on the UI, move that card back from the middle of the
         // board to the player's hand on the UI.
-        if (previousCard != null) { alleysUI.unChooseCard(); }
+        if (previousCard != null) { unChooseCard(currentTurn, card); }
+        
+        // now we can set the marble in the turn
+        currentTurn.setCard(card);
+        
+        // remove the just-played card from the player's hand,
+        // and execute a 'choose' for it on the board (moves card
+        // out of the hand and onto the middle.
+        player.removeCard(card);
         alleysUI.chooseCard(card);
+    }
+    
+    /**
+     * remove this card from the turn and replace it in the player's hand.
+     * Tell the UI to un-choose it as well.
+     * @param currentTurn
+     * @param card
+     */
+    public void unChooseCard(Turn currentTurn, Card card)
+    {
+        currentTurn.setCard(null);
+        currentTurn.getPlayer().addCard(card);
+        alleysUI.unChooseCard();
     }
 
     /**
@@ -134,14 +152,21 @@ public class AlleysGame implements Messager
             // put the whole *message* so we can output it here.
             // TODO: consider making a noise on a move error.
             message(moveState.getMessageKey());
-            currentTurn.clearMarbles();
+            currentTurn.clearMarblesAndDestinations();
             break;
         case CONTINUING:
             message(moveState.getMessageKey());
             break;
         case CONTINUING_GET_NUMBER:
             message(moveState.getMessageKey());
-            alleysUI.getMoveCount();    // 7 being played, this gets num of spots to move first marble.
+            int moveCount = alleysUI.getMoveCount();    // 7 being played, this gets num of spots to move first marble.
+            if (moveCount == 0) 
+                 { /* user cancelled the 7; message already delivered (?) */ 
+                   // TODO: message to choose another card?
+                   currentTurn.clearMarblesAndDestinations();
+                   unChooseCard(currentTurn, currentTurn.getCard());
+                 }
+            else { moveCountForSevenChosen(moveCount);  }
             break;
         case READY:
             // if we were ever to implement a confirmation of a move -- say,

@@ -15,7 +15,7 @@ public interface AlleysUI
     public void moveMarble(int fromIndex, int toIndex);
     public void swapMarbles(int firstIndex, int secondIndex);
     
-    public void getMoveCount();
+    public int  getMoveCount();
     
     public void chooseCard(Card card);
     public void unChooseCard();
