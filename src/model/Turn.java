@@ -186,8 +186,10 @@ public class Turn
             // for each spot, determine whether there are obstacles
             // a marble cannot move past a protected marble,
             // nor past its own marble in a finishing spot.
+            // a marble cannot move backwards out of homebase.
             do
             {
+                int previousMoveTrackIndex = moveTrackIndex;
                 moveTrackIndex = translateTrackIndex(moveTrackIndex + increment);
 
                 int allSpotsIndex = moveTrack[moveTrackIndex];
@@ -204,7 +206,16 @@ public class Turn
                     if (spot.getSpotType() == SpotType.HOMEBASE && marble != null)
                     {
                         moveState = MoveState.BLOCKED_BY_HOMEBASE_MARBLE;
+                        break;
                     }
+                }
+                int previousAllSpotsIndex = moveTrack[previousMoveTrackIndex];
+                Spot previousSpot = board.getSpot(previousAllSpotsIndex);
+                if (   previousSpot.getSpotType() == SpotType.HOMEBASE 
+                    && spot.getSpotType() == SpotType.NORMAL 
+                   )
+                {
+                    moveState = MoveState.CANNOT_BACK_OUT_OF_HOMEBASE;
                 }
             } while (moveTrackIndex != targetMoveTrackIndex);
 

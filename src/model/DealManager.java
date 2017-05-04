@@ -14,6 +14,7 @@ public class DealManager
     private Messager messager;
     
     private void message(String s) { messager.message(s); }
+    private void message(String formatS, String... params) { messager.message(formatS, params); }
 
     public DealManager(Messager messager)
     {
@@ -43,7 +44,7 @@ public class DealManager
             numberOfCardsToDeal = getNumberOfCardsToDeal(players.size(), round);
         }
 
-        System.out.println("Dealing " + numberOfCardsToDeal + " cards...");
+        message("info.dealing", Integer.toString(numberOfCardsToDeal));
 
         for (int i = 0; i < players.size(); i++)
         {
