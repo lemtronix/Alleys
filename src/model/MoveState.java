@@ -51,6 +51,8 @@ public enum MoveState
     ,WAITING_FOR_SWAP_MARBLE    (TurnState.CONTINUING,  "info.chooseMarbleSwap")
     ,WAITING_FOR_SECOND_MARBLE  (TurnState.CONTINUING,  "info.chooseSecondMarble")
     
+    ,CANNOT_BACK_OUT_OF_HOMEBASE (TurnState.ERROR,      "error.cannotBackOutOfHomeBase")
+    
     ;
     
     TurnState turnState;
