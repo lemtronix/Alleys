@@ -19,12 +19,13 @@ package model;
  */
 public enum MoveState
 {
-     AWAITING_CARD              (TurnState.CONTINUING,  "info.needCard")
-    ,AWAITING_SWAP_MARBLE       (TurnState.CONTINUING,  "info.needSwapMarble")
+//     AWAITING_CARD              (TurnState.CONTINUING,  "info.needCard")
+     AWAITING_SWAP_MARBLE       (TurnState.CONTINUING,  "info.needSwapMarble")
     
     ,NO_LEGAL_MOVE              (TurnState.ERROR,       "error.noLegalMove")
     
     ,MARBLE_NOT_CURRENT_PLAYER  (TurnState.ERROR,       "error.marbleNotCurrentPlayer")
+    ,MARBLE_NOT_PARTNER         (TurnState.ERROR,       "error.marbleNotPartner")
     ,MARBLE_NOT_IN_BANK         (TurnState.ERROR,       "error.marbleNotInBank")
     ,STARTING_SPOT_OCCUPIED     (TurnState.ERROR,       "error.homeSpotOccupied")
     ,CANNOT_MOVE_FROM_BANK      (TurnState.ERROR,       "error.cannotMoveFromBank")
@@ -32,10 +33,10 @@ public enum MoveState
     ,CANNOT_SWAP_FROM_SPOT      (TurnState.ERROR,       "error.cannotSwapFromSpot")
     ,CANNOT_SWAP_ONTO_SPOT      (TurnState.ERROR,       "error.cannotSwapOntoSpot")
     ,MUST_CHOOSE_MARBLE         (TurnState.ERROR,       "error.mustChooseMarble")
-    ,CANNOT_SWAP_SAME_MARBLE    (TurnState.ERROR,       "error.cannotChooseSameMarble")
+    ,CANNOT_SWAP_SAME_MARBLE    (TurnState.ERROR,       "error.cannotSwapSameMarble")
     
     ,ENTER_FIRST_MOVE_COUNT     (TurnState.CONTINUING_GET_NUMBER,  "info.enterNumberToMove")
-    ,VALID_MOVE_SEVEN           (TurnState.READY,       "info.validMoveSeven")
+//    ,VALID_MOVE_SEVEN           (TurnState.READY,       "info.validMoveSeven")
     ,COUNT_1_TO_7               (TurnState.ERROR,       "error.count1to7")
     ,NEED_DIFFERENT_MARBLE      (TurnState.ERROR,       "error.needDifferentMarble")
     

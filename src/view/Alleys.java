@@ -32,7 +32,6 @@ public class Alleys extends JFrame implements AlleysUI
     private final int MINIMUM_X = 600;
     private final int MINIMUM_Y = 850;
 
-    private AlleysGame      alleysGame;
 
     private BoardComponent  _BoardPanel;
     private CardPanel       _CardPanel;
@@ -46,7 +45,6 @@ public class Alleys extends JFrame implements AlleysUI
      */
     public Alleys(AlleysGame alleysGame) 
     {
-        this.alleysGame = alleysGame;
         _BoardPanel = new BoardComponent(alleysGame);
         
         topPanel = new JPanel();
@@ -60,12 +58,19 @@ public class Alleys extends JFrame implements AlleysUI
                 public void actionPerformed(ActionEvent e)
                 {
                     // TODO: create dialog for entering player info
-                    List<Player> players = new ArrayList<>();
-                    players.add(new Player("Bob", MarbleColor.RED, MarbleColor.YELLOW));
-                    players.add(new Player("Carol", MarbleColor.BLUE, MarbleColor.GREEN));
-                    players.add(new Player("Ted", MarbleColor.YELLOW, MarbleColor.RED));
-                    players.add(new Player("Alice", MarbleColor.GREEN, MarbleColor.BLUE));
+                    Player bob      = new Player("Bob", MarbleColor.RED);     // , MarbleColor.YELLOW));
+                    Player carol    = new Player("Carol", MarbleColor.BLUE);  // , MarbleColor.GREEN));
+                    Player ted      = new Player("Ted", MarbleColor.YELLOW);  // , MarbleColor.RED));
+                    Player alice    = new Player("Alice", MarbleColor.GREEN); // , MarbleColor.BLUE));
                     
+                    setPartners(bob, ted);
+                    setPartners(carol, alice);
+                    
+                    List<Player> players = new ArrayList<>();
+                    players.add(bob);
+                    players.add(carol);
+                    players.add(ted);
+                    players.add(alice);
                     alleysGame.startGame(players);
                     startGameButton.setEnabled(false);
                 }
@@ -99,6 +104,12 @@ public class Alleys extends JFrame implements AlleysUI
          });
         
         initUI();
+    }
+    
+    private void setPartners(Player one, Player two)
+    {
+        one.setPartner(two);
+        two.setPartner(one);
     }
 
     /**
@@ -170,7 +181,7 @@ public class Alleys extends JFrame implements AlleysUI
             }
             catch (NumberFormatException nfe)
             {
-                message("error.needNumber");
+                message("error.count1to7");
             }
         }
         return moveCount;

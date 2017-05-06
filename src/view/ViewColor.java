@@ -12,7 +12,8 @@ import model.MarbleColor;
  *
  */
 public class ViewColor
-{   private static void say(String s) { System.out.println(s); }
+{   
+//    private static void say(String s) { System.out.println(s); }
     private static HashMap<MarbleColor, Color> marbleColors = new HashMap<>();
     private static HashMap<MarbleColor, Color> spotColors = new HashMap<>();
     private static HashMap<MarbleColor, Color> textColors = new HashMap<>();

@@ -44,7 +44,7 @@ public class Board
     
     // for each color, an array of ints indicating the current position of
     // each marble for that color. We update this as we move the marbles.
-    private EnumMap<MarbleColor, int[]> marbleSpots = new EnumMap<MarbleColor, int[]>(MarbleColor.class);
+    private EnumMap<MarbleColor, int[]> allMarbleSpots = new EnumMap<MarbleColor, int[]>(MarbleColor.class);
     
     // A moveTrack is an Integer array, for one color, holding the indices
     // from the allSpots array which define the movement track for that color.
@@ -142,13 +142,13 @@ public class Board
             }
         }
         
-        // now initialize the arrays that will hold the current positions of each of the 
-        // marbles on the board. We'll use this when we start to determine if a player has
+        // now create empty arrays that will hold the current positions of each of the 
+        // marbles on the board. We'll use these when we start to determine if a player has
         // any legal moves.
         for (MarbleColor color : MarbleColor.values())
         {
             int[] positions = new int[4];
-            marbleSpots.put(color, positions);
+            allMarbleSpots.put(color, positions);
         }
         
     }
@@ -251,7 +251,7 @@ public class Board
                 spot.setMarble(new Marble(color));
                 alleysUI.setSpotMarble(spotIndex, marble);
                 
-                marbleSpots.get(color)[i] = spotIndex;      // set initial position of the marble.
+                allMarbleSpots.get(color)[i] = spotIndex;      // set initial position of the marble.
             }
         }
     }
@@ -282,13 +282,13 @@ public class Board
                     moveMarble(start.getSpotIndex(), end.getSpotIndex());
                     start.setProtectedMarble(false);
                     // if this is a valid start move, or a start move that bumps a marble,
-                    // then the marble/spot is protected.
+                    // then the ending marble/spot is protected.
                     boolean endProtected = (endType == SpotType.STARTINGSPOT
                                             && (   moveState == MoveState.VALID_MARBLE_START
                                                 || moveState == MoveState.VALID_MARBLE_BUMP)
                                            );
                     end.setProtectedMarble(endProtected);
-                    // update marble positions
+                    
                     i++;
                 }
             }
@@ -304,6 +304,67 @@ public class Board
             break;
         }
         
+        // if all the marbles this player was playing are now in homebase,
+        // and the flag for that color marble is not set, then we 
+        // just completed moving all this color into homebase.  
+        // If he has a partner, and both are not done, then he switches
+        // to moving his partner's marbles. If they're both done, the game
+        // is over.
+        // If he doesn't have a partner, completion means the game is over.
+        
+        // is player playing his own marbles?
+        Player player = turn.getPlayer();
+        MarbleColor playingColor = player.getPlayingColor();
+        MarbleColor ownColor     = player.getColor();
+        if (ownColor != playingColor)
+        {
+            // player has been playing his partner's marbles;
+            // if they're all in, game is over.
+            boolean allMarblesIn = areAllMarblesIn(playingColor);
+            if (allMarblesIn) { messager.message("info.gameOver"); }
+        }
+        else
+        {
+            // player has been playing his own marbles.
+            // since he just moved one, he wasn't done at the start of his turn.
+            // is he done now?
+            boolean allMarblesIn = areAllMarblesIn(ownColor);   // look at all the marble positions for this color
+            if (allMarblesIn)
+            {
+                // if he has no partner, the game is over
+                Player partner = player.getPartner();
+                if (partner == null)
+                { 
+                    // game is over
+                    messager.message("info.gameOver", player.getName());
+                }
+                else // we have to see if the partner's marbles are also all in.
+                {
+                    if (partner.getAllMarblesIn())
+                    {
+                        // game is over
+                        messager.message("info.gameOver", player.getName());
+                    }
+                    else
+                    {
+                        player.setAllMarblesIn(true); 
+                        messager.message("info.nowPlayingPartnersMarbles", player.getName(), player.getPartner().getName());
+                    }
+                }
+            }
+        }
+    }
+    
+    private boolean areAllMarblesIn(MarbleColor color)
+    {
+        int[] marbleSpots = allMarbleSpots.get(color);
+        int marblesIn = 0;
+        for (int spotIndex : marbleSpots)
+        {
+            Spot spot = allSpots[spotIndex];
+            if (spot.getSpotType() == SpotType.HOMEBASE) { marblesIn++; }
+        }
+        return (marblesIn == 4);
     }
     
     /**
@@ -364,8 +425,8 @@ public class Board
      */
     private void updateCurrentPosition(MarbleColor marbleColor, int previousIndex, int newIndex)
     {
-        int[] currentPositions = marbleSpots.get(marbleColor);
-        int positionIndex = getCurrentPositionsIndex(currentPositions, marbleColor, previousIndex);
+        int[] currentPositions = allMarbleSpots.get(marbleColor);
+        int positionIndex = getCurrentPositionIndex(currentPositions, previousIndex);
         currentPositions[positionIndex] = newIndex;
         say("Marble moved from %d to %d", previousIndex, newIndex);
     }
@@ -378,7 +439,7 @@ public class Board
      * @param index
      * @return
      */
-    private int getCurrentPositionsIndex(int[] currentPositions, MarbleColor color, int index)
+    private int getCurrentPositionIndex(int[] currentPositions, int index)
     {
         int j = 0;
         while (currentPositions[j] != index) { j++; if (j >= currentPositions.length) { break; }}

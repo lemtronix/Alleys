@@ -5,18 +5,27 @@ import java.util.List;
 
 public class Player implements Comparable<Player>
 {
-    private String name = "";
+    private String      name = "<unknown>";
     private MarbleColor color;
-    private MarbleColor partnerColor;
+    private Player      partner;
+//    private MarbleColor partnerColor;
+    
+    // set to true when all four marbles are in Homebase.
+    private boolean     allMarblesIn = false;   
+    
+    public void setAllMarblesIn(boolean b) { allMarblesIn = b; }
+    public boolean getAllMarblesIn() { return allMarblesIn; }
 
     private ArrayList<Card> cards = new ArrayList<>();
     
-    public Player(String name, MarbleColor color, MarbleColor partnerColor)
+    public Player(String name, MarbleColor color) // , Player partner)
     {
         this.name = name;
         this.color = color;
-        this.partnerColor = partnerColor;
     }
+    
+    public void setPartner(Player p) { partner = p; }
+    public Player getPartner() { return partner; }
     
     public String toString()
     {
@@ -40,8 +49,22 @@ public class Player implements Comparable<Player>
         return name;
     }
 
-    public MarbleColor getColor()    {        return color;    }
-    public MarbleColor getPartnerColor() { return partnerColor; }
+    public MarbleColor getColor()        { return color;    }
+    public MarbleColor getPartnerColor() { return partner.getColor(); }
+    
+    /**
+     * return the color being played by this player; if all his marbles
+     * are in and the game is a partnered game, then this color is his
+     * partner's color, otherwise his own color.
+     * @return
+     */
+    public MarbleColor getPlayingColor()
+    {
+        MarbleColor partnerColor = getPartnerColor();
+        if (allMarblesIn && (partnerColor != null)) 
+             { return partnerColor; }
+        else { return color; }
+    }
 
     public void addCard(Card dealtCard)
     {

@@ -2,7 +2,6 @@ package model;
 
 public class Card
 {
-    private static final int ORDINAL_OFFSET = 1;
     private CardValue _CardValue;
     private CardSuit _CardSuit;
 
@@ -34,6 +33,6 @@ public class Card
      */
     public String toString()
     {
-        return "" + _CardValue.name() + " of " + _CardSuit;
+        return "" + _CardValue.name() + " of " + _CardSuit.name();
     }
 }
