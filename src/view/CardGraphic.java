@@ -10,7 +10,7 @@ import model.Card;
 
 public class CardGraphic
 {
-    private static void say(String msg) { System.out.println(msg); }
+//    private static void say(String msg) { System.out.println(msg); }
     private static String baseImageDir  = "images/";
     private static String suffix        = ".gif";
     

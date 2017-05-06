@@ -6,7 +6,7 @@ import view.viewinterface.AlleysUI;
 
 public class AlleysGame implements Messager
 {
-    private static void say(String msg) { System.out.println(msg); }
+//    private static void say(String msg) { System.out.println(msg); }
 
     private AlleysUI        alleysUI;
     private Board           board;          public Board getBoard() { return board; }
@@ -84,9 +84,8 @@ public class AlleysGame implements Messager
         // first deal with the previous card if it's there
         Card previousCard = currentTurn.getCard();
         
-        // if we had a previous card, add it back to the player's hand.
-        // and on the UI, move that card back from the middle of the
-        // board to the player's hand on the UI.
+        // if we had a previous card, reverse the effects of
+        // it being chosen.
         if (previousCard != null) { unChooseCard(currentTurn, card); }
         
         // now we can set the marble in the turn
@@ -105,7 +104,7 @@ public class AlleysGame implements Messager
      * @param currentTurn
      * @param card
      */
-    public void unChooseCard(Turn currentTurn, Card card)
+    private void unChooseCard(Turn currentTurn, Card card)
     {
         currentTurn.setCard(null);
         currentTurn.getPlayer().addCard(card);
@@ -129,7 +128,7 @@ public class AlleysGame implements Messager
         }
         else
         {
-            currentTurn = currentTurn.validateMove(board, marbleSpot); 
+            currentTurn = currentTurn.validateMarbleMove(board, marbleSpot); 
             dispatchTurn(currentTurn);
         }
     }

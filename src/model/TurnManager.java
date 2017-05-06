@@ -21,7 +21,7 @@ public class TurnManager
     
     private Turn            currentTurn;    public Turn getCurrentTurn() { return currentTurn; }
     
-    private void say(String msg) { System.out.println(msg); }
+//    private void say(String msg) { System.out.println(msg); }
     
     public TurnManager(Messager messager, List<Player> players)
     {
