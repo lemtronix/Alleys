@@ -3,6 +3,7 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -11,12 +12,15 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
@@ -154,37 +158,47 @@ public class Alleys extends JFrame implements AlleysUI
     public int getMoveCount()
     {
         int moveCount = 0;
-        boolean finished = false;
-        while (!finished)
-        {
-            try 
-            { 
-                String moveCountString = (String) JOptionPane.showInputDialog
-                        (_BoardPanel, 
-                         "Enter number of spots to move this marble", 
-                         "Split Seven?", 
-                         JOptionPane.QUESTION_MESSAGE
-                        );
-                if (moveCountString == null)
-                {
-                    // user pressed cancel, what do we do now?
-                    message("info.cancelled7");
-                    moveCount = 0;
-                    finished = true;
-                }
-                else
-                {
-                    moveCount = Integer.parseInt(moveCountString);
-                    // no NFE, so we're done
-                    finished = true;
-                }
-            }
-            catch (NumberFormatException nfe)
-            {
-                message("error.count1to7");
-            }
-        }
+
+        JSlider slider = createSlider();
+        JPanel sliderPanel = createSliderPanel("info.howManySpotsFirstMarble", slider);
+        String title = messageBundle.getString("info.howManySpotsFirstMarbleTitle");
+        int dialogResponse = JOptionPane.showOptionDialog
+                (this,
+                 sliderPanel,
+                 title,
+                 JOptionPane.OK_CANCEL_OPTION,
+                 JOptionPane.QUESTION_MESSAGE,
+                 null, null, null
+                );
+        if (JOptionPane.OK_OPTION == dialogResponse) 
+             { moveCount = slider.getValue(); }
+        else { moveCount = 0; } // works for cancel button, red 'x', and keyboard escape key
+                
         return moveCount;
+    }
+            
+    private JSlider createSlider()
+    {
+        JSlider slider = new JSlider(1,7);
+        slider.setMajorTickSpacing(1);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+        slider.setValue(7);
+        
+        return slider;
+    }
+    
+    private JPanel createSliderPanel(String messageKey, JSlider slider)
+    {
+        String message = messageBundle.getString(messageKey);
+
+        JPanel panel = new JPanel();
+        BoxLayout layout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
+        panel.setLayout(layout);
+        panel.add(new Label(message));
+        panel.add(Box.createRigidArea(new Dimension(0,5)));
+        panel.add(slider);
+        return panel;
     }
     
     // we keep our messages in this resource bundle, and centralize how we put the text into
@@ -196,6 +210,13 @@ public class Alleys extends JFrame implements AlleysUI
     public void message(String messageKey)
     {
         String displayMessage;
+        String message = getMessage(messageKey);
+        displayMessage = String.format(TEXT_AREA_FORMAT, message);
+        messageTextArea.append(displayMessage);
+    }
+    
+    private String getMessage(String messageKey)
+    {
         String message;
         try 
         { 
@@ -205,8 +226,7 @@ public class Alleys extends JFrame implements AlleysUI
         { 
             message = "{" + messageKey + "}"; 
         } 
-        displayMessage = String.format(TEXT_AREA_FORMAT, message);
-        messageTextArea.append(displayMessage);
+        return message;
     }
     
     @Override
