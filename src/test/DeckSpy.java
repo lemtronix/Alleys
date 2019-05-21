@@ -5,14 +5,12 @@ import model.Deck;
 public class DeckSpy extends Deck
 {
 
-    @Override
-    public void ListCards()
+    public void ListCardsSpy()
     {
         super.ListCards();
     }
 
-    @Override
-    public int GetNumberOfAttemptsToClearDeck()
+    public int GetNumberOfAttemptsToClearDeckSpy()
     {
         return super.GetNumberOfAttemptsToClearDeck();
     }

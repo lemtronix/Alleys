@@ -40,8 +40,8 @@ public class DeckTest
             _Deck.GetRandomCard();
         }
 
-        boolean Result = (_Deck.GetNumberOfAttemptsToClearDeck() <= ExpectedNumberOfAttemptsLimit);
-        assertTrue("Deck exhausted in " + _Deck.GetNumberOfAttemptsToClearDeck() + " attempts.", Result);
+        boolean Result = (_Deck.GetNumberOfAttemptsToClearDeckSpy() <= ExpectedNumberOfAttemptsLimit);
+        assertTrue("Deck exhausted in " + _Deck.GetNumberOfAttemptsToClearDeckSpy() + " attempts.", Result);
     }
 }
 
