@@ -1,71 +1,72 @@
 package network;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.ConnectException;
-import java.net.Socket;
-import java.util.Date;
+// A Java program for a Client 
+import java.net.*;
+import java.io.*;
 
-public class AlleysClient {
+public class AlleysClient
+{
+    // initialize socket and input output streams
+    private Socket socket = null;
+    private BufferedReader input = null;
+    private PrintWriter out = null;
 
-	private static int _PortNumber;
-	private static String _IpAddress;
-	
-	public static void main(String[] args) throws Exception
-	{
-		if (args.length < 1)
-		{
-			System.err.println("You must specify an IP address to connect on.");
-			System.exit(1);
-		}
-		else if (args.length < 2)
-		{
-			System.err.println("You must specify a port to connect to.");
-			System.exit(1);
-		}
-		else
-		{
-		    try
-		    {
-		    	_IpAddress = args[0];
-		    	_PortNumber = Integer.parseInt(args[1]);
-		    }
-		    catch (NumberFormatException e)
-		    {
-		        System.err.println("Argument" + args[1] + " must be an integer.");
-		        System.exit(1);
-		    }
-		}
-		
-		Socket socket = null;
-		
-		try
-		{
-			socket = new Socket(_IpAddress, _PortNumber);
-			BufferedWriter writerChannel = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			BufferedReader readerChannel = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			String line;
-	
-			writerChannel.write(new Date().toString() + "\n\r");
-			writerChannel.flush();
-	
-			while ((line = readerChannel.readLine()) != null)
-			{
-				System.out.println(line);
-			}
-		}
-		catch(ConnectException e)
-		{
-			System.out.println("Server refused the connection request.");
-		}
-		finally
-		{
-			if (socket != null)
-			{
-				socket.close();
-			}
-		}
-	}
+    // constructor to put IP address and port
+    public AlleysClient(String address, int port)
+    {
+        // establish a connection
+        try
+        {
+            socket = new Socket(address, port);
+            System.out.println("Connected");
+
+            // takes input from terminal
+            input = new BufferedReader(new InputStreamReader(System.in));
+
+            // sends output to the socket
+            out = new PrintWriter(socket.getOutputStream(), true);
+        }
+        catch (UnknownHostException u)
+        {
+            System.out.println(u);
+        }
+        catch (IOException i)
+        {
+            System.out.println(i);
+        }
+
+        // string to read message from input
+        String line = "";
+
+        // keep reading until "Over" is input
+        while (!line.equals("Over"))
+        {
+            try
+            {
+                line = input.readLine();
+                out.println(line);
+            }
+            catch (IOException i)
+            {
+                System.out.println(i);
+            }
+        }
+
+        // close the connection
+        try
+        {
+            input.close();
+            out.close();
+            socket.close();
+        }
+        catch (IOException i)
+        {
+            System.out.println(i);
+        }
+    }
+
+    public static void main(String args[])
+    {
+        AlleysClient client = new AlleysClient("127.0.0.1", 5000);
+    }
 }

@@ -1,69 +1,62 @@
 package network;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Date;
+// A Java program for a Server 
+import java.net.*;
+import java.io.*;
 
 public class AlleysServer
 {
-	static private int _PortNumber;
-	
-	public static void main(String[] args) throws Exception
+    // initialize socket and input stream
+    private Socket socket = null;
+    private ServerSocket server = null;
+    private BufferedReader in = null;
+
+    // constructor with port
+    public AlleysServer(int port)
     {
-		if (args.length < 1)
-		{
-			_PortNumber = 4000;
-			System.out.println("No port specified, using default port of: " + _PortNumber);
-		}
-		else
-		{
-		    try
-		    {
-		    	_PortNumber = Integer.parseInt(args[0]);
-		    }
-		    catch (NumberFormatException e)
-		    {
-		        System.err.println("Argument" + args[0] + " must be an integer.");
-		        System.exit(1);
-		    }
-		}
-		
-        ServerSocket listener = new ServerSocket(_PortNumber);
-        
+        // starts server and waits for a connection
         try
         {
-            while (true)
+            server = new ServerSocket(port);
+            System.out.println("Server started.  Listening on port: " + port);
+            System.out.println("Waiting for a client ...");
+
+            socket = server.accept();
+            System.out.println("Client accepted");
+
+            // takes input from the client socket
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            String line = "";
+
+            // reads message from client until "Over" is sent
+            while (!line.equals("Over"))
             {
-            	String line;
-            	
-                Socket socket = listener.accept();
-                BufferedReader readerChannel = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                BufferedWriter writerChannel = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                
                 try
                 {
-                    writerChannel.write(new Date().toString() + "\n\r");
-                    writerChannel.flush();
+                    line = in.readLine();
+                    System.out.println(line);
 
-                    while ((line = readerChannel.readLine()) != null)
-                    {
-                        System.out.println(line);
-                    }
                 }
-                finally
+                catch (IOException i)
                 {
-                    socket.close();
+                    System.out.println(i);
                 }
             }
+            System.out.println("Closing connection");
+
+            // close connection
+            socket.close();
+            in.close();
         }
-        finally
+        catch (IOException i)
         {
-            listener.close();
+            System.out.println(i);
         }
     }
-}
 
+    public static void main(String args[])
+    {
+        AlleysServer server = new AlleysServer(5000);
+    }
+}
